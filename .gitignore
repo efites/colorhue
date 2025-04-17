@@ -1,0 +1,60 @@
+
+# Qt
+*.pro.user
+*.qmake.stash
+moc_*
+ui_*
+qrc_*
+
+# Игнорируем исполняемые и объектные файлы
+*.exe
+*.out
+*.bin
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.dylib
+
+# Игнорируем файлы сборки и отладки
+build/
+Debug/
+Release/
+x64/
+x86/
+.vs/
+*.sln
+*.vcxproj*
+*.user
+*.filters
+*.aps
+*.aps
+
+# Игнорируем временные файлы IDE и редакторов
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+*.bak
+
+# Игнорируем кэш CMake (если используется)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Игнорируем зависимости (если есть)
+deps/
+third_party/
+
+# Игнорируем логи и тестовые данные
+*.log
+*.tmp
+*.test
