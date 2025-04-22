@@ -1,6 +1,8 @@
 [package]
 name = "colorhue"
 version = "0.0.1"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
+eframe = "0.31"  # Фреймворк для создания окон
+egui = "0.31"    # GUI-библиотека
