@@ -1,35 +1,47 @@
-use eframe::egui;
+use slint::slint;
 
-fn main() -> Result<(), eframe::Error> {
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([400.0, 560.0])  // Размер окна
-            .with_decorations(true)            // Окно с рамкой
-            .with_transparent(true),           // Прозрачность для закругления углов
-        ..Default::default()
-    };
+slint! {
+    import { VerticalBox, Button } from "std-widgets.slint";
 
-    eframe::run_native(
-        "Моё Rust-приложение",
-        options,
-        Box::new(|_cc| Ok(Box::<MyApp>::default())), // Обратите внимание на Ok()!
-    )
+    export component App inherits Window {
+        in property <color> bg_color: #f0f0f0;
+        width: 300px;
+        height: 200px;
+        title: "Rust + Slint App";
+
+        callback next_color();
+
+        VerticalBox {
+            alignment: center;
+            Button {
+                text: "Сменить цвет";
+                clicked => {
+                    root.next_color();
+                }
+            }
+        }
+        background: bg_color;
+    }
 }
 
-#[derive(Default)]
-struct MyApp;
-
-impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // Закругление углов окна
-        ctx.style_mut(|style| {
-            //style.visuals.window_rounding = 10.0.into();  // Радиус 10px
-            style.visuals.window_corner_radius = 10.0.into();  // Радиус 10px
-        });
-
-        // Центральная панель с текстом
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Привет, Rust + egui!");
-        });
-    }
+fn main() {
+    let app = App::new().unwrap();
+    
+    let app_weak = app.as_weak();
+    app.on_next_color(move || {
+        let app = app_weak.unwrap();
+        let current = app.get_bg_color();
+        let new_color = if current == slint::Color::from_rgb_u8(0xf0, 0xf0, 0xf0) {
+            slint::Color::from_rgb_u8(0xff, 0x00, 0x00)  // Красный
+        } else if current == slint::Color::from_rgb_u8(0xff, 0x00, 0x00) {
+            slint::Color::from_rgb_u8(0x00, 0xff, 0x00)  // Зеленый
+        } else if current == slint::Color::from_rgb_u8(0x00, 0xff, 0x00) {
+            slint::Color::from_rgb_u8(0x00, 0x00, 0xff)  // Синий
+        } else {
+            slint::Color::from_rgb_u8(0xf0, 0xf0, 0xf0)  // Серый
+        };
+        app.set_bg_color(new_color);
+    });
+    
+    app.run().unwrap();
 }
