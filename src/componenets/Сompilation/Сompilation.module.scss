@@ -1,2 +1,37 @@
 .сompilation {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	row-gap: 15px;
+	column-gap: 20px;
+
+	padding: 15px 20px;
+	border-bottom: 1px solid var(--grey);
+}
+
+.set {
+	display: flex;
+	gap: 10px;
+}
+
+.cube {
+	height: 50px;
+	aspect-ratio: 1 / 1;
+	border-radius: 3px;
+	background: #c45c5c;
+}
+
+.rects {
+	flex: 1 1 auto;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: repeat(2, 1fr);
+	column-gap: 10px;
+	row-gap: 6px;
+}
+
+.rect {
+	display: block;
+	width: 100%;
+	border-radius: 3px;
+	background: #3da76e;
 }

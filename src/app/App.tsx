@@ -2,8 +2,7 @@ import React, {useState} from 'react'
 import {Solid} from '../pages'
 import {GlobalContext, IContex} from './contexts/Global'
 
-import '../shared/styles/null.scss'
-import '../shared/styles/colors.scss'
+import '../shared/styles/global.scss'
 
 export const App = () => {
 	const [mode, setMode] = useState<IContex['mode']>('solid')

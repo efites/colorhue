@@ -5,7 +5,7 @@ import {Mode} from 'src/app/contexts/Global'
 
 
 interface IProps {
-	name: Mode
+	name: Mode | 'pipette' | 'arrow-down' | 'combination-6' | 'combination-5' | 'combination-4' | 'combination-3' | 'combination-2' | 'combination-1'
 	className?: string
 }
 
