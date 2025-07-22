@@ -1,0 +1,29 @@
+.rainbow {
+	padding: 20px;
+	border-bottom: 1px solid var(--grey);
+}
+
+.model {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	border-radius: 7px;
+	border: 1px solid var(--black);
+	gap: 15px;
+	padding: 6px 35px 9px 9px;
+}
+
+.select {
+}
+
+.arrow {
+	position: absolute;
+	z-index: 1;
+	display: block;
+	right: 13px;
+	top: 50%;
+	width: 7px;
+	aspect-ratio: 7 / 4;
+	transform: translateY(-50%);
+}

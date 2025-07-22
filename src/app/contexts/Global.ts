@@ -1,23 +1,18 @@
 import {createContext} from 'react'
 
-
-type Mode = 'solid' | 'gradient'
+type Mode = 'gradient' | 'solid'
 
 interface IContex {
-	mode: Mode,
+	mode: Mode
 	setMode: (mode: Mode) => void
 }
 
 const initialGlobalContext: IContex = {
 	mode: 'solid',
-	setMode: () => { }
+	setMode: () => {},
 }
 
 const GlobalContext = createContext<IContex>(initialGlobalContext)
 
-export type {Mode, IContex}
-export {
-	GlobalContext,
-	initialGlobalContext,
-}
-
+export type {IContex, Mode}
+export {GlobalContext, initialGlobalContext}

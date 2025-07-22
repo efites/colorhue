@@ -1,4 +1,3 @@
-import {Solid} from './Solid/Solid'
+import {Layout} from './Layout/Layout'
 
-
-export {Solid}
+export {Layout}
