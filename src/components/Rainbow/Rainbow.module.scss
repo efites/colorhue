@@ -1,6 +1,13 @@
 .rainbow {
-	padding: 20px;
+	padding: 15px 0;
 	border-bottom: 1px solid var(--grey);
+}
+
+.panel {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 30px;
+	padding: 0 20px;
 }
 
 .model {
@@ -26,4 +33,259 @@
 	width: 7px;
 	aspect-ratio: 7 / 4;
 	transform: translateY(-50%);
+}
+
+.rotation {
+	display: flex;
+	align-items: center;
+
+	padding: 0 0 0 10px;
+	background-color: var(--grey);
+	border-radius: 6px;
+}
+
+.rotateIcon {
+	width: 16px;
+	height: 16px;
+	aspect-ratio: 1 / 1;
+
+	fill: var(--white);
+}
+
+.degrees {
+	width: calc(4ch + 3ch);
+	padding: 5px 10px;
+}
+.line {
+	position: relative;
+	height: 40px;
+	border-radius: 6px;
+	background: linear-gradient(90deg, var(--white), var(--grey));
+	margin: 0 20px 15px;
+}
+
+.picker {
+	position: absolute;
+	z-index: 1;
+	display: block;
+	left: 0;
+	bottom: 50%;
+	width: 30px;
+	height: 40px;
+	transform: translateX(-50%);
+}
+
+.cube{
+	aspect-ratio: 1 / 1;
+	width: 100%;
+	background-color: var(--white);
+	border-radius: 4px;
+	padding: 7px;
+}
+
+.color{
+	width: 100%;
+	height: 100%;
+	background-color: var(--black);
+}
+
+.triangle{
+	width: 0;
+	height: 0;
+	border-left: 15px solid transparent;
+	border-right: 15px solid transparent;
+	border-top: 13px solid var(--white);
+	border-radius: 4px;
+	margin-top: -2px;
+}
+
+
+.management {
+}
+
+.headline {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 20px;
+	margin-bottom: 5px;
+}
+
+.title {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.plus {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 30px;
+	height: 30px;
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+	background-color: var(--grey);
+	transition: background-color 0.3s ease;
+}
+
+.plusIcon {
+	width: 14px;
+	height: 14px;
+	aspect-ratio: 1 / 1;
+	fill: var(--white);
+}
+
+.stops {
+	max-height: calc(40px * 3);
+	overflow: auto;
+	margin: 0 7px 10px 0;
+}
+
+.stop {
+	display: flex;
+	height: 40px;
+	padding: 5px 8px 5px 20px;
+
+	@media (hover: hover) {
+		transition: background-color 0.15s ease;
+
+		&:hover {
+			background-color: var(--grey);
+		}
+	}
+}
+
+.stopColor {
+	background-color: var(--black);
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+}
+
+.position {
+	display: flex;
+	align-items: center;
+	border-radius: 6px;
+	background-color: var(--white);
+	margin-right: 5px;
+}
+
+.offset {
+	width: calc(3ch * 2);
+	padding: 6px 10px;
+}
+
+.static {
+	padding: 0 8px 0 0;
+}
+
+.modelMargin {
+	margin-right: 5px;
+}
+
+.stopColor {
+	margin-right: 5px;
+}
+
+.codeWrapper {
+	flex: 1 1 auto;
+	background-color: var(--white);
+	border-bottom-left-radius: 6px;
+	border-top-left-radius: 6px;
+	margin-right: 1px;
+}
+
+.code {
+	width: 100%;
+	padding: 6px 10px;
+}
+
+.percentages {
+	display: flex;
+	align-items: center;
+	border-top-right-radius: 6px;
+	border-bottom-right-radius: 6px;
+	background-color: var(--white);
+	margin-right: 7px;
+}
+
+.opacity {
+	width: calc(3ch * 2);
+	padding: 6px 10px;
+}
+
+.minus {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 30px;
+	height: 30px;
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+	background-color: var(--white);
+	transition: background-color 0.3s ease;
+}
+
+.minusIcon {
+	width: 14px;
+	height: 14px;
+	aspect-ratio: 1 / 1;
+	fill: var(--grey);
+}
+
+
+.language {
+	position: relative;
+	margin: 0 20px;
+
+	@media (hover: hover) {
+
+		&:hover {
+			.copyCode {
+				opacity: 1;
+			}
+		}
+	}
+}
+
+.codeData {
+	display: block;
+	padding: 10px;
+	border-radius: 6px;
+	font-size: 14px;
+	background-color: var(--grey);
+	color: var(--white);
+}
+
+.copy {
+	position: absolute;
+	z-index: 1;
+	display: block;
+	left: 0;
+	top: 0;
+	aspect-ratio: 1 / 1;
+}
+
+.copyCode {
+	opacity: 0;
+	position: absolute;
+	z-index: 1;
+	display: flex;
+	right: 2px;
+	top: 2px;
+	justify-content: center;
+	align-items: center;
+	aspect-ratio: 1 / 1;
+	width: 30px;
+	height: 30px;
+	border-radius: 6px;
+	background-color: var(--black);
+
+	transition: opacity 0.1s ease;
+}
+
+.copyCodeIcon {
+	aspect-ratio: 1 / 1;
+	width: 14px;
+	height: 14px;
+	fill: var(--white)
 }

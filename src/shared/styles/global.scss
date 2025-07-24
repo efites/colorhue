@@ -1,2 +1,8 @@
 @use 'null.scss';
 @use 'colors.scss';
+
+// For Firefox
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--grey) transparent;
+}

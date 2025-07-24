@@ -15,7 +15,10 @@ interface IProps {
 		| 'combination-4'
 		| 'combination-5'
 		| 'combination-6'
+		| 'minus'
 		| 'pipette'
+		| 'plus'
+		| 'sync'
 		| Mode
 }
 
