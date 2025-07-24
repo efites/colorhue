@@ -1,4 +1,4 @@
-import {app, BrowserWindow} from 'electron'
+import {app, BrowserWindow, ipcMain} from 'electron'
 import started from 'electron-squirrel-startup'
 import path from 'node:path'
 
@@ -7,13 +7,40 @@ if (started) {
 	app.quit()
 }
 
+let mainWindow: BrowserWindow
+
+ipcMain.on('window-action', (_, action) => {
+  if (!mainWindow) return
+
+  switch(action) {
+    case 'minimize':
+      mainWindow.minimize()
+      break
+    case 'maximize':
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize()
+      } else {
+        mainWindow.maximize()
+      }
+      break
+    case 'close':
+      mainWindow.close()
+      break
+    case 'hide':
+      mainWindow.hide()
+      break
+  }
+})
+
 const createWindow = () => {
 	// Create the browser window.
-	const mainWindow = new BrowserWindow({
+	mainWindow = new BrowserWindow({
 		width: 1200,
 		height: 800,
-		opacity: 1,
+		transparent: true,
+		frame: false
 	})
+	mainWindow.setBackgroundMaterial('tabbed')
 
 	// and load the index.html of the app.
 	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {

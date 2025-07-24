@@ -1,7 +1,7 @@
 import React, {use} from 'react'
 
 import {GlobalContext} from '../../app/contexts/Global'
-import {Header, History, Main, Rainbow, Сompilation} from '../../components/index'
+import {Header, History, Main, Panel, Rainbow, Сompilation} from '../../components/index'
 
 import styles from './Layout.module.scss'
 
@@ -10,6 +10,7 @@ export const Layout = () => {
 
 	return (
 		<div className={styles.solid}>
+			<Panel />
 			<Header />
 			<Main />
 			{mode === 'solid' && <Сompilation />}

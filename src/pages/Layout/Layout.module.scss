@@ -5,7 +5,8 @@
 	width: 440px;
 	//height: 780px;
 
-	background-color: var(--bg);
+	background: var(--bg);
+	backdrop-filter: blur(15px);
 	border-radius: 15px;
 	overflow: hidden;
 }
