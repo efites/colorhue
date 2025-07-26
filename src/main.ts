@@ -7,40 +7,44 @@ if (started) {
 	app.quit()
 }
 
-let mainWindow: BrowserWindow
+let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('window-action', (_, action) => {
-  if (!mainWindow) return
+ipcMain.on('minimize-window', () => {
+	if (mainWindow) {
+		mainWindow.minimize();
+	}
+});
 
-  switch(action) {
-    case 'minimize':
-      mainWindow.minimize()
-      break
-    case 'maximize':
-      if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize()
-      } else {
-        mainWindow.maximize()
-      }
-      break
-    case 'close':
-      mainWindow.close()
-      break
-    case 'hide':
-      mainWindow.hide()
-      break
-  }
-})
+// Обработчик IPC для изменения размера окна
+ipcMain.on('resize-window', (event, width, height) => {
+	if (mainWindow) {
+		mainWindow.setSize(width, height);
+	}
+});
+
+// Обработчик IPC для закрытия окна
+ipcMain.on('close-window', () => {
+	if (mainWindow) {
+		mainWindow.close();
+	}
+});
 
 const createWindow = () => {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1200,
-		height: 800,
+		width: 600,
+		height: 700,
 		transparent: true,
-		frame: false
+		frame: false,
+		resizable: true, // Запрещаем пользователю изменять размеры
+		useContentSize: true, // Размеры окна будут основаны на размерах контента
+		backgroundMaterial: 'acrylic', // или 'blurbehind'
+		webPreferences: {
+			preload: path.join(__dirname, 'preload.js'), // путь к вашему preload-скрипту
+			contextIsolation: true,
+			nodeIntegration: false,
+		}
 	})
-	mainWindow.setBackgroundMaterial('tabbed')
 
 	// and load the index.html of the app.
 	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -50,7 +54,7 @@ const createWindow = () => {
 	}
 
 	// Open the DevTools.
-	if (import.meta.env.VITE_MODE === 'dev') {
+	if (process.env.VITE_MODE === 'dev') {
 		mainWindow.webContents.openDevTools()
 	}
 }
