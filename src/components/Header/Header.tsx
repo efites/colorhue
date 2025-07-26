@@ -1,9 +1,10 @@
 import clsx from 'clsx'
 import React, {use} from 'react'
 
-import type { Mode} from '../../app/contexts/Global';
+import type {Mode} from '../../app/contexts/Global'
 
 import {GlobalContext} from '../../app/contexts/Global'
+import {useWindowResize} from '../../app/hooks/useWindowResize'
 import Icon from '../Icon/Icon'
 
 import styles from './Header.module.scss'
@@ -12,6 +13,12 @@ const buttons: Mode[] = ['solid', 'gradient'] as const
 
 export const Header = () => {
 	const {mode, setMode} = use(GlobalContext)
+	const {resize} = useWindowResize()
+
+	const changeModeHandler = (mode: Mode) => {
+		setMode(mode)
+		resize()
+	}
 
 	return (
 		<header className={styles.header}>
@@ -22,7 +29,7 @@ export const Header = () => {
 							key={button}
 							className={clsx(styles.button, button === mode && styles.active)}
 							type='button'
-							onClick={() => setMode(button)}>
+							onClick={() => changeModeHandler(button)}>
 							<Icon
 								className={clsx(
 									styles.icon,
@@ -35,7 +42,14 @@ export const Header = () => {
 					)
 				})}
 			</div>
-			<div className={styles.modeBox}>SAVE</div>
+			<div className={styles.modeBox}>
+				<button className={clsx(styles.action, styles.import)} type='button'>
+					Import
+				</button>
+				<button className={clsx(styles.action, styles.export)} type='button'>
+					Save as
+				</button>
+			</div>
 		</header>
 	)
 }

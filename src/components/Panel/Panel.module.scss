@@ -6,8 +6,9 @@
 }
 
 .title {
-	font-size: 24px;
+	font-size: 21px;
 	margin-left: 20px;
+	-webkit-app-region: no-drag;
 }
 
 .actions {
@@ -21,9 +22,8 @@
 	justify-content: center;
 	align-items: center;
 	aspect-ratio: 1 / 1;
-	width: 40px;
-	height: 40px;
-	background-color: var(--grey);
+	width: 45px;
+	height: 45px;
 	-webkit-app-region: no-drag;
 }
 

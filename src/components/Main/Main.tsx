@@ -62,7 +62,7 @@ export const Main = () => {
 							<button className={styles.combination} type='button'>
 								<Icon className={styles.combinationIcon} name='combination-1' />
 							</button>
-							<button className={styles.combination} type='button'>
+							<button className={clsx(styles.combination, styles.active)} type='button'>
 								<Icon className={styles.combinationIcon} name='combination-2' />
 							</button>
 							<button className={styles.combination} type='button'>

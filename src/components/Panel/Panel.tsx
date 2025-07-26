@@ -22,7 +22,7 @@ export const Panel = () => {
 				<Icon className={styles.icon} name='minus' />
 			</button>
 			<button className={styles.button} type='button' onClick={() => closeHandler()}>
-				<Icon className={styles.icon} name='plus' />
+				<Icon className={styles.icon} name='close' />
 			</button>
 		</div>
 	</div>

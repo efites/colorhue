@@ -8,7 +8,7 @@ import styles from './Layout.module.scss'
 
 export const Layout = () => {
 	const {mode} = use(GlobalContext)
-	const contentRef = useWindowResize()
+	const {contentRef} = useWindowResize()
 
 	return (
 		<div ref={contentRef} className={styles.solid}>

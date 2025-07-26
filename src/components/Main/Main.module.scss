@@ -1,6 +1,6 @@
 .main {
 	padding: 20px;
-	border-bottom: 1px solid var(--grey);
+	border-bottom: 1px solid var(--light-black);
 }
 
 .selection {
@@ -12,7 +12,7 @@
 .circle {
 	aspect-ratio: 1 / 1;
 	border-radius: 5px;
-	background: var(--grey);
+	background: var(--light-black);
 }
 
 .windows {
@@ -24,7 +24,7 @@
 .window {
 	aspect-ratio: 1 / 1;
 	border-radius: 5px;
-	background: var(--grey);
+	background: var(--light-black);
 }
 
 .screenshot {
@@ -63,13 +63,27 @@
 	width: 30px;
 	height: 30px;
 	border-radius: 4px;
-	background-color: var(--grey);
+	//background-color: var(--grey);
+
+	@media (hover: hover) {
+		transition: background-color 0.1s ease;
+
+		&:hover {
+			background-color: var(--light-black);
+
+			.pipetteIcon {
+				fill: var(--white);
+			}
+		}
+	}
 }
 
 .pipetteIcon {
-	width: 20px;
-	height: 20px;
-	fill: var(--white);
+	width: 18px;
+	height: 18px;
+	fill: var(--black);
+
+	transition: fill 0.1s ease;
 }
 
 .sliders {
@@ -89,9 +103,24 @@
 }
 
 .rainbow {
+	background: linear-gradient(
+		90deg,
+		#ff0000,
+		#ff7f00,
+		#ffff00,
+		#00ff00,
+		#00ffff,
+		#0000ff,
+		#8b00ff,
+		#ff0000,
+	);
 }
 
 .rgba {
+	background-image: url('../../shared/images/grid.svg');
+	background-repeat: repeat;
+	background-position: 0 0;
+	background-size: auto;
 }
 
 .inputs {
@@ -105,7 +134,7 @@
 	align-items: center;
 	justify-content: space-between;
 	border-radius: 7px;
-	border: 1px solid var(--black);
+	border: 1px solid var(--light-black);
 	gap: 15px;
 	padding: 6px 35px 9px 9px;
 }
@@ -122,6 +151,7 @@
 	width: 7px;
 	aspect-ratio: 7 / 4;
 	transform: translateY(-50%);
+	fill: var(--light-black)
 }
 
 .codes {
@@ -147,14 +177,14 @@
 	border-bottom-left-radius: 6px;
 	font-size: 14px;
 	color: var(--black);
-	background-color: var(--light-grey);
+	background-color: var(--grey);
 }
 
 .percentages {
 	height: 100%;
 	display: inline-flex;
 	align-items: center;
-	background-color: var(--light-grey);
+	background-color: var(--grey);
 }
 
 .opacity {
@@ -213,8 +243,19 @@
 	aspect-ratio: 1 / 1;
 	border-radius: 50%;
 	padding: 4px;
-
 	background-color: var(--grey);
+
+	&.active {
+		background-color: var(--light-black);
+	}
+
+	@media (hover: hover) {
+		transition: background-color 0.1s ease;
+
+		&:hover {
+			background-color: var(--light-black);
+		}
+	}
 }
 
 .combinationIcon {

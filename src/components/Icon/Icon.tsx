@@ -9,6 +9,8 @@ interface IProps {
 	className?: string
 	name:
 		| 'arrow-down'
+		| 'clipboard'
+		| 'close'
 		| 'combination-1'
 		| 'combination-2'
 		| 'combination-3'

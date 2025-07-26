@@ -19,7 +19,7 @@ export const Rainbow = ({}: IProps) => {
 			</div>
 			<div className={styles.rotation}>
 				<Icon className={styles.rotateIcon} name='sync' />
-				<input className={styles.degrees} type="text" value={'359^'} />
+				<input className={styles.degrees} type="text" value={'359°'} />
 			</div>
 		</div>
 		<div className={styles.line}>
@@ -68,7 +68,7 @@ export const Rainbow = ({}: IProps) => {
 			<div className={styles.language}>
 				<code className={styles.codeData}>padding: 5px 8px 5px 20px;</code>
 				<button className={styles.copyCode} type='button'>
-					<Icon className={styles.copyCodeIcon} name='minus' />
+					<Icon className={styles.copyCodeIcon} name='clipboard' />
 				</button>
 			</div>
 		</div>
