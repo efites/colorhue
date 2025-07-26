@@ -18,7 +18,7 @@ export const useWindowResize = () => {
 	}, [])
 
 	useEffect(() => {
-		resizeObserverRef.current = new ResizeObserver((entries) => {
+		resizeObserverRef.current = new ResizeObserver(entries => {
 			for (const entry of entries) {
 				const {width, height} = entry.contentRect
 				const windowWidth = Math.ceil(width)
@@ -48,6 +48,6 @@ export const useWindowResize = () => {
 
 	return {
 		contentRef,
-		resize
+		resize,
 	}
 }

@@ -29,7 +29,7 @@ const path = '/src/shared/images/sprite.svg'
 const Icon = ({name, className = ''}: IProps) => {
 	return (
 		<svg className={clsx(styles.base, styles[name], !!className && className)}>
-			<use href={`${path  }#${  name}`}></use>
+			<use href={`${path}#${name}`}></use>
 		</svg>
 	)
 }

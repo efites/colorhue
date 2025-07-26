@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-import type { IContex} from './contexts/Global';
+import type {IContex} from './contexts/Global'
 
 import {Layout} from '../pages'
 import {GlobalContext} from './contexts/Global'

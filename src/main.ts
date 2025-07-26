@@ -4,7 +4,6 @@ import started from 'electron-squirrel-startup'
 import path from 'node:path'
 import process from 'node:process'
 
-
 config()
 
 if (started) {
@@ -21,7 +20,6 @@ ipcMain.on('minimize-window', () => {
 
 ipcMain.on('resize-window', (event, width, height) => {
 	if (mainWindow) {
-		console.log('resize')
 		mainWindow.setSize(width, height)
 	}
 })
@@ -44,7 +42,7 @@ const createWindow = () => {
 			preload: path.join(__dirname, 'preload.js'),
 			contextIsolation: true,
 			nodeIntegration: false,
-		}
+		},
 	})
 
 	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {

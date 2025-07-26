@@ -7,6 +7,7 @@
   },
   "main": ".vite/build/main.js",
   "scripts": {
+    "prepare": "husky",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "build": "electron-forge make",

@@ -2,8 +2,6 @@ import React from 'react'
 
 import styles from './Pin.module.scss'
 
-interface IProps {}
-
-export const Pin = ({}: IProps) => {
+export const Pin = () => {
 	return <div className={styles.pin}></div>
 }
