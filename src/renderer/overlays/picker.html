@@ -122,14 +122,17 @@
 		<script>
 			const {ipcRenderer} = require('electron')
 
-			console.log('script loaded')
-
 			window.electronAPI = {
-				sendColor: (x, y) => ipcRenderer.send('send-color', x, y),
+				captureArea: (x, y) => ipcRenderer.send('capture-area', x, y),
 			}
 
-			document.addEventListener('click', e => {
-				window.electronAPI.sendColor(e.screenX, e.screenY)
+			document.addEventListener('click', async (event) => {
+				try {
+					const {screenX: x, screenY: y} = event
+					const result = await ipcRenderer.send('capture-area', x, y);
+				} catch (error) {
+					console.error('Error:', error)
+				}
 			})
 
 			document.addEventListener('mousemove', updatePipettePosition)
@@ -138,6 +141,7 @@
 			const offsetX = 15
 			const offsetY = 15
 			const safetyMargin = 20
+
 			pipette.style.transition = 'transform 0.3s ease'
 
 			// Для демонстрации опасных зон (можно удалить)

@@ -1,4 +1,4 @@
-import {BrowserWindow,desktopCapturer, ipcMain, nativeImage, screen} from 'electron'
+import {BrowserWindow, desktopCapturer, ipcMain, nativeImage, screen} from 'electron'
 import {writeFileSync} from 'node:fs'
 import path from 'node:path'
 
@@ -65,7 +65,7 @@ const captureAreaAroundClick = async (x: number, y: number, size = 50) => {
 		height: captureHeight,
 		show: false,
 		frame: false,
-		skipTaskbar: true
+		skipTaskbar: true,
 	})
 
 	try {
@@ -74,7 +74,7 @@ const captureAreaAroundClick = async (x: number, y: number, size = 50) => {
 			x: Math.max(0, displayX - halfSize),
 			y: Math.max(0, displayY - halfSize),
 			width: captureWidth,
-			height: captureHeight
+			height: captureHeight,
 		})
 
 		writeFileSync(path.join(__dirname, 'screenshot.png'), img.toPNG())
@@ -86,67 +86,135 @@ const captureAreaAroundClick = async (x: number, y: number, size = 50) => {
 }
 
 const getColorAtPoint = async (x: number, y: number): Promise<string> => {
-	const display = screen.getDisplayNearestPoint({ x, y });
+	const display = screen.getDisplayNearestPoint({x, y})
 
-    // Получаем точные координаты относительно дисплея
-    const displayX = x - display.bounds.x;
-    const displayY = y - display.bounds.y;
+	// Получаем точные координаты относительно дисплея
+	const displayX = x - display.bounds.x
+	const displayY = y - display.bounds.y
 
-    // Создаем временное окно для захвата
-    const captureWindow = new BrowserWindow({
-        x: display.bounds.x,
-        y: display.bounds.y,
-        width: 1,
-        height: 1,
-        show: false,
-        frame: false,
-        transparent: true,
-        skipTaskbar: true
-    });
+	// Создаем временное окно для захвата
+	const captureWindow = new BrowserWindow({
+		x: display.bounds.x,
+		y: display.bounds.y,
+		width: 1,
+		height: 1,
+		show: false,
+		frame: false,
+		transparent: true,
+		skipTaskbar: true,
+	})
 
-    try {
-        await captureWindow.loadURL('about:blank');
+	try {
+		await captureWindow.loadURL('about:blank')
 
-        // Захватываем 1x1 пиксель вокруг целевой точки
-        const img = await captureWindow.capturePage({
-            x: displayX,
-            y: displayY,
-            width: 1,
-            height: 1
-        });
+		// Захватываем 1x1 пиксель вокруг целевой точки
+		const img = await captureWindow.capturePage({
+			x: displayX,
+			y: displayY,
+			width: 1,
+			height: 1,
+		})
 
-        const bitmap = img.toBitmap();
+		const bitmap = img.toBitmap()
 
-        // Формат данных: [B, G, R, A] для каждого пикселя
-        const blue = bitmap[0];
-        const green = bitmap[1];
-        const red = bitmap[2];
+		// Формат данных: [B, G, R, A] для каждого пикселя
+		const blue = bitmap[0]
+		const green = bitmap[1]
+		const red = bitmap[2]
 
-        return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
-    } finally {
-        captureWindow.destroy();
-    }
+		return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`
+	} finally {
+		captureWindow.destroy()
+	}
+}
+
+async function captureArea(x: number, y: number): Promise<string> {
+	const display = screen.getDisplayNearestPoint({x, y})
+	const {bounds} = display
+
+	// Вычисляем координаты относительно дисплея
+	const displayX = x - bounds.x
+	const displayY = y - bounds.y
+
+	// Размер области захвата
+	const size = 50
+	const halfSize = Math.floor(size / 2)
+
+	// Вычисляем безопасные границы
+	const captureX = Math.max(0, displayX - halfSize)
+	const captureY = Math.max(0, displayY - halfSize)
+	const captureWidth = Math.min(size, bounds.width - captureX)
+	const captureHeight = Math.min(size, bounds.height - captureY)
+
+	// Получаем источники захвата
+	const sources = await desktopCapturer.getSources({
+		types: ['screen'],
+		thumbnailSize: display.size
+	})
+
+	// Находим нужный дисплей
+	const source = sources.find(s => s.display_id === `${display.id}`)
+	if (!source) throw new Error('Display not found')
+
+	// Создаем изображение и обрезаем нужную область
+	const img = nativeImage.createFromBuffer(source.thumbnail.toPNG())
+
+	writeFileSync(path.join(__dirname, 'screenshot.png'), img.toPNG())
+
+	return img.crop({
+		x: captureX,
+		y: captureY,
+		width: captureWidth,
+		height: captureHeight
+	}).toDataURL()
 }
 
 export const initPickColor = () => {
-	ipcMain.handle('pick-color', async () => {
-		return new Promise(resolve => {
-			const pickerWindow = createPickerWindow()
+	ipcMain.handle('open-picker', async () => {
+		return new Promise<string>(async (resolve) => {
+			let pickerWindow = createPickerWindow()
 
-			pickerWindow.loadFile('src/renderer/overlays/picker.html')
-			pickerWindow.webContents.executeJavaScript(`
-				document.body.addEventListener('click', (e) => {
-					window.electronAPI.sendColor(e.screenX, e.screenY);
-				});
-			`)
+			pickerWindow.loadFile('D:/Web/colorhue/src/renderer/overlays/picker.html')
 
-			ipcMain.once('send-color', async (_, x: number, y: number) => {
+			ipcMain.once('capture-area', async (_, x: number, y: number) => {
 				try {
-					// Получаем скриншот области вокруг клика
-					const area = await captureAreaAroundClick(x, y)
-					resolve({color: await getColorAtPoint(x, y), screenshot: area})
+					const display = screen.getDisplayNearestPoint({x, y})
+					const size = 100
+					const halfSize = Math.floor(size / 2)
+
+					const relX = x - display.bounds.x
+					const relY = y - display.bounds.y
+
+					const captureX = Math.max(0, relX - halfSize)
+					const captureY = Math.max(0, relY - halfSize)
+					const captureWidth = Math.min(size, display.bounds.width - captureX)
+					const captureHeight = Math.min(size, display.bounds.height - captureY)
+
+					const sources = await desktopCapturer.getSources({
+						types: ['screen'],
+						thumbnailSize: display.size
+					})
+
+					const source = sources.find(s => s.display_id === `${display.id}`)
+					if (!source) throw new Error('Display not found')
+
+					const img = nativeImage.createFromBuffer(source.thumbnail.toPNG())
+					const cropped = img.crop({
+						x: captureX,
+						y: captureY,
+						width: captureWidth,
+						height: captureHeight
+					})
+
+					writeFileSync(path.join(__dirname, 'screenshot.png'), cropped.toPNG())
+
+					resolve(cropped.toDataURL())
+				} catch (error) {
+					console.error('Error:', error)
+					resolve('')
 				} finally {
-					pickerWindow.close()
+					pickerWindow?.close()
+					pickerWindow = null
 				}
 			})
 		})

@@ -14,8 +14,8 @@ export const Main = () => {
 
 	const handlePickColor = async () => {
 		try {
-			const {color, image} = await window.electronAPI?.pickColor()
-
+			const result = await window.electronAPI?.openPicker()
+			console.log('result', result)
 			setImage(image ?? ScreenFallack)
 			setSelectedColor(color)
 		} catch (err) {
