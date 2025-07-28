@@ -16,16 +16,30 @@
 .action {
 	padding: 6px 10px;
 	border-radius: 6px;
+
+	transition: color 0.2s ease;
 }
 
 .import {
 	background-color: var(--grey);
-	color: var(--black);
+	color: var(--white);
+
+	@media (hover: hover) {
+		&:hover {
+			color: var(--light-black);
+		}
+	}
 }
 
 .export {
 	background-color: var(--blue);
 	color: var(--white);
+
+	@media (hover: hover) {
+		&:hover {
+			color: var(--light-black);
+		}
+	}
 }
 
 .button {
@@ -42,6 +56,12 @@
 
 	&.active {
 		background-color: var(--light-black);
+	}
+
+	@media (hover: hover) {
+		&:hover:not(.active) {
+			background-color: var(--grey);
+		}
 	}
 }
 

@@ -32,10 +32,10 @@ ipcMain.on('close-window', () => {
 
 const createWindow = () => {
 	mainWindow = new BrowserWindow({
-		width: 1000,
+		width: 1200,
 		height: 800,
-		transparent: true,
-		frame: false,
+		transparent: process.env.VITE_MODE !== 'dev',
+		frame: process.env.VITE_MODE === 'dev',
 		resizable: process.env.VITE_MODE === 'dev',
 		useContentSize: true,
 		webPreferences: {

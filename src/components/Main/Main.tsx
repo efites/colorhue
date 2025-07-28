@@ -12,7 +12,9 @@ export const Main = () => {
 	return (
 		<div className={styles.main}>
 			<div className={styles.selection}>
-				<div className={styles.circle}></div>
+				<div className={styles.wheel}>
+					<div className={styles.circle}></div>
+				</div>
 				<div className={styles.windows}>
 					<div className={clsx(styles.window, styles.screenshot)}></div>
 					<div className={clsx(styles.window, styles.brightness)}></div>

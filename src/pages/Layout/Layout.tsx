@@ -10,8 +10,10 @@ export const Layout = () => {
 	const {mode} = use(GlobalContext)
 	const {contentRef} = useWindowResize()
 
+	const isDevMode = import.meta.env.VITE_MODE === 'dev'
+
 	return (
-		<div ref={contentRef} className={styles.solid}>
+		<div ref={isDevMode ? undefined : contentRef} className={styles.solid}>
 			<Panel />
 			<Header />
 			<Main />

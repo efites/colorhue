@@ -25,6 +25,23 @@
 	width: 45px;
 	height: 45px;
 	-webkit-app-region: no-drag;
+	transition: background-color 0.2s ease;
+}
+
+.minimize {
+	@media (hover: hover) {
+		&:hover {
+			background-color: var(--grey);
+		}
+	}
+}
+
+.close {
+	@media (hover: hover) {
+		&:hover {
+			background-color: var(--red);
+		}
+	}
 }
 
 .icon {

@@ -9,10 +9,27 @@
 	gap: 15px;
 }
 
-.circle {
+.wheel {
 	aspect-ratio: 1 / 1;
 	border-radius: 5px;
 	background: var(--light-black);
+}
+
+.circle {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background: conic-gradient(
+		#ff0000,
+		#ff7f00,
+		#ffff00,
+		#00ff00,
+		#00ffff,
+		#0000ff,
+		#8b00ff,
+		#ff0000
+	);
 }
 
 .windows {
@@ -28,9 +45,13 @@
 }
 
 .screenshot {
+	border: 2px solid var(--light-black);
 }
 
 .brightness {
+	background:
+		linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(255, 255, 255, 0)),
+		linear-gradient(90deg, #ffffff, #ff0000);
 }
 
 .settings {
