@@ -5,7 +5,7 @@
   "author": {
     "name": "efites"
   },
-  "main": ".vite/build/main.js",
+  "main": ".vite/build/index.js",
   "scripts": {
     "prepare": "husky",
     "start": "electron-forge start",

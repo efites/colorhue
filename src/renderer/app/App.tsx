@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 
 import type {IContex} from './contexts/Global'
 
-import {Layout} from '../pages'
+import {Layout} from '../components'
 import {GlobalContext} from './contexts/Global'
 
 import '../shared/styles/global.scss'

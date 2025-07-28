@@ -18,10 +18,16 @@ export const Panel = () => {
 		<div className={styles.panel}>
 			<h1 className={styles.title}>Colorhue</h1>
 			<div className={styles.actions}>
-				<button className={clsx(styles.button, styles.minimize)} type='button' onClick={() => minimazeHandler()}>
+				<button
+					className={clsx(styles.button, styles.minimize)}
+					type='button'
+					onClick={() => minimazeHandler()}>
 					<Icon className={styles.icon} name='minus' />
 				</button>
-				<button className={clsx(styles.button, styles.close)} type='button' onClick={() => closeHandler()}>
+				<button
+					className={clsx(styles.button, styles.close)}
+					type='button'
+					onClick={() => closeHandler()}>
 					<Icon className={styles.icon} name='close' />
 				</button>
 			</div>

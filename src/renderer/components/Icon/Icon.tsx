@@ -1,7 +1,7 @@
-import type {Mode} from 'src/app/contexts/Global'
-
 import {clsx} from 'clsx'
 import React from 'react'
+
+import type {Mode} from '../../app/contexts/Global'
 
 import styles from './Icon.module.scss'
 
@@ -24,7 +24,7 @@ interface IProps {
 		| Mode
 }
 
-const path = '/src/shared/images/sprite.svg'
+const path = '/src/renderer/shared/images/sprite.svg'
 
 const Icon = ({name, className = ''}: IProps) => {
 	return (

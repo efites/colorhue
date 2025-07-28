@@ -2,7 +2,7 @@ import React, {use} from 'react'
 
 import {GlobalContext} from '../../app/contexts/Global'
 import {useWindowResize} from '../../app/hooks/useWindowResize'
-import {Header, History, Main, Panel, Rainbow, Сompilation} from '../../components/index'
+import {Header, History, Main, Panel, Rainbow, Сompilation} from '../index'
 
 import styles from './Layout.module.scss'
 

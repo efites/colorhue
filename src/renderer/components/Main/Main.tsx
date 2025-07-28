@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import React, {use} from 'react'
+import React, {use, useState} from 'react'
 
 import {GlobalContext} from '../../app/contexts/Global'
 import Icon from '../Icon/Icon'
@@ -8,6 +8,18 @@ import styles from './Main.module.scss'
 
 export const Main = () => {
 	const {mode} = use(GlobalContext)
+	const [selectedColor, setSelectedColor] = useState<string>('#FFFFFF')
+
+	const handlePickColor = async () => {
+		try {
+			const color = await window.electronAPI?.pickColor()
+			setSelectedColor(color)
+		} catch (err) {
+			console.error('Ошибка выбора цвета:', err)
+		}
+	}
+
+	console.log(selectedColor)
 
 	return (
 		<div className={styles.main}>
@@ -23,7 +35,7 @@ export const Main = () => {
 			<div className={clsx(styles.settings, mode === 'gradient' && styles.solid)}>
 				<div className={styles.indication}>
 					<div className={styles.gamma}>
-						<button className={styles.pipette} type='button'>
+						<button className={styles.pipette} type='button' onClick={handlePickColor}>
 							<Icon
 								className={clsx(styles.pipetteIcon, styles.active)}
 								name='pipette'
