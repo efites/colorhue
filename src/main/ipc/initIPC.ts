@@ -1,5 +1,4 @@
-import {initPanelHandlers} from './panel'
-import {initPickColor} from './pick-color'
+import {initPanelHandlers, initPickColor} from '.'
 
 export const initIPC = () => {
 	initPanelHandlers()

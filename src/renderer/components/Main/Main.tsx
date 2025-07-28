@@ -2,24 +2,25 @@ import clsx from 'clsx'
 import React, {use, useState} from 'react'
 
 import {GlobalContext} from '../../app/contexts/Global'
+import ScreenFallack from '../../shared/images/screen.png'
 import Icon from '../Icon/Icon'
 
 import styles from './Main.module.scss'
 
 export const Main = () => {
 	const {mode} = use(GlobalContext)
-	const [selectedColor, setSelectedColor] = useState<string>('#FFFFFF')
+	const [, setSelectedColor] = useState<string>('#FFFFFF')
+	const [image, setImage] = useState<string>(ScreenFallack)
 
 	const handlePickColor = async () => {
 		try {
-			const color = await window.electronAPI?.pickColor()
+			const {color, image} = await window.electronAPI?.pickColor()
+			setImage(image)
 			setSelectedColor(color)
 		} catch (err) {
 			console.error('Ошибка выбора цвета:', err)
 		}
 	}
-
-	console.log(selectedColor)
 
 	return (
 		<div className={styles.main}>
@@ -28,7 +29,14 @@ export const Main = () => {
 					<div className={styles.circle}></div>
 				</div>
 				<div className={styles.windows}>
-					<div className={clsx(styles.window, styles.screenshot)}></div>
+					<div className={clsx(styles.window, styles.screenshot)}>
+						<img
+							alt='screenshot'
+							className={styles.screen}
+							src={image}
+							onError={() => setImage(ScreenFallack)}
+						/>
+					</div>
 					<div className={clsx(styles.window, styles.brightness)}></div>
 				</div>
 			</div>

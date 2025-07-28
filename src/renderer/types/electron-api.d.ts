@@ -3,7 +3,7 @@ export {}
 declare global {
 	interface Window {
 		electronAPI?: {
-			pickColor: () => string | null
+			pickColor: () => {color: string; image: string}
 			minimizeWindow: () => void
 			closeWindow: () => void
 			resizeWindow: (width: number, height: number) => void
