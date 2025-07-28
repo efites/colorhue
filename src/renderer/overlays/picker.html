@@ -22,6 +22,10 @@
 			window.electronAPI = {
 				sendColor: (x, y) => ipcRenderer.send('send-color', x, y),
 			}
+
+			document.addEventListener('click', e => {
+				window.electronAPI.sendColor(e.screenX, e.screenY)
+			})
 		</script>
 	</body>
 </html>

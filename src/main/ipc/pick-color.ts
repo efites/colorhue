@@ -6,16 +6,16 @@ import path from 'node:path'
 
 import {createPickerWindow} from '../windows'
 
-const loadPickerOverlay = async (window: BrowserWindow) => {
+/* const loadPickerOverlay = async (window: BrowserWindow) => {
 	await window.loadFile('src/renderer/overlays/picker.html')
 	await window.webContents.executeJavaScript(`
 		document.body.addEventListener('click', (e) => {
 			window.electronAPI.sendColor(e.screenX, e.screenY);
 		});
 	`)
-}
+} */
 
-const captureScreen = async (width: number, height: number) => {
+/* const captureScreen = async (width: number, height: number) => {
 	const sources = await desktopCapturer.getSources({
 		types: ['screen'],
 		thumbnailSize: {width, height},
@@ -50,29 +50,67 @@ const waitForColorSelection = async (
 		})
 	})
 }
+ */
+const captureAreaAroundClick = async (x: number, y: number, size = 50) => {
+	const display = screen.getDisplayNearestPoint({x, y})
+	const sources = await desktopCapturer.getSources({
+		types: ['screen'],
+		thumbnailSize: display.size,
+	})
+
+	const screenshot = sources[0].thumbnail
+	const img = nativeImage.createFromBuffer(screenshot.toPNG())
+
+	// Вычисляем безопасные границы
+	const halfSize = size / 2
+	const left = Math.max(0, x - halfSize)
+	const top = Math.max(0, y - halfSize)
+	const right = Math.min(display.size.width, x + halfSize)
+	const bottom = Math.min(display.size.height, y + halfSize)
+
+	return img
+		.crop({
+			x: left,
+			y: top,
+			width: right - left,
+			height: bottom - top,
+		})
+		.toDataURL()
+}
+
+const getColorAtPoint = async (x: number, y: number) => {
+	const display = screen.getDisplayNearestPoint({x, y})
+	const sources = await desktopCapturer.getSources({
+		types: ['screen'],
+		thumbnailSize: display.size,
+	})
+
+	const img = nativeImage.createFromBuffer(sources[0].thumbnail.toPNG())
+	const pixelData = new Uint8Array(img.toBitmap())
+	const offset = (y * display.size.width + x) * 4
+
+	return `#${[
+		pixelData[offset].toString(16).padStart(2, '0'),
+		pixelData[offset + 1].toString(16).padStart(2, '0'),
+		pixelData[offset + 2].toString(16).padStart(2, '0'),
+	].join('')}`
+}
 
 export const initPickColor = () => {
 	ipcMain.handle('pick-color', async () => {
-		let pickerWindow: BrowserWindow | null = null
+		return new Promise(resolve => {
+			const pickerWindow = createPickerWindow()
 
-		try {
-			// Pipette
-			const {width, height} = screen.getPrimaryDisplay().workAreaSize
-			pickerWindow = createPickerWindow(width, height)
-
-			// Overlay
-			await loadPickerOverlay(pickerWindow)
-
-			// 3. Screenshot
-			const {screenshot, tempImagePath} = await captureScreen(width, height)
-
-			// 4. Whait for the color that has been picked
-			return await waitForColorSelection(screenshot, tempImagePath, width)
-		} catch (error) {
-			console.log(error)
-			throw error
-		} finally {
-			pickerWindow?.close()
-		}
+			ipcMain.once('send-color', async (_, x: number, y: number) => {
+				console.log('SEND_CO')
+				try {
+					// Получаем скриншот области вокруг клика
+					const area = await captureAreaAroundClick(x, y)
+					resolve({color: await getColorAtPoint(x, y), screenshot: area})
+				} finally {
+					pickerWindow.close()
+				}
+			})
+		})
 	})
 }
