@@ -1,6 +1,4 @@
-import type {BrowserWindow} from 'electron'
-
-import {desktopCapturer, ipcMain, nativeImage, screen} from 'electron'
+import {BrowserWindow,desktopCapturer, ipcMain, nativeImage, screen} from 'electron'
 import {writeFileSync} from 'node:fs'
 import path from 'node:path'
 
@@ -53,47 +51,81 @@ const waitForColorSelection = async (
  */
 const captureAreaAroundClick = async (x: number, y: number, size = 50) => {
 	const display = screen.getDisplayNearestPoint({x, y})
-	const sources = await desktopCapturer.getSources({
-		types: ['screen'],
-		thumbnailSize: display.size,
+	const displayX = x - display.bounds.x
+	const displayY = y - display.bounds.y
+
+	const halfSize = Math.floor(size / 2)
+	const captureWidth = Math.min(size, display.size.width - displayX)
+	const captureHeight = Math.min(size, display.size.height - displayY)
+
+	const captureWindow = new BrowserWindow({
+		x: display.bounds.x + Math.max(0, displayX - halfSize),
+		y: display.bounds.y + Math.max(0, displayY - halfSize),
+		width: captureWidth,
+		height: captureHeight,
+		show: false,
+		frame: false,
+		skipTaskbar: true
 	})
 
-	const screenshot = sources[0].thumbnail
-	const img = nativeImage.createFromBuffer(screenshot.toPNG())
-
-	// Вычисляем безопасные границы
-	const halfSize = size / 2
-	const left = Math.max(0, x - halfSize)
-	const top = Math.max(0, y - halfSize)
-	const right = Math.min(display.size.width, x + halfSize)
-	const bottom = Math.min(display.size.height, y + halfSize)
-
-	return img
-		.crop({
-			x: left,
-			y: top,
-			width: right - left,
-			height: bottom - top,
+	try {
+		await captureWindow.loadURL('about:blank')
+		const img = await captureWindow.capturePage({
+			x: Math.max(0, displayX - halfSize),
+			y: Math.max(0, displayY - halfSize),
+			width: captureWidth,
+			height: captureHeight
 		})
-		.toDataURL()
+
+		writeFileSync(path.join(__dirname, 'screenshot.png'), img.toPNG())
+
+		return img.toDataURL()
+	} finally {
+		captureWindow.destroy()
+	}
 }
 
-const getColorAtPoint = async (x: number, y: number) => {
-	const display = screen.getDisplayNearestPoint({x, y})
-	const sources = await desktopCapturer.getSources({
-		types: ['screen'],
-		thumbnailSize: display.size,
-	})
+const getColorAtPoint = async (x: number, y: number): Promise<string> => {
+	const display = screen.getDisplayNearestPoint({ x, y });
 
-	const img = nativeImage.createFromBuffer(sources[0].thumbnail.toPNG())
-	const pixelData = new Uint8Array(img.toBitmap())
-	const offset = (y * display.size.width + x) * 4
+    // Получаем точные координаты относительно дисплея
+    const displayX = x - display.bounds.x;
+    const displayY = y - display.bounds.y;
 
-	return `#${[
-		pixelData[offset].toString(16).padStart(2, '0'),
-		pixelData[offset + 1].toString(16).padStart(2, '0'),
-		pixelData[offset + 2].toString(16).padStart(2, '0'),
-	].join('')}`
+    // Создаем временное окно для захвата
+    const captureWindow = new BrowserWindow({
+        x: display.bounds.x,
+        y: display.bounds.y,
+        width: 1,
+        height: 1,
+        show: false,
+        frame: false,
+        transparent: true,
+        skipTaskbar: true
+    });
+
+    try {
+        await captureWindow.loadURL('about:blank');
+
+        // Захватываем 1x1 пиксель вокруг целевой точки
+        const img = await captureWindow.capturePage({
+            x: displayX,
+            y: displayY,
+            width: 1,
+            height: 1
+        });
+
+        const bitmap = img.toBitmap();
+
+        // Формат данных: [B, G, R, A] для каждого пикселя
+        const blue = bitmap[0];
+        const green = bitmap[1];
+        const red = bitmap[2];
+
+        return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
+    } finally {
+        captureWindow.destroy();
+    }
 }
 
 export const initPickColor = () => {
@@ -101,8 +133,14 @@ export const initPickColor = () => {
 		return new Promise(resolve => {
 			const pickerWindow = createPickerWindow()
 
+			pickerWindow.loadFile('src/renderer/overlays/picker.html')
+			pickerWindow.webContents.executeJavaScript(`
+				document.body.addEventListener('click', (e) => {
+					window.electronAPI.sendColor(e.screenX, e.screenY);
+				});
+			`)
+
 			ipcMain.once('send-color', async (_, x: number, y: number) => {
-				console.log('SEND_CO')
 				try {
 					// Получаем скриншот области вокруг клика
 					const area = await captureAreaAroundClick(x, y)

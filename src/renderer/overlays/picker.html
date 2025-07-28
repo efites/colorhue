@@ -2,18 +2,123 @@
 <html>
 	<head>
 		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				line-height: 1;
+			}
+
+			@font-face {
+				font-family: 'Inter';
+				src: url('../shared/fonts/Inter_24pt-Regular.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
+
 			body {
 				width: 100vw;
 				height: 100vh;
-				background: yellowgreen;
+				background: rgba(0, 0, 0, 0.2);
 				cursor: crosshair;
 				margin: 0;
 				padding: 0;
 				overflow: hidden;
+
+				font-family: 'Inter';
+			}
+
+			.pipitte {
+				position: fixed;
+				z-index: 1000;
+				display: inline-flex;
+				align-items: center;
+				gap: 15px;
+				min-width: 320px;
+				padding: 10px;
+				border-radius: 16px;
+				background-color: #8b878b;
+				pointer-events: none;
+			}
+
+			.column {
+				height: 100%;
+			}
+
+			.info {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.area {
+				width: 60px;
+				height: 60px;
+				aspect-ratio: 1 / 1;
+				border-radius: 6px;
+				background-color: #b35bb3;
+			}
+
+			.color {
+				display: flex;
+				align-items: center;
+				gap: 7px;
+			}
+
+			.cube {
+				width: 21px;
+				height: 21px;
+				aspect-ratio: 1 / 1;
+				border-radius: 4px;
+				background-color: #b35bb3;
+			}
+
+			.code {
+				font-size: 14px;
+			}
+
+			.note {
+				display: flex;
+				align-items: center;
+				gap: 7px;
+			}
+
+			.icon {
+				width: 21px;
+				height: 21px;
+				aspect-ratio: 1 / 1;
+			}
+
+			.description {
+				font-size: 14px;
+			}
+
+			.danger-zone {
+				position: fixed;
+				border: 1px dashed rgba(255, 0, 0, 0.2);
+				background: rgba(255, 0, 0, 0.05);
+				display: none;
 			}
 		</style>
 	</head>
 	<body>
+		<div id="pipette" class="pipitte">
+			<div class="column">
+				<div class="area"></div>
+			</div>
+			<div class="column info">
+				<div class="color">
+					<div class="cube"></div>
+					<h2 class="code">HSB 0, 0, 96</h2>
+				</div>
+				<div class="note">
+					<img src="../shared/images/click.svg" alt="click" class="icon" />
+					<h3 class="description">Click to sample</h3>
+				</div>
+			</div>
+		</div>
+		<div class="danger-zone" id="right-zone"></div>
+		<div class="danger-zone" id="bottom-zone"></div>
+
 		<script>
 			const {ipcRenderer} = require('electron')
 
@@ -26,6 +131,78 @@
 			document.addEventListener('click', e => {
 				window.electronAPI.sendColor(e.screenX, e.screenY)
 			})
+
+			document.addEventListener('mousemove', updatePipettePosition)
+
+			const pipette = document.getElementById('pipette')
+			const offsetX = 15
+			const offsetY = 15
+			const safetyMargin = 20
+			pipette.style.transition = 'transform 0.3s ease'
+
+			// Для демонстрации опасных зон (можно удалить)
+			const rightZone = document.getElementById('right-zone')
+			const bottomZone = document.getElementById('bottom-zone')
+
+			// Состояние смещения
+			let currentTranslateX = 0
+			let currentTranslateY = 0
+
+			// Размеры блока
+			const {width: pipetteWidth, height: pipetteHeight} = pipette.getBoundingClientRect()
+
+			function updatePipettePosition(e) {
+				// Основные координаты (справа снизу от курсора)
+				const baseLeft = e.clientX + offsetX
+				const baseTop = e.clientY + offsetY
+
+				// Опасные зоны (где блок может выйти за экран)
+				const rightDangerZone = window.innerWidth - pipetteWidth - safetyMargin
+				const bottomDangerZone = window.innerHeight - pipetteHeight - safetyMargin
+
+				// Показываем опасные зоны (для демонстрации)
+				rightZone.style.display = 'block'
+				rightZone.style.left = `${rightDangerZone}px`
+				rightZone.style.top = '0'
+				rightZone.style.width = `${window.innerWidth - rightDangerZone}px`
+				rightZone.style.height = `${window.innerHeight}px`
+
+				bottomZone.style.display = 'block'
+				bottomZone.style.left = '0'
+				bottomZone.style.top = `${bottomDangerZone}px`
+				bottomZone.style.width = `${window.innerWidth}px`
+				bottomZone.style.height = `${window.innerHeight - bottomDangerZone}px`
+
+				// Проверяем, находится ли курсор в опасной зоне справа
+				if (e.clientX > rightDangerZone) {
+					// Вычисляем насколько вошли в опасную зону (0-1)
+					const amount =
+						(e.clientX - rightDangerZone) / (window.innerWidth - rightDangerZone)
+					// Смещаем блок влево пропорционально
+					//currentTranslateX = -pipetteWidth * 0.8 * amount
+					currentTranslateX = -pipetteWidth - offsetX - safetyMargin
+				} else {
+					// Плавно возвращаем в исходное положение
+					currentTranslateX = 0
+				}
+
+				// Проверяем, находится ли курсор в опасной зоне снизу
+				if (e.clientY > bottomDangerZone) {
+					const amount =
+						(e.clientY - bottomDangerZone) / (window.innerHeight - bottomDangerZone)
+					//currentTranslateY = -pipetteHeight * 0.8 * amount
+					currentTranslateY = -pipetteHeight - offsetY - safetyMargin
+				} else {
+					currentTranslateY = 0
+				}
+
+				// Применяем трансформацию
+				pipette.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px)`
+
+				// Основная позиция блока
+				pipette.style.left = `${baseLeft}px`
+				pipette.style.top = `${baseTop}px`
+			}
 		</script>
 	</body>
 </html>

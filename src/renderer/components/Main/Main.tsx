@@ -9,18 +9,21 @@ import styles from './Main.module.scss'
 
 export const Main = () => {
 	const {mode} = use(GlobalContext)
-	const [, setSelectedColor] = useState<string>('#FFFFFF')
+	const [color, setSelectedColor] = useState<string>('#FFFFFF')
 	const [image, setImage] = useState<string>(ScreenFallack)
 
 	const handlePickColor = async () => {
 		try {
 			const {color, image} = await window.electronAPI?.pickColor()
-			setImage(image)
+
+			setImage(image ?? ScreenFallack)
 			setSelectedColor(color)
 		} catch (err) {
 			console.error('Ошибка выбора цвета:', err)
 		}
 	}
+
+	console.log(color, image)
 
 	return (
 		<div className={styles.main}>
