@@ -1,6 +1,4 @@
-import {BrowserWindow, desktopCapturer, ipcMain, nativeImage, screen} from 'electron'
-import {writeFileSync} from 'node:fs'
-import path from 'node:path'
+import {desktopCapturer, ipcMain, nativeImage, screen} from 'electron'
 
 import {createPickerWindow} from '../windows'
 
@@ -49,7 +47,7 @@ const waitForColorSelection = async (
 	})
 }
  */
-const captureAreaAroundClick = async (x: number, y: number, size = 50) => {
+/* const captureAreaAroundClick = async (x: number, y: number, size = 50) => {
 	const display = screen.getDisplayNearestPoint({x, y})
 	const displayX = x - display.bounds.x
 	const displayY = y - display.bounds.y
@@ -126,9 +124,9 @@ const getColorAtPoint = async (x: number, y: number): Promise<string> => {
 	} finally {
 		captureWindow.destroy()
 	}
-}
+} */
 
-async function captureArea(x: number, y: number): Promise<string> {
+/* async function captureArea(x: number, y: number): Promise<string> {
 	const display = screen.getDisplayNearestPoint({x, y})
 	const {bounds} = display
 
@@ -149,7 +147,7 @@ async function captureArea(x: number, y: number): Promise<string> {
 	// Получаем источники захвата
 	const sources = await desktopCapturer.getSources({
 		types: ['screen'],
-		thumbnailSize: display.size
+		thumbnailSize: display.size,
 	})
 
 	// Находим нужный дисплей
@@ -161,60 +159,80 @@ async function captureArea(x: number, y: number): Promise<string> {
 
 	writeFileSync(path.join(__dirname, 'screenshot.png'), img.toPNG())
 
-	return img.crop({
-		x: captureX,
-		y: captureY,
-		width: captureWidth,
-		height: captureHeight
-	}).toDataURL()
-}
+	return img
+		.crop({
+			x: captureX,
+			y: captureY,
+			width: captureWidth,
+			height: captureHeight,
+		})
+		.toDataURL()
+} */
 
 export const initPickColor = () => {
 	ipcMain.handle('open-picker', async () => {
-		return new Promise<string>(async (resolve) => {
-			let pickerWindow = createPickerWindow()
+		// eslint-disable-next-line no-async-promise-executor
+		return new Promise<{color: string, image: string}>(async resolve => {
+			const pickerWindow = createPickerWindow()
 
 			pickerWindow.loadFile('D:/Web/colorhue/src/renderer/overlays/picker.html')
 
 			ipcMain.once('capture-area', async (_, x: number, y: number) => {
 				try {
 					const display = screen.getDisplayNearestPoint({x, y})
-					const size = 100
-					const halfSize = Math.floor(size / 2)
-
 					const relX = x - display.bounds.x
 					const relY = y - display.bounds.y
 
-					const captureX = Math.max(0, relX - halfSize)
-					const captureY = Math.max(0, relY - halfSize)
-					const captureWidth = Math.min(size, display.bounds.width - captureX)
-					const captureHeight = Math.min(size, display.bounds.height - captureY)
-
+					// Захватываем 1x1 пиксель для определения цвета
 					const sources = await desktopCapturer.getSources({
 						types: ['screen'],
-						thumbnailSize: display.size
+						thumbnailSize: display.size,
 					})
 
 					const source = sources.find(s => s.display_id === `${display.id}`)
 					if (!source) throw new Error('Display not found')
 
 					const img = nativeImage.createFromBuffer(source.thumbnail.toPNG())
+					const bitmap = img.toBitmap()
+
+					// Формула для расчета позиции пикселя в bitmap
+					const pos = (Math.round(relY) * display.size.width + Math.round(relX)) * 4
+
+					// Получаем цвет (формат BGRA)
+					const [b, g, r] = [bitmap[pos], bitmap[pos + 1], bitmap[pos + 2]]
+
+					//const hexColor = '#123456'
+					const hexColor = [r, g, b].reduce((acc, value) => {
+						return acc += value.toString(16).padStart(2, '0')
+					}, '#')
+					/* const hexColor = `#${[r, g, b].map(c =>
+						c.toString(16).padStart(2, '0')
+        			}.join('')` */
+
+					// Захватываем область 50x50 (как раньше)
+					const size = 50
+					const halfSize = Math.floor(size / 2)
+					const captureX = Math.max(0, relX - halfSize)
+					const captureY = Math.max(0, relY - halfSize)
+					const captureWidth = Math.min(size, display.bounds.width - captureX)
+					const captureHeight = Math.min(size, display.bounds.height - captureY)
+
 					const cropped = img.crop({
 						x: captureX,
 						y: captureY,
 						width: captureWidth,
-						height: captureHeight
+						height: captureHeight,
 					})
 
-					writeFileSync(path.join(__dirname, 'screenshot.png'), cropped.toPNG())
-
-					resolve(cropped.toDataURL())
+					resolve({
+						image: cropped.toDataURL(),
+						color: hexColor,
+					})
 				} catch (error) {
 					console.error('Error:', error)
-					resolve('')
+					resolve({image: '', color: '#000000'})
 				} finally {
 					pickerWindow?.close()
-					pickerWindow = null
 				}
 			})
 		})

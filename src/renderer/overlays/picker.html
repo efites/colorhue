@@ -126,10 +126,10 @@
 				captureArea: (x, y) => ipcRenderer.send('capture-area', x, y),
 			}
 
-			document.addEventListener('click', async (event) => {
+			document.addEventListener('click', async event => {
 				try {
 					const {screenX: x, screenY: y} = event
-					const result = await ipcRenderer.send('capture-area', x, y);
+					const result = await ipcRenderer.send('capture-area', x, y)
 				} catch (error) {
 					console.error('Error:', error)
 				}

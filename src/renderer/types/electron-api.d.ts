@@ -3,8 +3,8 @@ export {}
 declare global {
 	interface Window {
 		electronAPI?: {
-			openPicker: () => void
-			captureArea: (x: number, y: number) => string,
+			openPicker: () => {color: string; image: string}
+			captureArea: (x: number, y: number) => string
 			pickColor: () => {color: string; image: string | undefined}
 			minimizeWindow: () => void
 			closeWindow: () => void
