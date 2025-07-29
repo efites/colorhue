@@ -1,12 +1,5 @@
 import {ipcRenderer} from 'electron'
 
-if (!window.electronAPI) {
-	// @ts-ignore
-	window.electronAPI = {}
-}
-if (!window.electronAPI.captureArea) {
-	window.electronAPI.captureArea = (x, y) => ipcRenderer.send('capture-area', x, y)
-}
 
 toggleFullScreen()
 
@@ -14,7 +7,7 @@ document.addEventListener('click', async event => {
 	try {
 		const {screenX: x, screenY: y} = event
 
-		await ipcRenderer.send('capture-area', x, y)
+		await ipcRenderer.send('send-color', x, y)
 	} catch (error) {
 		console.error('Error:', error)
 	}
@@ -44,6 +37,7 @@ function updatePipettePosition(e: MouseEvent) {
 
 	if (!animationFrameId) {
 		animationFrameId = requestAnimationFrame(processPipettePosition)
+		requestAnimationFrame(() => updatePreview(lastPosition.clientX, lastPosition.clientY))
 	}
 }
 
@@ -78,6 +72,25 @@ function processPipettePosition() {
 	}
 
 	animationFrameId = null
+}
+
+const preview = document.getElementById('preview') as HTMLImageElement
+let isRequesting = false
+
+async function updatePreview(x: number, y: number) {
+	if (isRequesting) return
+	isRequesting = true
+
+	try {
+		const imgData = await ipcRenderer.invoke('getAreaPreview', x, y)
+		if (imgData) {
+			preview.src = imgData
+			preview.style.left = `${x + 15}px`
+			preview.style.top = `${y + 15}px`
+		}
+	} finally {
+		isRequesting = false
+	}
 }
 
 function toggleFullScreen() {
