@@ -4,7 +4,7 @@ declare global {
 	interface Window {
 		electronAPI?: {
 			openPicker: () => {color: string; image: string}
-			captureArea: (x: number, y: number) => string
+			captureArea: (x: number, y: number) => void
 			pickColor: () => {color: string; image: string | undefined}
 			minimizeWindow: () => void
 			closeWindow: () => void

@@ -35,6 +35,11 @@ const config: ForgeConfig = {
 					config: 'vite.preload.config.ts',
 					target: 'preload',
 				},
+				{
+					entry: 'src/renderer/overlays/picker.ts',
+					config: 'vite.overlay.config.ts',
+					target: 'preload',
+				},
 			],
 			renderer: [
 				{

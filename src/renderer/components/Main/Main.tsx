@@ -23,7 +23,7 @@ export const Main = () => {
 		}
 	}
 
-	console.log(color, image)
+	console.log(color)
 
 	return (
 		<div className={styles.main}>
