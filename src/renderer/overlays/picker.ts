@@ -1,10 +1,15 @@
 import {ipcRenderer} from 'electron'
-//const {ipcRenderer} = require('electron')
 
-// @ts-ignore
-if (!window.electronAPI) window.electronAPI = {}
-if (!window.electronAPI.captureArea)
+
+if (!window.electronAPI) {
+	// @ts-ignore
+	window.electronAPI = {}
+}
+if (!window.electronAPI.captureArea) {
 	window.electronAPI.captureArea = (x, y) => ipcRenderer.send('capture-area', x, y)
+}
+
+toggleFullScreen()
 
 document.addEventListener('click', async event => {
 	try {
@@ -25,10 +30,6 @@ const safetyMargin = 20
 
 pipette.style.transition = 'transform 0.3s ease'
 
-// Для демонстрации опасных зон (можно удалить)
-const rightZone = document.getElementById('right-zone')
-const bottomZone = document.getElementById('bottom-zone')
-
 // Состояние смещения
 let currentTranslateX = 0
 let currentTranslateY = 0
@@ -36,40 +37,56 @@ let currentTranslateY = 0
 // Размеры блока
 const {width: pipetteWidth, height: pipetteHeight} = pipette.getBoundingClientRect()
 
+let lastPosition = {clientX: 0, clientY: 0}
+let animationFrameId: number | null = null
+
 function updatePipettePosition(e: MouseEvent) {
-	const baseLeft = e.clientX + offsetX
-	const baseTop = e.clientY + offsetY
+	lastPosition = {clientX: e.clientX, clientY: e.clientY}
+
+	if (!animationFrameId) {
+		animationFrameId = requestAnimationFrame(processPipettePosition)
+	}
+}
+
+function processPipettePosition() {
+	const {clientX, clientY} = lastPosition
+	const baseLeft = clientX + offsetX
+	const baseTop = clientY + offsetY
 
 	const rightDangerZone = window.innerWidth - pipetteWidth - safetyMargin
 	const bottomDangerZone = window.innerHeight - pipetteHeight - safetyMargin
 
-	// Can delete
-	rightZone.style.display = 'block'
-	rightZone.style.left = `${rightDangerZone}px`
-	rightZone.style.top = '0'
-	rightZone.style.width = `${window.innerWidth - rightDangerZone}px`
-	rightZone.style.height = `${window.innerHeight}px`
+	let newTranslateX = 0
+	let newTranslateY = 0
 
-	bottomZone.style.display = 'block'
-	bottomZone.style.left = '0'
-	bottomZone.style.top = `${bottomDangerZone}px`
-	bottomZone.style.width = `${window.innerWidth}px`
-	bottomZone.style.height = `${window.innerHeight - bottomDangerZone}px`
-
-	if (e.clientX > rightDangerZone) {
-		currentTranslateX = -pipetteWidth - offsetX - safetyMargin
-	} else {
-		currentTranslateX = 0
+	if (clientX > rightDangerZone) {
+		newTranslateX = -pipetteWidth - offsetX - safetyMargin
 	}
 
-	if (e.clientY > bottomDangerZone) {
-		currentTranslateY = -pipetteHeight - offsetY - safetyMargin
-	} else {
-		currentTranslateY = 0
+	if (clientY > bottomDangerZone) {
+		newTranslateY = -pipetteHeight - offsetY - safetyMargin
 	}
 
-	pipette.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px)`
+	if (newTranslateX !== currentTranslateX || newTranslateY !== currentTranslateY) {
+		currentTranslateX = newTranslateX
+		currentTranslateY = newTranslateY
+		pipette.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px)`
+	}
 
-	pipette.style.left = `${baseLeft}px`
-	pipette.style.top = `${baseTop}px`
+	if (pipette.style.left !== `${baseLeft}px` || pipette.style.top !== `${baseTop}px`) {
+		pipette.style.left = `${baseLeft}px`
+		pipette.style.top = `${baseTop}px`
+	}
+
+	animationFrameId = null
+}
+
+function toggleFullScreen() {
+	if (!document.fullscreenElement) {
+		document.documentElement.requestFullscreen()
+	} else {
+		if (document.exitFullscreen) {
+			document.exitFullscreen()
+		}
+	}
 }
