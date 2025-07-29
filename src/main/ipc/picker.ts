@@ -10,7 +10,7 @@ interface IResponse {
 
 export const initPickColor = () => {
 	ipcMain.handle('open-picker', () => {
-		return new Promise<IResponse>((resolve) => {
+		return new Promise<IResponse>(resolve => {
 			const pickerWindow = createPickerWindow()
 			const overlayPath = path.resolve(__dirname, 'src/renderer/overlays/picker.html')
 

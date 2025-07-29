@@ -1,6 +1,5 @@
 import {ipcRenderer} from 'electron'
 
-
 if (!window.electronAPI) {
 	// @ts-ignore
 	window.electronAPI = {}
