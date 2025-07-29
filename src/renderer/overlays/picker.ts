@@ -1,6 +1,5 @@
 import {ipcRenderer} from 'electron'
 
-
 const pipette = document.getElementById('pipette')
 const cube = document.getElementById('cube')
 
@@ -44,8 +43,11 @@ function mouseMoveHandler(e: MouseEvent) {
 	}
 }
 
-
-function debounce<T extends (...args: Parameters<T>) => void>(this: ThisParameterType<T>, fn: T, delay = 300) {
+function debounce<T extends (...args: Parameters<T>) => void>(
+	this: ThisParameterType<T>,
+	fn: T,
+	delay = 300,
+) {
 	let timer: ReturnType<typeof setTimeout> | undefined
 	return (...args: Parameters<T>) => {
 		clearTimeout(timer)
@@ -112,10 +114,11 @@ function setElectronAPI() {
 			ipcRenderer.send('resize-window', width, height),
 		closeWindow: () => ipcRenderer.send('close-window'),
 		getColor: (x: number, y: number) => ipcRenderer.invoke('get-color', x, y),
-		getScreenshot: (x: number, y: number, size?: number) => ipcRenderer.invoke('get-screenshot', x, y, size),
+		getScreenshot: (x: number, y: number, size?: number) =>
+			ipcRenderer.invoke('get-screenshot', x, y, size),
 		getPickerData: (x: number, y: number) => ipcRenderer.invoke('get-picker-data', x, y),
 		openPicker: () => ipcRenderer.invoke('open-picker'),
-		closePicker: (data) => ipcRenderer.send('close-picker', data),
+		closePicker: data => ipcRenderer.send('close-picker', data),
 	}
 }
 

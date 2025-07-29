@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface Window {
@@ -9,8 +9,8 @@ declare global {
 
 			getColor: (x: number, y: number) => Promise<string>
 			getScreenshot: (x: number, y: number, size?: number) => Promise<string>
-			getPickerData: (x: number, y: number) => Promise<{color: string, image: string}>
-			openPicker: () => Promise<{color: string, image: string}>
+			getPickerData: (x: number, y: number) => Promise<{color: string; image: string}>
+			openPicker: () => Promise<{color: string; image: string}>
 			closePicker: (data?: any) => void
 		}
 	}

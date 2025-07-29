@@ -3,11 +3,13 @@ import path from 'node:path'
 
 import {createPickerWindow} from '../windows'
 
-
 export const initPickColor = () => {
 	ipcMain.handle('get-color', async (_, x: number, y: number) => await getColorAtPoint(x, y))
 
-	ipcMain.handle('get-screenshot', async (_, x: number, y: number, size = 80) => await getScreenshotAtPoint(x, y, size))
+	ipcMain.handle(
+		'get-screenshot',
+		async (_, x: number, y: number, size = 80) => await getScreenshotAtPoint(x, y, size),
+	)
 
 	ipcMain.handle('get-picker-data', async (_, x: number, y: number) => {
 		const [color, image] = await Promise.all([
@@ -22,12 +24,14 @@ export const initPickColor = () => {
 		return new Promise(resolve => {
 			const pickerWindow = createPickerWindow()
 
-			pickerWindow.loadFile(path.resolve(__dirname, 'src/renderer/overlays/picker.html')).then(() => {
-				ipcMain.once('close-picker', async (_, data) => {
-					pickerWindow.close()
-					resolve(data)
+			pickerWindow
+				.loadFile(path.resolve(__dirname, 'src/renderer/overlays/picker.html'))
+				.then(() => {
+					ipcMain.once('close-picker', async (_, data) => {
+						pickerWindow.close()
+						resolve(data)
+					})
 				})
-			})
 		})
 	})
 }
@@ -79,4 +83,3 @@ async function getScreenshotAtPoint(x: number, y: number, size = 80): Promise<st
 
 	return cropped.toDataURL()
 }
-
