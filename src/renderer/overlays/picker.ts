@@ -1,28 +1,13 @@
 import {ipcRenderer} from 'electron'
 
 
-toggleFullScreen()
-
-document.addEventListener('click', async event => {
-	try {
-		const {screenX: x, screenY: y} = event
-
-		await ipcRenderer.send('send-color', x, y)
-	} catch (error) {
-		console.error('Error:', error)
-	}
-})
-
-document.addEventListener('mousemove', updatePipettePosition)
-
 const pipette = document.getElementById('pipette')
+const cube = document.getElementById('cube')
+
 const offsetX = 15
 const offsetY = 15
 const safetyMargin = 20
-
-pipette.style.transition = 'transform 0.3s ease'
-
-// Состояние смещения
+const DEBOUNCED_VALUE = 150
 let currentTranslateX = 0
 let currentTranslateY = 0
 
@@ -31,13 +16,51 @@ const {width: pipetteWidth, height: pipetteHeight} = pipette.getBoundingClientRe
 
 let lastPosition = {clientX: 0, clientY: 0}
 let animationFrameId: number | null = null
+const debouncedCubeColor = debounce(updateCubeColor, DEBOUNCED_VALUE)
 
-function updatePipettePosition(e: MouseEvent) {
+function init() {
+	toggleFullScreen()
+	setElectronAPI()
+	pipette.style.transition = 'transform 0.3s ease'
+
+	document.addEventListener('click', clickPipetteHandler)
+	document.addEventListener('mousemove', mouseMoveHandler)
+}
+
+async function updateCubeColor() {
+	const color = await window.electronAPI.getColor(lastPosition.clientX, lastPosition.clientY)
+	cube.style.background = color
+}
+
+function mouseMoveHandler(e: MouseEvent) {
 	lastPosition = {clientX: e.clientX, clientY: e.clientY}
 
 	if (!animationFrameId) {
-		animationFrameId = requestAnimationFrame(processPipettePosition)
-		requestAnimationFrame(() => updatePreview(lastPosition.clientX, lastPosition.clientY))
+		animationFrameId = requestAnimationFrame(() => {
+			debouncedCubeColor()
+			processPipettePosition()
+			animationFrameId = null
+		})
+	}
+}
+
+
+function debounce<T extends (...args: Parameters<T>) => void>(this: ThisParameterType<T>, fn: T, delay = 300) {
+	let timer: ReturnType<typeof setTimeout> | undefined
+	return (...args: Parameters<T>) => {
+		clearTimeout(timer)
+		timer = setTimeout(() => fn.apply(this, args), delay)
+	}
+}
+
+async function clickPipetteHandler(event: MouseEvent) {
+	try {
+		const {screenX: x, screenY: y} = event
+
+		const data = await window.electronAPI.getPickerData(x, y)
+		window.electronAPI.closePicker(data)
+	} catch (error) {
+		console.error('Error:', error)
 	}
 }
 
@@ -70,27 +93,6 @@ function processPipettePosition() {
 		pipette.style.left = `${baseLeft}px`
 		pipette.style.top = `${baseTop}px`
 	}
-
-	animationFrameId = null
-}
-
-const preview = document.getElementById('preview') as HTMLImageElement
-let isRequesting = false
-
-async function updatePreview(x: number, y: number) {
-	if (isRequesting) return
-	isRequesting = true
-
-	try {
-		const imgData = await ipcRenderer.invoke('getAreaPreview', x, y)
-		if (imgData) {
-			preview.src = imgData
-			preview.style.left = `${x + 15}px`
-			preview.style.top = `${y + 15}px`
-		}
-	} finally {
-		isRequesting = false
-	}
 }
 
 function toggleFullScreen() {
@@ -102,3 +104,19 @@ function toggleFullScreen() {
 		}
 	}
 }
+
+function setElectronAPI() {
+	window.electronAPI = {
+		minimizeWindow: () => ipcRenderer.send('minimize-window'),
+		resizeWindow: (width: number, height: number) =>
+			ipcRenderer.send('resize-window', width, height),
+		closeWindow: () => ipcRenderer.send('close-window'),
+		getColor: (x: number, y: number) => ipcRenderer.invoke('get-color', x, y),
+		getScreenshot: (x: number, y: number, size?: number) => ipcRenderer.invoke('get-screenshot', x, y, size),
+		getPickerData: (x: number, y: number) => ipcRenderer.invoke('get-picker-data', x, y),
+		openPicker: () => ipcRenderer.invoke('open-picker'),
+		closePicker: (data) => ipcRenderer.send('close-picker', data),
+	}
+}
+
+init()

@@ -8,8 +8,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	closeWindow: () => ipcRenderer.send('close-window'),
 
 	// picker.ts
-	sendColor: (x: number, y: number) => ipcRenderer.send('send-color', x, y),
-	getAreaPreview: (x: number, y: number) => ipcRenderer.invoke('getAreaPreview', x, y),
+	getColor: (x: number, y: number) => ipcRenderer.send('get-color', x, y),
+	getScreenshot: (x: number, y: number, size?: number) => ipcRenderer.invoke('get-screenshot', x, y, size),
+	getPickerData: (x: number, y: number) => ipcRenderer.invoke('get-picker-data', x, y),
 	openPicker: () => ipcRenderer.invoke('open-picker'),
-	//captureArea: (x: number, y: number) => ipcRenderer.invoke('capture-area', x, y),
+	closePicker: (data: any) => ipcRenderer.send('close-picker', data)
 })

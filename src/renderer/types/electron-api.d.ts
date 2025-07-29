@@ -1,15 +1,17 @@
-export {}
+export { }
 
 declare global {
 	interface Window {
 		electronAPI?: {
-			openPicker: () => {color: string; image: string | undefined}
-			captureArea: (x: number, y: number) => void
-			pickColor: () => {color: string; image: string | undefined}
 			minimizeWindow: () => void
-			closeWindow: () => void
 			resizeWindow: (width: number, height: number) => void
-			captureArea: (x: number, y: number) => string
+			closeWindow: () => void
+
+			getColor: (x: number, y: number) => Promise<string>
+			getScreenshot: (x: number, y: number, size?: number) => Promise<string>
+			getPickerData: (x: number, y: number) => Promise<{color: string, image: string}>
+			openPicker: () => Promise<{color: string, image: string}>
+			closePicker: (data?: any) => void
 		}
 	}
 }
