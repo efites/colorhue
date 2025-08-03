@@ -39,6 +39,7 @@ export const Main = () => {
 							src={image}
 							onError={() => setImage(ScreenFallack)}
 						/>
+						<div className={styles.cross}></div>
 					</div>
 					<div className={clsx(styles.window, styles.brightness)}></div>
 				</div>

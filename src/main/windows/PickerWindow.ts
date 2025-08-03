@@ -8,10 +8,10 @@ export const createPickerWindow = () => {
 	return new BrowserWindow({
 		width,
 		height,
-		transparent: !isDev,
-		frame: isDev,
+		transparent: true,
+		frame: false,
 		alwaysOnTop: !isDev,
-		resizable: isDev,
+		resizable: false,
 		webPreferences: {
 			nodeIntegration: true,
 			contextIsolation: false,

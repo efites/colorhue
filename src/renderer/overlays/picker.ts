@@ -20,7 +20,7 @@ const debouncedCubeColor = debounce(updateCubeColor, DEBOUNCED_VALUE)
 function init() {
 	toggleFullScreen()
 	setElectronAPI()
-	pipette.style.transition = 'transform 0.3s ease'
+	pipette.style.transition = 'transform 0.1s ease'
 
 	document.addEventListener('click', clickPipetteHandler)
 	document.addEventListener('mousemove', mouseMoveHandler)
