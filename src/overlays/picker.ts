@@ -1,5 +1,3 @@
-import {ipcRenderer} from 'electron'
-
 const pipette = document.getElementById('pipette')
 const cube = document.getElementById('cube')
 const image = document.getElementById('image') as HTMLImageElement

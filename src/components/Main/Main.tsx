@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import React, {use, useState} from 'react'
+import {use, useState} from 'react'
 
 import {GlobalContext} from '../../app/contexts/Global'
 import ScreenFallack from '../../shared/images/screen.png'
@@ -14,7 +14,7 @@ export const Main = () => {
 
 	const handlePickColor = async () => {
 		try {
-			const {color, image} = await window.electronAPI?.openPicker()
+			//const {color, image} = await window.electronAPI?.openPicker()
 
 			setImage(image ?? ScreenFallack)
 			setSelectedColor(color)
@@ -22,8 +22,6 @@ export const Main = () => {
 			console.error('Ошибка выбора цвета:', err)
 		}
 	}
-
-	console.log(color)
 
 	return (
 		<div className={styles.main}>

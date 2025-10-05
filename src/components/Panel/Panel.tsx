@@ -1,18 +1,13 @@
 import clsx from 'clsx'
-import React from 'react'
 
 import Icon from '../Icon/Icon'
 
 import styles from './Panel.module.scss'
 
 export const Panel = () => {
-	const minimazeHandler = () => {
-		window.electronAPI?.minimizeWindow()
-	}
+	const minimazeHandler = () => {}
 
-	const closeHandler = () => {
-		window.electronAPI?.closeWindow()
-	}
+	const closeHandler = () => {}
 
 	return (
 		<div className={styles.panel}>
