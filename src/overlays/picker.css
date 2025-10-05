@@ -1,0 +1,103 @@
+* {
+	padding: 0;
+	margin: 0;
+	line-height: 1;
+}
+
+@font-face {
+	font-family: 'Inter';
+	src: url('../shared/fonts/Inter_24pt-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+body {
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.2);
+	cursor: crosshair;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+
+	font-family: 'Inter';
+}
+
+.pipitte {
+	position: fixed;
+	z-index: 1000;
+	display: inline-flex;
+	align-items: center;
+	gap: 15px;
+	min-width: 160px;
+	padding: 10px;
+	border-radius: 16px;
+	background-color: #8b878b;
+	pointer-events: none;
+}
+
+.column {
+	height: 100%;
+}
+
+.info {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.area {
+	width: 60px;
+	height: 60px;
+	aspect-ratio: 1 / 1;
+	border-radius: 6px;
+}
+
+.color {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.cube {
+	width: 21px;
+	height: 21px;
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+	background-color: #b35bb3;
+}
+
+.image {
+	display: block;
+	width: 21px;
+	height: 21px;
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+}
+
+.code {
+	font-size: 14px;
+}
+
+.note {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.icon {
+	width: 21px;
+	height: 21px;
+	aspect-ratio: 1 / 1;
+}
+
+.description {
+	font-size: 14px;
+}
+
+.danger-zone {
+	position: fixed;
+	border: 1px dashed rgba(255, 0, 0, 0.2);
+	background: rgba(255, 0, 0, 0.05);
+	display: none;
+}

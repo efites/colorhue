@@ -1,0 +1,11 @@
+.solid {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 440px;
+
+	background: var(--white-80);
+	backdrop-filter: blur(15px);
+	border-radius: 15px;
+	overflow: hidden;
+}

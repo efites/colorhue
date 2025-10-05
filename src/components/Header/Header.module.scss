@@ -1,0 +1,80 @@
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	border-top: 1px solid var(--light-black);
+	border-bottom: 1px solid var(--light-black);
+	padding: 10px 20px;
+}
+
+.modeBox {
+	display: inline-flex;
+	gap: 10px;
+}
+
+.action {
+	padding: 6px 10px;
+	border-radius: 6px;
+
+	transition: color 0.2s ease;
+}
+
+.import {
+	background-color: var(--grey);
+	color: var(--white);
+
+	@media (hover: hover) {
+		&:hover {
+			color: var(--light-black);
+		}
+	}
+}
+
+.export {
+	background-color: var(--blue);
+	color: var(--white);
+
+	@media (hover: hover) {
+		&:hover {
+			color: var(--light-black);
+		}
+	}
+}
+
+.button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 30px;
+	height: 30px;
+
+	border-radius: 4px;
+	overflow: hidden;
+
+	transition: background-color 0.3s ease;
+
+	&.active {
+		background-color: var(--light-black);
+	}
+
+	@media (hover: hover) {
+		&:hover:not(.active) {
+			background-color: var(--grey);
+		}
+	}
+}
+
+.icon {
+	width: 100%;
+	height: 100%;
+	max-width: 16px;
+	max-height: 16px;
+	fill: var(--light-black);
+
+	transition: fill 0.2s ease;
+
+	&.active {
+		fill: var(--white);
+	}
+}
