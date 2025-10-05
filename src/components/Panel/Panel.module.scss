@@ -1,0 +1,51 @@
+.panel {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	-webkit-app-region: drag;
+}
+
+.title {
+	font-size: 21px;
+	margin-left: 20px;
+	-webkit-app-region: no-drag;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	gap: 0;
+}
+
+.button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	aspect-ratio: 1 / 1;
+	width: 45px;
+	height: 45px;
+	-webkit-app-region: no-drag;
+	transition: background-color 0.2s ease;
+}
+
+.minimize {
+	@media (hover: hover) {
+		&:hover {
+			background-color: var(--grey);
+		}
+	}
+}
+
+.close {
+	@media (hover: hover) {
+		&:hover {
+			background-color: var(--red);
+		}
+	}
+}
+
+.icon {
+	width: 14px;
+	height: 14px;
+	aspect-ratio: 1 / 1;
+}
