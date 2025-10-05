@@ -13,12 +13,15 @@
     "windows": [
       {
         "title": "colorhue",
-        "width": 800,
-        "height": 600,
+        "minWidth": 100,
+        "minHeight": 100,
+        "closable": true,
         "transparent": true,
         "decorations": false,
         "resizable": true,
-        "alwaysOnTop": false
+        "alwaysOnTop": false,
+        "visible": false,
+        "center": true
       }
     ],
     "security": {

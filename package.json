@@ -4,10 +4,13 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "prepare": "husky",
+    "build": "tauri tsc && vite build",
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,html,css,scss}",
+    "lint": "eslint . --fix",
+    "pretty": "bun run format && bun run lint"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
@@ -17,10 +20,15 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@siberiacancode/eslint": "^2.13.0",
     "@tauri-apps/cli": "^2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^9.37.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.3",
+    "prettier": "^3.6.2",
     "sass-embedded": "^1.93.2",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"

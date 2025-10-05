@@ -1,23 +1,23 @@
 import clsx from 'clsx'
-import React, {use} from 'react'
+import {use} from 'react'
 
 import type {Mode} from '../../app/contexts/Global'
 
 import {GlobalContext} from '../../app/contexts/Global'
-import {useWindowResize} from '../../app/hooks/useWindowResize'
 import Icon from '../Icon/Icon'
 
 import styles from './Header.module.scss'
+import {useAutoWindowSize} from '../../app/hooks/useWindowResize'
 
 const buttons: Mode[] = ['solid', 'gradient'] as const
 
 export const Header = () => {
 	const {mode, setMode} = use(GlobalContext)
-	const {resize} = useWindowResize()
+	const {setWindowSize} = useAutoWindowSize()
 
 	const changeModeHandler = (mode: Mode) => {
 		setMode(mode)
-		resize()
+		setWindowSize()
 	}
 
 	return (

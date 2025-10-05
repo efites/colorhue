@@ -1,53 +1,66 @@
 import {useCallback, useEffect, useRef} from 'react'
+import {getCurrentWindow} from '@tauri-apps/api/window'
+import {invoke} from '@tauri-apps/api/core'
 
-export const useWindowResize = () => {
+export const useAutoWindowSize = () => {
 	const contentRef = useRef<HTMLDivElement>(null)
-	const isInitialized = useRef(false)
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-	const resizeObserverRef = useRef<ResizeObserver | null>(null)
 
-	// Функция для принудительного перерасчёта
-	const resize = useCallback(() => {
+	// Функция для установки размера окна по контенту
+	const setWindowSize = useCallback(async () => {
 		if (!contentRef.current) return
 
-		const {width, height} = contentRef.current.getBoundingClientRect()
-		const windowWidth = Math.ceil(width)
-		const windowHeight = Math.ceil(height)
+		try {
+			const appWindow = getCurrentWindow()
 
-		window.electronAPI?.resizeWindow(windowWidth, windowHeight)
+			// Получаем размеры контента
+			const {width, height} = contentRef.current.getBoundingClientRect()
+			const windowWidth = Math.ceil(width)
+			const windowHeight = Math.ceil(height)
+
+			// Устанавливаем размер окна
+			await invoke('set_window_size', {
+				window: appWindow,
+				width: windowWidth,
+				height: windowHeight,
+			})
+			await appWindow.show()
+
+			return {width: windowWidth, height: windowHeight}
+		} catch (error) {
+			console.error('Failed to set window size:', error)
+		}
 	}, [])
 
+	// Автоматическая установка размера при монтировании
 	useEffect(() => {
-		resizeObserverRef.current = new ResizeObserver(entries => {
+		const initializeWindow = async () => {
+			// Небольшая задержка для гарантии рендера контента
+			// await new Promise(resolve => setTimeout(resolve, 10));
+			await setWindowSize()
+		}
+
+		initializeWindow()
+	}, [setWindowSize])
+
+	// ResizeObserver для автоматического изменения размера при изменении контента
+	useEffect(() => {
+		const resizeObserver = new ResizeObserver(async entries => {
 			for (const entry of entries) {
-				const {width, height} = entry.contentRect
-				const windowWidth = Math.ceil(width)
-				const windowHeight = Math.ceil(height)
-
-				const delay = isInitialized.current ? 0 : 50
-
-				if (timeoutRef.current) {
-					clearTimeout(timeoutRef.current)
-				}
-
-				timeoutRef.current = setTimeout(() => {
-					window.electronAPI?.resizeWindow(windowWidth, windowHeight)
-					isInitialized.current = true
-				}, delay)
+				await setWindowSize()
 			}
 		})
 
 		if (contentRef.current) {
-			resizeObserverRef.current.observe(contentRef.current)
+			resizeObserver.observe(contentRef.current)
 		}
 
 		return () => {
-			resizeObserverRef.current?.disconnect()
+			resizeObserver.disconnect()
 		}
-	}, [])
+	}, [setWindowSize])
 
 	return {
 		contentRef,
-		resize,
+		setWindowSize,
 	}
 }
