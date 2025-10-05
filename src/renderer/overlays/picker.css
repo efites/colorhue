@@ -67,6 +67,14 @@ body {
 	background-color: #b35bb3;
 }
 
+.image {
+	display: block;
+	width: 21px;
+	height: 21px;
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+}
+
 .code {
 	font-size: 14px;
 }

@@ -2,11 +2,12 @@ import {ipcRenderer} from 'electron'
 
 const pipette = document.getElementById('pipette')
 const cube = document.getElementById('cube')
+const image = document.getElementById('image') as HTMLImageElement
 
 const offsetX = 15
 const offsetY = 15
 const safetyMargin = 20
-const DEBOUNCED_VALUE = 150
+const DEBOUNCED_VALUE = 200
 let currentTranslateX = 0
 let currentTranslateY = 0
 
@@ -26,17 +27,21 @@ function init() {
 	document.addEventListener('mousemove', mouseMoveHandler)
 }
 
-async function updateCubeColor() {
-	const color = await window.electronAPI.getColor(lastPosition.clientX, lastPosition.clientY)
+async function updateCubeColor(event: MouseEvent) {
+	const {screenX: x, screenY: y} = event
+
+	const {color, image: picture} = await window.electronAPI.getPickerData(x, y)
+
+	image.src = picture
 	cube.style.background = color
 }
 
-function mouseMoveHandler(e: MouseEvent) {
-	lastPosition = {clientX: e.clientX, clientY: e.clientY}
+function mouseMoveHandler(event: MouseEvent) {
+	lastPosition = {clientX: event.clientX, clientY: event.clientY}
 
 	if (!animationFrameId) {
 		animationFrameId = requestAnimationFrame(() => {
-			debouncedCubeColor()
+			debouncedCubeColor(event)
 			processPipettePosition()
 			animationFrameId = null
 		})
