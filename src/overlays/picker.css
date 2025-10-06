@@ -6,7 +6,7 @@
 
 @font-face {
 	font-family: 'Inter';
-	src: url('../shared/fonts/Inter_24pt-Regular.ttf') format('truetype');
+	src: url('/src/shared/fonts/Inter_24pt-Regular.ttf') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }

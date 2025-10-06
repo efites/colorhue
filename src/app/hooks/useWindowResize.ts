@@ -23,7 +23,7 @@ export const useAutoWindowSize = () => {
 				width: windowWidth,
 				height: windowHeight,
 			})
-			await appWindow.show()
+			await invoke('show_window', {window: appWindow})
 
 			return {width: windowWidth, height: windowHeight}
 		} catch (error) {

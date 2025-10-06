@@ -23,7 +23,7 @@ interface IProps {
 		| Mode
 }
 
-const path = '/src/renderer/shared/images/sprite.svg'
+const path = '/src/shared/images/sprite.svg'
 
 const Icon = ({name, className = ''}: IProps) => {
 	return (

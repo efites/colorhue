@@ -1,13 +1,16 @@
 import clsx from 'clsx'
-
 import Icon from '../Icon/Icon'
-
 import styles from './Panel.module.scss'
+import {invoke} from '@tauri-apps/api/core'
 
 export const Panel = () => {
-	const minimazeHandler = () => {}
+	const minimazeHandler = async () => {
+		await invoke('minimize_window');
+	}
 
-	const closeHandler = () => {}
+	const closeHandler = async () => {
+		await invoke('exit_app');
+	}
 
 	return (
 		<div className={styles.panel}>

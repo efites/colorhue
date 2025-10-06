@@ -6,6 +6,7 @@ import ScreenFallack from '../../shared/images/screen.png'
 import Icon from '../Icon/Icon'
 
 import styles from './Main.module.scss'
+import {invoke} from '@tauri-apps/api/core'
 
 export const Main = () => {
 	const {mode} = use(GlobalContext)
@@ -14,6 +15,7 @@ export const Main = () => {
 
 	const handlePickColor = async () => {
 		try {
+			await invoke('capture_cursor_area', {x: 100, y: 100})
 			//const {color, image} = await window.electronAPI?.openPicker()
 
 			setImage(image ?? ScreenFallack)
