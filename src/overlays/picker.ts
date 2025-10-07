@@ -1,23 +1,22 @@
 import {app} from '@tauri-apps/api'
 import {invoke} from '@tauri-apps/api/core'
+import {IPippete} from '../components/Main/Main'
 
 const pipette = document.getElementById('pipette')
-const cube = document.getElementById('cube')
+const cube = document.getElementById('cube') as HTMLDivElement
 const image = document.getElementById('image') as HTMLImageElement
 
 const offsetX = 15
 const offsetY = 15
 const safetyMargin = 20
-const DEBOUNCED_VALUE = 200
+const DEBOUNCED_VALUE = 0
 let currentTranslateX = 0
 let currentTranslateY = 0
 
 // Размеры блока
 const {width: pipetteWidth, height: pipetteHeight} = pipette.getBoundingClientRect()
 
-let lastPosition = {clientX: 0, clientY: 0}
 let animationFrameId: number | null = null
-const debouncedCubeColor = debounce(updateCubeColor, DEBOUNCED_VALUE)
 
 function init() {
 	document.addEventListener('click', clickPipetteHandler)
@@ -34,15 +33,21 @@ async function updateCubeColor(event: MouseEvent) {
 }
 
 function mouseMoveHandler(event: MouseEvent) {
-	lastPosition = {clientX: event.clientX, clientY: event.clientY}
+	if (animationFrameId) return
 
-	if (!animationFrameId) {
-		animationFrameId = requestAnimationFrame(() => {
-			debouncedCubeColor(event)
-			processPipettePosition()
-			animationFrameId = null
-		})
-	}
+	animationFrameId = requestAnimationFrame(async () => {
+		processPipettePosition(event)
+		await processPipetteContent(event)
+
+		animationFrameId = null
+	})
+}
+
+async function processPipetteContent({clientX: x, clientY: y}: MouseEvent) {
+	const result = await invoke<IPippete>('capture_cursor_area', {x, y})
+
+	image.src = result.image
+	cube.style.background = result.color
 }
 
 function debounce<T extends (...args: Parameters<T>) => void>(
@@ -72,8 +77,9 @@ async function clickPipetteHandler(event: MouseEvent) {
 	}
 }
 
-function processPipettePosition() {
-	const {clientX, clientY} = lastPosition
+function processPipettePosition(event: MouseEvent) {
+	const {clientX, clientY} = event
+
 	const baseLeft = clientX + offsetX
 	const baseTop = clientY + offsetY
 
