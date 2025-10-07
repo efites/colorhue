@@ -62,8 +62,8 @@ async fn create_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Resu
         window_name,
         WebviewUrl::App("./src/overlays/picker.html".into()) // тот же HTML, но с другим компонентом
     )
-    .fullscreen(false)
-    .transparent(false) // Прозрачное окно
+    .fullscreen(true)
+    .transparent(true) // Прозрачное окно
     .decorations(false) // Без рамки
     .always_on_top(true) // Поверх всех окон
     .focused(true)
