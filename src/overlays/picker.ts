@@ -1,3 +1,6 @@
+import {app} from '@tauri-apps/api'
+import {invoke} from '@tauri-apps/api/core'
+
 const pipette = document.getElementById('pipette')
 const cube = document.getElementById('cube')
 const image = document.getElementById('image') as HTMLImageElement
@@ -17,10 +20,6 @@ let animationFrameId: number | null = null
 const debouncedCubeColor = debounce(updateCubeColor, DEBOUNCED_VALUE)
 
 function init() {
-	toggleFullScreen()
-	setElectronAPI()
-	pipette.style.transition = 'transform 0.1s ease'
-
 	document.addEventListener('click', clickPipetteHandler)
 	document.addEventListener('mousemove', mouseMoveHandler)
 }
@@ -62,8 +61,12 @@ async function clickPipetteHandler(event: MouseEvent) {
 	try {
 		const {screenX: x, screenY: y} = event
 
-		const data = await window.electronAPI.getPickerData(x, y)
-		window.electronAPI.closePicker(data)
+		await invoke('send_cursor_position', {
+			x: Math.round(x),
+			y: Math.round(y)
+		})
+
+		await invoke("close_overlay", {windowName: 'picker'})
 	} catch (error) {
 		console.error('Error:', error)
 	}

@@ -1,12 +1,22 @@
 import clsx from 'clsx'
 import {use, useState} from 'react'
-
 import {GlobalContext} from '../../app/contexts/Global'
 import ScreenFallack from '../../shared/images/screen.png'
 import Icon from '../Icon/Icon'
-
 import styles from './Main.module.scss'
 import {invoke} from '@tauri-apps/api/core'
+import {listen} from '@tauri-apps/api/event'
+
+
+interface IPippete {
+	image: string
+	color: string
+}
+
+interface ICursorPosition {
+	x: number
+	y: number
+}
 
 export const Main = () => {
 	const {mode} = use(GlobalContext)
@@ -15,11 +25,16 @@ export const Main = () => {
 
 	const handlePickColor = async () => {
 		try {
-			await invoke('capture_cursor_area', {x: 100, y: 100})
-			//const {color, image} = await window.electronAPI?.openPicker()
+			await invoke('create_overlay', {windowName: 'picker'})
 
-			setImage(image ?? ScreenFallack)
-			setSelectedColor(color)
+			listen<ICursorPosition>('send_cursor_position', async (event) => {
+				const {x, y} = event.payload
+
+				const result = await invoke<IPippete>('capture_cursor_area', {x, y})
+
+				setImage(result.image ?? ScreenFallack)
+				setSelectedColor(result.color)
+			})
 		} catch (err) {
 			console.error('Ошибка выбора цвета:', err)
 		}
