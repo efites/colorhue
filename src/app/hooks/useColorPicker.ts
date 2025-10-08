@@ -31,9 +31,9 @@ export function useColorPicker() {
             cleanupListener()
 
             const unlisten = await listen<CursorPosition>('send_cursor_position', async (event) => {
-                const { x, y } = event.payload
+                const { x, y, size } = event.payload
                 try {
-                    const result = await invoke<PipetteCapture>('capture_cursor_area', { x, y })
+                    const result = await invoke<PipetteCapture>('capture_cursor_area', { x, y, size })
                     setImage(result.image || ScreenFallback)
                     setColor(result.color)
                 } catch (err) {

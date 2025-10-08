@@ -6,6 +6,7 @@ export interface PipetteCapture {
 export interface CursorPosition {
     x: number
     y: number
+    size?: number
 }
 
 
