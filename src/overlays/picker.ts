@@ -1,6 +1,6 @@
 import {invoke} from '@tauri-apps/api/core'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
-import {PipetteCapture} from '../types/picker'
+// types are inferred from event payload
 // types are handled implicitly via event payload
 
 const offsetX = 15
@@ -43,16 +43,22 @@ function mouseMoveHandler(event: MouseEvent) {
 }
 
 async function startStream() {
-	await invoke('start_capture_stream', { windowName: 'picker', fps: 12, size: 50 })
+    await invoke('start_capture_stream', { windowName: 'picker', fps: 12, size: 50, format: 'hex' })
 
-	streamUnlisten = await listen<PipetteCapture>('picker_frame', (event) => {
-		const {image: nextImage, color: nextColor} = event.payload
+    streamUnlisten = await listen<any>('picker_frame', (event) => {
+        const {image: nextImage, color: nextColor, x, y} = event.payload as any
 
 		if (lastImageDataUrl === nextImage) return
 
 		lastImageDataUrl = nextImage
 		image.src = nextImage
 		cube.style.background = nextColor
+
+        // Position pipette right away on the first frame based on cursor screen coords
+        if (typeof x === 'number' && typeof y === 'number') {
+            // Create a synthetic MouseEvent-like object for position function
+            processPipettePosition({ clientX: x, clientY: y } as MouseEvent)
+        }
 	})
 }
 

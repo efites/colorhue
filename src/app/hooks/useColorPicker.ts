@@ -6,8 +6,9 @@ import type { CursorPosition, PipetteCapture } from '../../types/picker'
 
 
 export function useColorPicker() {
-    const [color, setColor] = useState<string>('#FFFFFF')
-    const [image, setImage] = useState<string>(ScreenFallback)
+    const [color, setColor] = useState<PipetteCapture['color']>('#FFFFFF')
+    const [image, setImage] = useState<PipetteCapture['image']>(ScreenFallback)
+    const [format, setFormat] = useState<PipetteCapture['format']>('hex')
     const unlistenRef = useRef<UnlistenFn | null>(null)
 
     const cleanupListener = useCallback(() => {
@@ -33,9 +34,10 @@ export function useColorPicker() {
             const unlisten = await listen<CursorPosition>('send_cursor_position', async (event) => {
                 const { x, y, size } = event.payload
                 try {
-                    const result = await invoke<PipetteCapture>('capture_cursor_area', { x, y, size })
+                    const result = await invoke<PipetteCapture>('capture_cursor_area', { x, y, size, format: 'hex' })
                     setImage(result.image || ScreenFallback)
                     setColor(result.color)
+                    setFormat(result.format)
                 } catch (err) {
                     // swallow per event errors; main flow should continue
                     console.error('capture_cursor_area failed:', err)
@@ -48,7 +50,7 @@ export function useColorPicker() {
         }
     }, [cleanupListener])
 
-    return { color, image, pickColor }
+    return { color, image, format, pickColor }
 }
 
 
