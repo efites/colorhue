@@ -15,6 +15,8 @@ struct CaptureData {
     image: String, // data:image/png;base64,<...>
     width: u32,
     height: u32,
+    formatted: Option<String>,
+    format: Option<String>,
 }
 
 struct CaptureStreamState {
@@ -23,6 +25,7 @@ struct CaptureStreamState {
     last_image: Mutex<Option<String>>, // data URL to avoid duplicate emits
     capture_size: Mutex<u32>,
     fps: Mutex<u32>,
+    color_format: Mutex<String>,
 }
 
 impl CaptureStreamState {
@@ -33,6 +36,7 @@ impl CaptureStreamState {
             last_image: Mutex::new(None),
             capture_size: Mutex::new(50),
             fps: Mutex::new(12),
+            color_format: Mutex::new("hex".to_string()),
         }
     }
 }
@@ -117,11 +121,11 @@ async fn close_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Resul
 }
 
 #[tauri::command]
-fn capture_cursor_area(x: i32, y: i32, size: Option<u32>) -> Result<CaptureData, String> {
-    capture_at(x, y, size)
+fn capture_cursor_area(x: i32, y: i32, size: Option<u32>, format: Option<String>) -> Result<CaptureData, String> {
+    capture_at(x, y, size, format)
 }
 
-fn capture_at(x: i32, y: i32, size: Option<u32>) -> Result<CaptureData, String> {
+fn capture_at(x: i32, y: i32, size: Option<u32>, format: Option<String>) -> Result<CaptureData, String> {
     let radius: u32 = size.unwrap_or(50);
     if radius == 0 {
         return Err("size must be > 0".to_string());
@@ -164,11 +168,20 @@ fn capture_at(x: i32, y: i32, size: Option<u32>) -> Result<CaptureData, String> 
     let base64_png = STANDARD.encode(&png_bytes);
     let data_url = format!("data:image/png;base64,{}", base64_png);
 
+    // Simple mock formatting: support "hex" (default) and "rgb"
+    let fmt = format.unwrap_or_else(|| "hex".to_string());
+    let formatted = match fmt.as_str() {
+        "rgb" => Some(format!("rgb({}, {}, {})", r, g, b)),
+        _ => Some(color_hex.clone()),
+    };
+
     Ok(CaptureData {
         color: color_hex,
         image: data_url,
         width: w,
         height: h,
+        formatted,
+        format: Some(fmt),
     })
 }
 
@@ -179,6 +192,7 @@ fn start_capture_stream(
     window_name: &str,
     fps: Option<u32>,
     size: Option<u32>,
+    format: Option<String>,
 ) -> Result<(), String> {
     if state.is_running.swap(true, Ordering::SeqCst) {
         return Ok(()); // already running
@@ -195,6 +209,10 @@ fn start_capture_stream(
     if let Some(sz) = size {
         let mut size_lock = state.capture_size.lock().map_err(|e| e.to_string())?;
         *size_lock = sz.clamp(10, 50);
+    }
+    if let Some(fmt) = &format {
+        let mut fmt_lock = state.color_format.lock().map_err(|e| e.to_string())?;
+        *fmt_lock = fmt.clone();
     }
 
     let mut interval_ms = {
@@ -218,8 +236,9 @@ fn start_capture_stream(
                 let mouse = device_state.get_mouse();
                 let (x, y) = mouse.coords;
                 let size_cur = *state_clone.capture_size.lock().unwrap();
+                let fmt_cur = state_clone.color_format.lock().unwrap().clone();
                 let frame_start = std::time::Instant::now();
-                if let Ok(data) = capture_at(x as i32, y as i32, Some(size_cur)) {
+                if let Ok(data) = capture_at(x as i32, y as i32, Some(size_cur), Some(fmt_cur)) {
                     let mut last = state_clone.last_image.lock().unwrap();
                     if last.as_ref().map(|s| s.as_str()) != Some(data.image.as_str()) {
                         *last = Some(data.image.clone());
@@ -231,6 +250,10 @@ fn start_capture_stream(
                                 "color": data.color,
                                 "width": data.width,
                                 "height": data.height,
+                                "formatted": data.formatted,
+                                "format": data.format,
+                                "x": x,
+                                "y": y,
                             })),
                         );
                     }
@@ -278,6 +301,13 @@ fn update_capture_size(state: State<Arc<CaptureStreamState>>, size: u32) -> Resu
     Ok(())
 }
 
+#[tauri::command]
+fn update_color_format(state: State<Arc<CaptureStreamState>>, format: Option<String>) -> Result<(), String> {
+    let mut lock = state.color_format.lock().map_err(|e| e.to_string())?;
+    *lock = format.unwrap_or_else(|| "hex".to_string());
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -296,6 +326,7 @@ pub fn run() {
             start_capture_stream,
             stop_capture_stream,
             update_capture_size,
+            update_color_format,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
