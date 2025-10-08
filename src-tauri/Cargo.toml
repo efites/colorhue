@@ -25,4 +25,5 @@ serde_json = "1"
 screenshots = "0.8.1"
 image = "0.25.8"
 base64 = "0.22.1"
+device_query = "2"
 
