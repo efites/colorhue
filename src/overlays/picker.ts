@@ -1,35 +1,23 @@
-import {app} from '@tauri-apps/api'
 import {invoke} from '@tauri-apps/api/core'
-import {IPippete} from '../components/Main/Main'
-
-const pipette = document.getElementById('pipette')
-const cube = document.getElementById('cube') as HTMLDivElement
-const image = document.getElementById('image') as HTMLImageElement
+import {PipetteCapture} from '../types/picker'
 
 const offsetX = 15
 const offsetY = 15
 const safetyMargin = 20
-const DEBOUNCED_VALUE = 0
 let currentTranslateX = 0
 let currentTranslateY = 0
+let animationFrameId: number | null = null
 
-// Размеры блока
+const pipette = document.getElementById('pipette') as HTMLDivElement
+const cube = document.getElementById('cube') as HTMLDivElement
+const image = document.getElementById('image') as HTMLImageElement
+
 const {width: pipetteWidth, height: pipetteHeight} = pipette.getBoundingClientRect()
 
-let animationFrameId: number | null = null
 
 function init() {
 	document.addEventListener('click', clickPipetteHandler)
 	document.addEventListener('mousemove', mouseMoveHandler)
-}
-
-async function updateCubeColor(event: MouseEvent) {
-	const {screenX: x, screenY: y} = event
-
-	const {color, image: picture} = await window.electronAPI.getPickerData(x, y)
-
-	image.src = picture
-	cube.style.background = color
 }
 
 function mouseMoveHandler(event: MouseEvent) {
@@ -44,22 +32,10 @@ function mouseMoveHandler(event: MouseEvent) {
 }
 
 async function processPipetteContent({clientX: x, clientY: y}: MouseEvent) {
-	const result = await invoke<IPippete>('capture_cursor_area', {x, y})
+	const result = await invoke<PipetteCapture>('capture_cursor_area', {x, y})
 
 	image.src = result.image
 	cube.style.background = result.color
-}
-
-function debounce<T extends (...args: Parameters<T>) => void>(
-	this: ThisParameterType<T>,
-	fn: T,
-	delay = 300,
-) {
-	let timer: ReturnType<typeof setTimeout> | undefined
-	return (...args: Parameters<T>) => {
-		clearTimeout(timer)
-		timer = setTimeout(() => fn.apply(this, args), delay)
-	}
 }
 
 async function clickPipetteHandler(event: MouseEvent) {
@@ -106,31 +82,6 @@ function processPipettePosition(event: MouseEvent) {
 	if (pipette.style.left !== `${baseLeft}px` || pipette.style.top !== `${baseTop}px`) {
 		pipette.style.left = `${baseLeft}px`
 		pipette.style.top = `${baseTop}px`
-	}
-}
-
-function toggleFullScreen() {
-	if (!document.fullscreenElement) {
-		document.documentElement.requestFullscreen()
-	} else {
-		if (document.exitFullscreen) {
-			document.exitFullscreen()
-		}
-	}
-}
-
-function setElectronAPI() {
-	window.electronAPI = {
-		minimizeWindow: () => ipcRenderer.send('minimize-window'),
-		resizeWindow: (width: number, height: number) =>
-			ipcRenderer.send('resize-window', width, height),
-		closeWindow: () => ipcRenderer.send('close-window'),
-		getColor: (x: number, y: number) => ipcRenderer.invoke('get-color', x, y),
-		getScreenshot: (x: number, y: number, size?: number) =>
-			ipcRenderer.invoke('get-screenshot', x, y, size),
-		getPickerData: (x: number, y: number) => ipcRenderer.invoke('get-picker-data', x, y),
-		openPicker: () => ipcRenderer.invoke('open-picker'),
-		closePicker: data => ipcRenderer.send('close-picker', data),
 	}
 }
 

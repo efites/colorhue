@@ -1,44 +1,18 @@
 import clsx from 'clsx'
-import {use, useState} from 'react'
+import {use} from 'react'
 import {GlobalContext} from '../../app/contexts/Global'
-import ScreenFallack from '../../shared/images/screen.png'
 import Icon from '../Icon/Icon'
 import styles from './Main.module.scss'
-import {invoke} from '@tauri-apps/api/core'
-import {listen} from '@tauri-apps/api/event'
+import {useColorPicker} from '../../app/hooks/useColorPicker'
 
-
-export interface IPippete {
-	image: string
-	color: string
-}
-
-interface ICursorPosition {
-	x: number
-	y: number
-}
 
 export const Main = () => {
 	const {mode} = use(GlobalContext)
-	const [color, setSelectedColor] = useState<string>('#FFFFFF')
-	const [image, setImage] = useState<string>(ScreenFallack)
+    const { color: _color, image, pickColor } = useColorPicker()
 
-	const handlePickColor = async () => {
-		try {
-			await invoke('create_overlay', {windowName: 'picker'})
-
-			listen<ICursorPosition>('send_cursor_position', async (event) => {
-				const {x, y} = event.payload
-
-				const result = await invoke<IPippete>('capture_cursor_area', {x, y})
-
-				setImage(result.image ?? ScreenFallack)
-				setSelectedColor(result.color)
-			})
-		} catch (err) {
-			console.error('Ошибка выбора цвета:', err)
-		}
-	}
+    const handlePickColor = async () => {
+        await pickColor()
+    }
 
 	return (
 		<div className={styles.main}>
@@ -48,11 +22,10 @@ export const Main = () => {
 				</div>
 				<div className={styles.windows}>
 					<div className={clsx(styles.window, styles.screenshot)}>
-						<img
+                        <img
 							alt='screenshot'
 							className={styles.screen}
 							src={image}
-							onError={() => setImage(ScreenFallack)}
 						/>
 						<div className={styles.cross}></div>
 					</div>

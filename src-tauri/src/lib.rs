@@ -2,7 +2,7 @@ use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder, Windo
 use serde_json::json;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::codecs::png::PngEncoder;
-use image::{ColorType, ExtendedColorType, ImageEncoder};
+use image::{ExtendedColorType, ImageEncoder};
 use screenshots::Screen;
 use serde::Serialize;
 
@@ -49,13 +49,6 @@ fn minimize_window(app_handle: AppHandle) {
 
 #[tauri::command]
 async fn create_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Result<(), String> {
-    // Получаем информацию о всех экранах
-    let screens = app_handle.primary_monitor()
-        .map_err(|e| e.to_string())?
-        .ok_or("No primary monitor found")?;
-
-    let screen_size = screens.size();
-
     // Создаем overlay окно на весь экран
     let overlay = WebviewWindowBuilder::new(
         &app_handle,
