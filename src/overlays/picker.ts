@@ -1,4 +1,5 @@
 import {invoke} from '@tauri-apps/api/core'
+import { pipetteConfig } from '../shared/config/pipette'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 // types are inferred from event payload
 // types are handled implicitly via event payload
@@ -11,13 +12,14 @@ let currentTranslateY = 0
 let positionRafId: number | null = null
 let streamUnlisten: UnlistenFn | null = null
 let lastImageDataUrl: string | null = null
-const MIN_SIZE = 5
-const MAX_SIZE = 50
-let currentSize = 50
+const MIN_SIZE = pipetteConfig.minSize
+const MAX_SIZE = pipetteConfig.maxSize
+let currentSize = Math.min(Math.max(pipetteConfig.defaultSize, MIN_SIZE), MAX_SIZE)
 
 const pipette = document.getElementById('pipette') as HTMLDivElement
 const cube = document.getElementById('cube') as HTMLDivElement
 const image = document.getElementById('image') as HTMLImageElement
+const colorText = document.querySelector('.code') as HTMLHeadingElement
 
 const {width: pipetteWidth, height: pipetteHeight} = pipette.getBoundingClientRect()
 
@@ -31,6 +33,8 @@ function init() {
 		stopStream()
 	})
 
+	// Позиционируем блок сразу при инициализации
+	positionPipetteAtCursor()
 	startStream()
 }
 
@@ -43,7 +47,9 @@ function mouseMoveHandler(event: MouseEvent) {
 }
 
 async function startStream() {
-    await invoke('start_capture_stream', { windowName: 'picker', fps: 12, size: 50, format: 'hex' })
+    // send dynamic limits from env/config
+    await invoke('update_capture_limits', { minSize: MIN_SIZE, maxSize: MAX_SIZE })
+    await invoke('start_capture_stream', { windowName: 'picker', fps: 12, size: currentSize, format: 'hex' })
 
     streamUnlisten = await listen<any>('picker_frame', (event) => {
         const {image: nextImage, color: nextColor, x, y} = event.payload as any
@@ -53,6 +59,11 @@ async function startStream() {
 		lastImageDataUrl = nextImage
 		image.src = nextImage
 		cube.style.background = nextColor
+
+		// Обновляем текст цвета
+		if (colorText) {
+			colorText.textContent = nextColor
+		}
 
         // Position pipette right away on the first frame based on cursor screen coords
         if (typeof x === 'number' && typeof y === 'number') {
@@ -72,8 +83,8 @@ async function stopStream() {
 
 async function wheelHandler(event: WheelEvent) {
     const delta = Math.sign(event.deltaY)
-    const step = 5
-    let next = currentSize + (delta > 0 ? -step : step)
+    const step = pipetteConfig.step
+    let next = currentSize + (delta > 0 ? step : -step)
 
     next = Math.min(MAX_SIZE, Math.max(MIN_SIZE, next))
 
@@ -131,6 +142,19 @@ function processPipettePosition(event: MouseEvent) {
 		pipette.style.left = `${baseLeft}px`
 		pipette.style.top = `${baseTop}px`
 	}
+}
+
+function positionPipetteAtCursor() {
+	// Получаем текущую позицию курсора
+	const mouseX = window.screenX + window.innerWidth / 2
+	const mouseY = window.screenY + window.innerHeight / 2
+
+	// Позиционируем блок сразу
+	const baseLeft = mouseX + offsetX
+	const baseTop = mouseY + offsetY
+
+	pipette.style.left = `${baseLeft}px`
+	pipette.style.top = `${baseTop}px`
 }
 
 init()
