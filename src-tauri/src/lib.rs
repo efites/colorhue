@@ -8,6 +8,8 @@ use serde::Serialize;
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use tauri::async_runtime as tauri_rt;
 use device_query::{DeviceQuery, DeviceState};
+use std::fs;
+use serde::Deserialize;
 
 #[derive(Serialize)]
 struct CaptureData {
@@ -26,6 +28,8 @@ struct CaptureStreamState {
     capture_size: Mutex<u32>,
     fps: Mutex<u32>,
     color_format: Mutex<String>,
+    min_size: Mutex<u32>,
+    max_size: Mutex<u32>,
 }
 
 impl CaptureStreamState {
@@ -37,6 +41,8 @@ impl CaptureStreamState {
             capture_size: Mutex::new(50),
             fps: Mutex::new(12),
             color_format: Mutex::new("hex".to_string()),
+            min_size: Mutex::new(10),
+            max_size: Mutex::new(50),
         }
     }
 }
@@ -74,25 +80,69 @@ fn minimize_window(app_handle: AppHandle) {
     window.minimize().unwrap();
 }
 
+#[derive(Deserialize)]
+struct AppConfig {
+    #[serde(rename = "buildMode")] build_mode: Option<String>,
+    pipette: Option<serde_json::Value>,
+    #[serde(rename = "overlayDevSize")] overlay_dev_size: Option<OverlayDevSize>,
+}
+
+#[derive(Deserialize, Clone, Copy)]
+struct OverlayDevSize { width: u32, height: u32 }
+
+fn read_app_config(app_handle: &AppHandle) -> Option<AppConfig> {
+    let mut candidates: Vec<std::path::PathBuf> = Vec::new();
+
+    if let Ok(cwd) = std::env::current_dir() { candidates.push(cwd.join("config.json")); }
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            candidates.push(dir.join("config.json"));
+            if let Some(p) = dir.parent() { candidates.push(p.join("config.json")); }
+            if let Some(pp) = dir.parent().and_then(|p| p.parent()) { candidates.push(pp.join("config.json")); }
+        }
+    }
+    if let Ok(res_dir) = app_handle.path().resource_dir() { candidates.push(res_dir.join("config.json")); }
+
+    for path in candidates {
+        if path.exists() {
+            if let Ok(data) = fs::read_to_string(&path) {
+                if let Ok(cfg) = serde_json::from_str::<AppConfig>(&data) { return Some(cfg); }
+            }
+        }
+    }
+    None
+}
+
 #[tauri::command]
 async fn create_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Result<(), String> {
-    // Создаем overlay окно на весь экран
-    let overlay = WebviewWindowBuilder::new(
+    let cfg = read_app_config(&app_handle);
+    let build_mode = cfg.as_ref().and_then(|c| c.build_mode.clone()).unwrap_or_else(|| "prod".to_string());
+    let mut builder = WebviewWindowBuilder::new(
         &app_handle,
         window_name,
-        WebviewUrl::App("./src/overlays/picker.html".into()) // тот же HTML, но с другим компонентом
+        WebviewUrl::App("./src/overlays/picker.html".into())
     )
-    .fullscreen(true)
-    .transparent(true) // Прозрачное окно
-    .decorations(false) // Без рамки
-    .always_on_top(true) // Поверх всех окон
+    .transparent(true)
+    .decorations(false)
+    .always_on_top(true)
     .focused(true)
-    .build()
-    .map_err(|e| e.to_string())?;
+    .visible(false); // Создаём невидимым, показываем после загрузки
 
-    // Устанавливаем прозрачность и игнорирование событий мыши для определенных областей
-    overlay.set_ignore_cursor_events(false)
-        .map_err(|e| e.to_string())?;
+    if build_mode == "dev" {
+        if let Some(size) = cfg.and_then(|c| c.overlay_dev_size) {
+            builder = builder.inner_size(size.width as f64, size.height as f64);
+        } else {
+            builder = builder.inner_size(600.0, 600.0);
+        }
+    } else {
+        builder = builder.fullscreen(true);
+    }
+
+    let overlay = builder.build().map_err(|e| e.to_string())?;
+    overlay.set_ignore_cursor_events(false).map_err(|e| e.to_string())?;
+
+    // Показываем окно сразу, но с прозрачным фоном
+    overlay.show().map_err(|e| e.to_string())?;
 
     Ok(())
 }
@@ -207,8 +257,10 @@ fn start_capture_stream(
     drop(fps_lock);
 
     if let Some(sz) = size {
+        let min_sz = *state.min_size.lock().map_err(|e| e.to_string())?;
+        let max_sz = *state.max_size.lock().map_err(|e| e.to_string())?;
         let mut size_lock = state.capture_size.lock().map_err(|e| e.to_string())?;
-        *size_lock = sz.clamp(10, 50);
+        *size_lock = sz.clamp(min_sz, max_sz);
     }
     if let Some(fmt) = &format {
         let mut fmt_lock = state.color_format.lock().map_err(|e| e.to_string())?;
@@ -296,8 +348,10 @@ fn stop_capture_stream(state: State<Arc<CaptureStreamState>>) -> Result<(), Stri
 
 #[tauri::command]
 fn update_capture_size(state: State<Arc<CaptureStreamState>>, size: u32) -> Result<(), String> {
+    let min_sz = *state.min_size.lock().map_err(|e| e.to_string())?;
+    let max_sz = *state.max_size.lock().map_err(|e| e.to_string())?;
     let mut lock = state.capture_size.lock().map_err(|e| e.to_string())?;
-    *lock = size.clamp(10, 50);
+    *lock = size.clamp(min_sz, max_sz);
     Ok(())
 }
 
@@ -305,6 +359,27 @@ fn update_capture_size(state: State<Arc<CaptureStreamState>>, size: u32) -> Resu
 fn update_color_format(state: State<Arc<CaptureStreamState>>, format: Option<String>) -> Result<(), String> {
     let mut lock = state.color_format.lock().map_err(|e| e.to_string())?;
     *lock = format.unwrap_or_else(|| "hex".to_string());
+    Ok(())
+}
+
+#[tauri::command]
+fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, max_size: u32) -> Result<(), String> {
+    if min_size == 0 || max_size == 0 || min_size > max_size { return Err("invalid limits".to_string()); }
+    {
+        let mut min_lock = state.min_size.lock().map_err(|e| e.to_string())?;
+        *min_lock = min_size;
+    }
+    {
+        let mut max_lock = state.max_size.lock().map_err(|e| e.to_string())?;
+        *max_lock = max_size;
+    }
+    // Also clamp current capture size into new range
+    {
+        let min_sz = *state.min_size.lock().map_err(|e| e.to_string())?;
+        let max_sz = *state.max_size.lock().map_err(|e| e.to_string())?;
+        let mut size_lock = state.capture_size.lock().map_err(|e| e.to_string())?;
+        *size_lock = (*size_lock).clamp(min_sz, max_sz);
+    }
     Ok(())
 }
 
@@ -327,6 +402,7 @@ pub fn run() {
             stop_capture_stream,
             update_capture_size,
             update_color_format,
+            update_capture_limits,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

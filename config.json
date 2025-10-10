@@ -1,0 +1,13 @@
+{
+  "buildMode": "dev",
+  "pipette": {
+    "minSize": 15,
+    "maxSize": 50,
+    "step": 5,
+    "defaultSize": 30
+  },
+  "overlayDevSize": {
+    "width": 600,
+    "height": 600
+  }
+}

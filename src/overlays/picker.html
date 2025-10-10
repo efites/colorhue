@@ -3,14 +3,22 @@
 	<head>
 		<link rel="stylesheet" href="picker.css" />
 		<script defer type="module" src="picker.ts"></script>
+		<style>
+			/* Предотвращаем белую вспышку */
+			html, body {
+				background: transparent !important;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="pipette" class="pipitte">
+			<div class="column picture">
+				<img id="image" class="image" alt="screenshot" src="../shared/images/grid.png" />
+			</div>
 			<div class="column info">
 				<div class="color">
 					<div id="cube" class="cube"></div>
-					<img id="image" class="image" alt="screenshot" src="{image}" />
-					<h2 class="code">HSB 0, 0, 96</h2>
+					<h2 class="code">#000000</h2>
 				</div>
 				<div class="note">
 					<img src="../shared/images/click.svg" alt="click" class="icon" />
