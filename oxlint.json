@@ -1,0 +1,13 @@
+{
+	"rules": {
+		"correctness": "warn",
+		"suspicious": "warn",
+		"perf": "warn",
+		"style": "warn"
+	},
+	"ignore": [
+		"node_modules/**",
+		"dist/**",
+		"src-tauri/**"
+	]
+}

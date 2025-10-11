@@ -9,7 +9,7 @@ indent_style = tab # Отступ в виде "tab | space"
 indent_size = 4 # Длина отступа
 max_line_length = 100 # Макс. длина строки
 insert_final_newline = true # В конце файла всегда пустая строка
-trim_trailing_whitespace = true # Кбирать пробелы на концах строк
+trim_trailing_whitespace = true # Убирать пробелы на концах строк
 
 # Для всех файлов ".md"
 [*.md]
