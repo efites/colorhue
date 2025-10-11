@@ -42,23 +42,6 @@ export const useAutoWindowSize = () => {
 		initializeWindow()
 	}, [setWindowSize])
 
-	// ResizeObserver для автоматического изменения размера при изменении контента
-	useEffect(() => {
-		const resizeObserver = new ResizeObserver(async entries => {
-			for (const entry of entries) {
-				await setWindowSize()
-			}
-		})
-
-		if (contentRef.current) {
-			resizeObserver.observe(contentRef.current)
-		}
-
-		return () => {
-			resizeObserver.disconnect()
-		}
-	}, [setWindowSize])
-
 	return {
 		contentRef,
 		setWindowSize,

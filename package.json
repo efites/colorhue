@@ -1,36 +1,49 @@
 {
-  "name": "colorhue",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "prepare": "husky",
-    "build": "tauri tsc && vite build",
-    "dev": "vite",
-    "tauri": "tauri",
-    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,html,css,scss}",
-    "lint": "eslint . --fix",
-    "pretty": "bun run format && bun run lint"
-  },
-  "dependencies": {
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
-    "clsx": "^2.1.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-  },
-  "devDependencies": {
-    "@siberiacancode/eslint": "^2.13.0",
-    "@tauri-apps/cli": "^2",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.6.0",
-    "eslint": "^9.37.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.3",
-    "prettier": "^3.6.2",
-    "sass-embedded": "^1.93.2",
-    "typescript": "~5.8.3",
-    "vite": "^7.0.4"
-  }
+	"name": "colorhue",
+	"type": "module",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"prepare": "husky",
+		"build": "tauri tsc && vite build",
+		"dev": "vite",
+		"tauri": "tauri",
+		"format": "prettier --no-error-on-unmatched-pattern --write src/**/*.{js,jsx,ts,tsx,html,css,scss}",
+		"lint": "oxlint src --fix",
+		"pretty": "bun run format && bun run lint"
+	},
+	"dependencies": {
+		"@tauri-apps/api": "^2",
+		"@tauri-apps/plugin-opener": "^2",
+		"clsx": "^2.1.1",
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0"
+	},
+	"devDependencies": {
+		"@tauri-apps/cli": "^2",
+		"@types/react": "^19.1.8",
+		"@types/react-dom": "^19.1.6",
+		"@vitejs/plugin-react": "^4.6.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.2.3",
+		"oxlint": "^1.22.0",
+		"prettier": "^3.6.2",
+		"sass-embedded": "^1.93.2",
+		"typescript": "~5.8.3",
+		"vite": "^7.0.4"
+	},
+	"lint-staged": {
+		"src/**/*.{js,jsx}": [
+			"prettier --write --no-error-on-unmatched-pattern",
+			"eslint --fix"
+		],
+		"src/**/*.{ts,tsx}": [
+			"prettier --write --no-error-on-unmatched-pattern",
+			"eslint --no-error-on-unmatched-pattern --fix"
+		]
+	},
+	"packageManager": "bun@1.1.0",
+	"engines": {
+		"bun": ">=1.2.0"
+	}
 }

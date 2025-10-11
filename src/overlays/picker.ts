@@ -1,5 +1,5 @@
 import {invoke} from '@tauri-apps/api/core'
-import { pipetteConfig } from '../shared/config/pipette'
+import {pipetteConfig} from '../shared/config/pipette'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 // types are inferred from event payload
 // types are handled implicitly via event payload
@@ -23,11 +23,10 @@ const colorText = document.querySelector('.code') as HTMLHeadingElement
 
 const {width: pipetteWidth, height: pipetteHeight} = pipette.getBoundingClientRect()
 
-
 function init() {
 	document.addEventListener('click', clickPipetteHandler)
 	document.addEventListener('mousemove', mouseMoveHandler)
-    document.addEventListener('wheel', wheelHandler, { passive: true })
+	document.addEventListener('wheel', wheelHandler, {passive: true})
 	window.addEventListener('beforeunload', () => {
 		if (positionRafId) cancelAnimationFrame(positionRafId)
 		stopStream()
@@ -47,12 +46,17 @@ function mouseMoveHandler(event: MouseEvent) {
 }
 
 async function startStream() {
-    // send dynamic limits from env/config
-    await invoke('update_capture_limits', { minSize: MIN_SIZE, maxSize: MAX_SIZE })
-    await invoke('start_capture_stream', { windowName: 'picker', fps: 12, size: currentSize, format: 'hex' })
+	// send dynamic limits from env/config
+	await invoke('update_capture_limits', {minSize: MIN_SIZE, maxSize: MAX_SIZE})
+	await invoke('start_capture_stream', {
+		windowName: 'picker',
+		fps: 12,
+		size: currentSize,
+		format: 'hex',
+	})
 
-    streamUnlisten = await listen<any>('picker_frame', (event) => {
-        const {image: nextImage, color: nextColor, x, y} = event.payload as any
+	streamUnlisten = await listen<any>('picker_frame', event => {
+		const {image: nextImage, color: nextColor, x, y} = event.payload as any
 
 		if (lastImageDataUrl === nextImage) return
 
@@ -65,11 +69,11 @@ async function startStream() {
 			colorText.textContent = nextColor
 		}
 
-        // Position pipette right away on the first frame based on cursor screen coords
-        if (typeof x === 'number' && typeof y === 'number') {
-            // Create a synthetic MouseEvent-like object for position function
-            processPipettePosition({ clientX: x, clientY: y } as MouseEvent)
-        }
+		// Position pipette right away on the first frame based on cursor screen coords
+		if (typeof x === 'number' && typeof y === 'number') {
+			// Create a synthetic MouseEvent-like object for position function
+			processPipettePosition({clientX: x, clientY: y} as MouseEvent)
+		}
 	})
 }
 
@@ -82,31 +86,31 @@ async function stopStream() {
 }
 
 async function wheelHandler(event: WheelEvent) {
-    const delta = Math.sign(event.deltaY)
-    const step = pipetteConfig.step
-    let next = currentSize + (delta > 0 ? step : -step)
+	const delta = Math.sign(event.deltaY)
+	const step = pipetteConfig.step
+	let next = currentSize + (delta > 0 ? step : -step)
 
-    next = Math.min(MAX_SIZE, Math.max(MIN_SIZE, next))
+	next = Math.min(MAX_SIZE, Math.max(MIN_SIZE, next))
 
-    if (next === currentSize) return
-    currentSize = next
+	if (next === currentSize) return
+	currentSize = next
 
-    await invoke('update_capture_size', { size: currentSize })
+	await invoke('update_capture_size', {size: currentSize})
 }
 
 async function clickPipetteHandler(event: MouseEvent) {
 	try {
 		const {screenX: x, screenY: y} = event
 
-        await invoke('send_cursor_position', {
-            x: Math.round(x),
-            y: Math.round(y),
-            size: currentSize
-        })
+		await invoke('send_cursor_position', {
+			x: Math.round(x),
+			y: Math.round(y),
+			size: currentSize,
+		})
 
 		if (positionRafId) cancelAnimationFrame(positionRafId)
 		await stopStream()
-		await invoke("close_overlay", {windowName: 'picker'})
+		await invoke('close_overlay', {windowName: 'picker'})
 	} catch (error) {
 		console.error('Error:', error)
 	}
@@ -138,7 +142,7 @@ function processPipettePosition(event: MouseEvent) {
 		pipette.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px)`
 	}
 
-    if (pipette.style.left !== `${baseLeft}px` || pipette.style.top !== `${baseTop}px`) {
+	if (pipette.style.left !== `${baseLeft}px` || pipette.style.top !== `${baseTop}px`) {
 		pipette.style.left = `${baseLeft}px`
 		pipette.style.top = `${baseTop}px`
 	}

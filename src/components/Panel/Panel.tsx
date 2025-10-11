@@ -5,11 +5,11 @@ import {invoke} from '@tauri-apps/api/core'
 
 export const Panel = () => {
 	const minimazeHandler = async () => {
-		await invoke('minimize_window');
+		await invoke('minimize_window')
 	}
 
 	const closeHandler = async () => {
-		await invoke('exit_app');
+		await invoke('exit_app')
 	}
 
 	return (

@@ -5,10 +5,9 @@
 	"trailingComma": "all",
 	"semi": false,
 	"bracketSpacing": false,
-	"jsxBracketSameLine": true,
+	"bracketSameLine": true,
 	"tabWidth": 4,
 	"useTabs": true,
 	"endOfLine": "crlf",
-	"bracketSameLine": true,
 	"arrowParens": "avoid"
 }

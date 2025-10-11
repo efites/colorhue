@@ -5,14 +5,13 @@ import Icon from '../Icon/Icon'
 import styles from './Main.module.scss'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
 
-
 export const Main = () => {
 	const {mode} = use(GlobalContext)
-    const { color: _color, image, pickColor } = useColorPicker()
+	const {color: _color, image, pickColor} = useColorPicker()
 
-    const handlePickColor = async () => {
-        await pickColor()
-    }
+	const handlePickColor = async () => {
+		await pickColor()
+	}
 
 	return (
 		<div className={styles.main}>
@@ -22,11 +21,7 @@ export const Main = () => {
 				</div>
 				<div className={styles.windows}>
 					<div className={clsx(styles.window, styles.screenshot)}>
-                        <img
-							alt='screenshot'
-							className={styles.screen}
-							src={image}
-						/>
+						<img alt='screenshot' className={styles.screen} src={image} />
 						<div className={styles.cross}></div>
 					</div>
 					<div className={clsx(styles.window, styles.brightness)}></div>
