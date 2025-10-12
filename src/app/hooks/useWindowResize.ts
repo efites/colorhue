@@ -35,7 +35,7 @@ export const useAutoWindowSize = () => {
 	useEffect(() => {
 		const initializeWindow = async () => {
 			// Небольшая задержка для гарантии рендера контента
-			// await new Promise(resolve => setTimeout(resolve, 10));
+			await new Promise(resolve => setTimeout(resolve, 100))
 			await setWindowSize()
 		}
 

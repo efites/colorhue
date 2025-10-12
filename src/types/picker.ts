@@ -1,7 +1,10 @@
-export interface PipetteCapture {
-	image: string
+export interface IColor {
 	color: string
 	format: 'hex' | 'rgb'
+}
+
+export interface PipetteCapture extends IColor {
+	image: string
 }
 
 export interface CursorPosition {

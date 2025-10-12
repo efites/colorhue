@@ -421,20 +421,6 @@ fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, m
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-		.setup(|app| {
-			if let Err(e) = setup_config() {
-				eprintln!("Failed to setup config: {}", e);
-				return Ok(());
-			}
-
-			let config = get_config()?;
-			if config.mode == "dev" {
-				let window = app.get_webview_window("main").unwrap();
-				window.open_devtools(); // Открыть DevTools
-			}
-
-		    Ok(())
-})
         .plugin(tauri_plugin_opener::init())
         .manage(Arc::new(CaptureStreamState::new()))
         .invoke_handler(tauri::generate_handler![
@@ -453,6 +439,26 @@ pub fn run() {
             update_color_format,
             update_capture_limits,
         ])
+		.setup(|app| {
+			match setup_config() {
+                Ok(()) => {
+                    if let Ok(config) = get_config() {
+                        if config.mode == "dev" {
+                            if let Some(window) = app.get_webview_window("main") {
+								window.open_devtools();
+								println!("DevTools opened in development mode");
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Warning: Failed to setup config: {}", e);
+                    eprintln!("Application will continue without DevTools");
+                }
+            }
+
+            Ok(())
+		})
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,7 +1,8 @@
-import React from 'react'
-
 import styles from './Pin.module.scss'
+import {IColor} from '../../types/picker'
 
-export const Pin = () => {
-	return <div className={styles.pin}></div>
+const standard = '#fff'
+
+export const Pin = ({color}: IColor) => {
+	return <div className={styles.pin} style={{backgroundColor: color || standard}}></div>
 }
