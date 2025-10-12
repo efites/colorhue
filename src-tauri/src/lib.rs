@@ -1,10 +1,12 @@
 use tauri::{AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder, Window};
 use serde_json::json;
+use once_cell::sync::OnceCell;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::codecs::png::PngEncoder;
 use image::{ExtendedColorType, ImageEncoder};
 use screenshots::Screen;
 use serde::Serialize;
+use std::path::Path;
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use tauri::async_runtime as tauri_rt;
 use device_query::{DeviceQuery, DeviceState};
@@ -32,6 +34,8 @@ struct CaptureStreamState {
     max_size: Mutex<u32>,
 }
 
+static APP_CONFIG: OnceCell<Mutex<Option<AppConfig>>> = OnceCell::new();
+
 impl CaptureStreamState {
     fn new() -> Self {
         Self {
@@ -47,6 +51,69 @@ impl CaptureStreamState {
     }
 }
 
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AppConfig {
+    pub mode: String,
+    pub pipette: PipetteConfig,
+    pub overlay: Option<Overlay>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct PipetteConfig {
+    pub min: i32,
+    pub max: i32,
+    pub default: i32,
+    pub step: i32,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct Overlay {
+    pub width: i32,
+    pub height: i32,
+}
+
+pub fn init_config(config: AppConfig) -> Result<(), String> {
+    let cell = APP_CONFIG.get_or_init(|| Mutex::new(None));
+
+    let mut config_guard = cell.lock().map_err(|e| e.to_string())?;
+    if config_guard.is_some() {
+        return Err("Config already initialized".to_string());
+    }
+
+    *config_guard = Some(config);
+    Ok(())
+}
+
+pub fn get_config() -> Result<AppConfig, String> {
+    let cell = APP_CONFIG
+        .get()
+        .ok_or("Config not initialized".to_string())?;
+
+    let config_guard = cell.lock().map_err(|e| e.to_string())?;
+    config_guard
+        .as_ref()
+        .cloned()
+        .ok_or("Config not initialized".to_string())
+}
+
+pub fn setup_config() -> Result<(), String> {
+    // В разработке config.json в корне проекта, в production - рядом с исполняемым файлом
+    let config_path = if cfg!(debug_assertions) {
+        "../config.json"
+    } else {
+        "./config.json"
+    };
+
+    let config_content = fs::read_to_string(Path::new(config_path))
+        .map_err(|e| format!("Failed to read config file: {}", e))?;
+
+    let config: AppConfig = serde_json::from_str(&config_content)
+        .map_err(|e| format!("Failed to parse config JSON: {}", e))?;
+
+    init_config(config)
+}
 
 #[tauri::command]
 fn set_window_size(window: Window, width: f64, height: f64) -> Result<(), String> {
@@ -80,43 +147,11 @@ fn minimize_window(app_handle: AppHandle) {
     window.minimize().unwrap();
 }
 
-#[derive(Deserialize)]
-struct AppConfig {
-    #[serde(rename = "buildMode")] build_mode: Option<String>,
-    pipette: Option<serde_json::Value>,
-    #[serde(rename = "overlayDevSize")] overlay_dev_size: Option<OverlayDevSize>,
-}
-
-#[derive(Deserialize, Clone, Copy)]
-struct OverlayDevSize { width: u32, height: u32 }
-
-fn read_app_config(app_handle: &AppHandle) -> Option<AppConfig> {
-    let mut candidates: Vec<std::path::PathBuf> = Vec::new();
-
-    if let Ok(cwd) = std::env::current_dir() { candidates.push(cwd.join("config.json")); }
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(dir) = exe.parent() {
-            candidates.push(dir.join("config.json"));
-            if let Some(p) = dir.parent() { candidates.push(p.join("config.json")); }
-            if let Some(pp) = dir.parent().and_then(|p| p.parent()) { candidates.push(pp.join("config.json")); }
-        }
-    }
-    if let Ok(res_dir) = app_handle.path().resource_dir() { candidates.push(res_dir.join("config.json")); }
-
-    for path in candidates {
-        if path.exists() {
-            if let Ok(data) = fs::read_to_string(&path) {
-                if let Ok(cfg) = serde_json::from_str::<AppConfig>(&data) { return Some(cfg); }
-            }
-        }
-    }
-    None
-}
-
 #[tauri::command]
 async fn create_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Result<(), String> {
-    let cfg = read_app_config(&app_handle);
-    let build_mode = cfg.as_ref().and_then(|c| c.build_mode.clone()).unwrap_or_else(|| "prod".to_string());
+	let config = get_config()?;
+
+    let build_mode = config.mode;
     let mut builder = WebviewWindowBuilder::new(
         &app_handle,
         window_name,
@@ -129,11 +164,11 @@ async fn create_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Resu
     .visible(false); // Создаём невидимым, показываем после загрузки
 
     if build_mode == "dev" {
-        if let Some(size) = cfg.and_then(|c| c.overlay_dev_size) {
-            builder = builder.inner_size(size.width as f64, size.height as f64);
-        } else {
-            builder = builder.inner_size(600.0, 600.0);
-        }
+		let sizes = config.overlay.unwrap_or(Overlay {width: 150, height: 250});
+		let width: f64 = sizes.width as f64;
+		let height: f64 = sizes.height as f64;
+
+		builder = builder.inner_size(width, height);
     } else {
         builder = builder.fullscreen(true);
     }
@@ -386,6 +421,20 @@ fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, m
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+		.setup(|app| {
+			if let Err(e) = setup_config() {
+				eprintln!("Failed to setup config: {}", e);
+				return Ok(());
+			}
+
+			let config = get_config()?;
+			if config.mode == "dev" {
+				let window = app.get_webview_window("main").unwrap();
+				window.open_devtools(); // Открыть DevTools
+			}
+
+		    Ok(())
+})
         .plugin(tauri_plugin_opener::init())
         .manage(Arc::new(CaptureStreamState::new()))
         .invoke_handler(tauri::generate_handler![

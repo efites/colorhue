@@ -1,24 +1,27 @@
-import configJson from '../../../config.json' assert {type: 'json'}
+import config from '../../../config.json' assert {type: 'json'}
 
-type AppConfig = {
-	buildMode: 'dev' | 'prod'
+interface AppConfig {
+	mode: 'dev' | 'prod'
 	pipette: {
-		minSize: number
-		maxSize: number
+		min: number
+		max: number
 		step: number
-		defaultSize: number
+		default: number
 	}
-	overlayDevSize?: {width: number; height: number}
+	overlay: {
+		width: number
+		height: number
+	}
 }
 
-const cfg = configJson as AppConfig
+export const APP_CONFIG: AppConfig = config as AppConfig
 
-export const pipetteConfig = {
-	minSize: cfg.pipette.minSize,
-	maxSize: cfg.pipette.maxSize,
-	step: cfg.pipette.step,
-	defaultSize: cfg.pipette.defaultSize,
-}
+// export const pipetteConfig = {
+// 	minSize: cfg.pipette.minSize,
+// 	maxSize: cfg.pipette.maxSize,
+// 	step: cfg.pipette.step,
+// 	defaultSize: cfg.pipette.defaultSize,
+// }
 
-export const buildMode = cfg.buildMode
-export const overlayDevSize = cfg.overlayDevSize
+// export const buildMode = cfg.buildMode
+// export const overlayDevSize = cfg.overlayDevSize

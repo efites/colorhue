@@ -1,5 +1,5 @@
 import {invoke} from '@tauri-apps/api/core'
-import {pipetteConfig} from '../shared/config/pipette'
+import {APP_CONFIG} from '../shared/config/pipette'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 // types are inferred from event payload
 // types are handled implicitly via event payload
@@ -12,9 +12,9 @@ let currentTranslateY = 0
 let positionRafId: number | null = null
 let streamUnlisten: UnlistenFn | null = null
 let lastImageDataUrl: string | null = null
-const MIN_SIZE = pipetteConfig.minSize
-const MAX_SIZE = pipetteConfig.maxSize
-let currentSize = Math.min(Math.max(pipetteConfig.defaultSize, MIN_SIZE), MAX_SIZE)
+const MIN_SIZE = APP_CONFIG.pipette.min
+const MAX_SIZE = APP_CONFIG.pipette.max
+let currentSize = Math.min(Math.max(APP_CONFIG.pipette.default, MIN_SIZE), MAX_SIZE)
 
 const pipette = document.getElementById('pipette') as HTMLDivElement
 const cube = document.getElementById('cube') as HTMLDivElement
@@ -87,7 +87,7 @@ async function stopStream() {
 
 async function wheelHandler(event: WheelEvent) {
 	const delta = Math.sign(event.deltaY)
-	const step = pipetteConfig.step
+	const step = APP_CONFIG.pipette.step
 	let next = currentSize + (delta > 0 ? step : -step)
 
 	next = Math.min(MAX_SIZE, Math.max(MIN_SIZE, next))
