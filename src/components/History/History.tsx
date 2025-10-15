@@ -12,9 +12,9 @@ export const History = () => {
 		return history || initialHistoryContext
 	})
 
-	const {color, format} = useColorPicker()
+	const {color, format, image} = useColorPicker()
 
-	console.log(color)
+	console.log(image)
 
 	useEffect(() => {
 		console.log('update history')
