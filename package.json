@@ -6,7 +6,8 @@
 	"scripts": {
 		"prepare": "husky",
 		"build": "tauri tsc && vite build",
-		"dev": "vite",
+		"browse": "vite",
+		"dev": "concurrently 'tauri dev' 'vite'",
 		"tauri": "tauri",
 		"format": "prettier --no-error-on-unmatched-pattern --write src/**/*.{js,jsx,ts,tsx,html,css,scss}",
 		"lint": "oxlint src --fix",
@@ -24,6 +25,7 @@
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^4.6.0",
+		"concurrently": "^9.2.1",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.3",
 		"oxlint": "^1.22.0",
