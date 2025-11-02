@@ -13,6 +13,10 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.vite
+out
+.vscode
+.husky
 *.local
 
 # Editor directories and files
