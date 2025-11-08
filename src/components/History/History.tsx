@@ -1,38 +1,30 @@
-import {useEffect, useState} from 'react'
+import {use, useEffect} from 'react'
 import {Pin} from '..'
-
 import styles from './History.module.scss'
-import {HistoryContext, IHistory, initialHistoryContext} from '../../app/contexts/History'
+import {GlobalContext} from '../../app/contexts/Global'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
 
 export const History = () => {
-	const [history, setHistory] = useState<IHistory>(() => {
-		const historyItem = localStorage.getItem('history')
-		const history: IHistory | null = JSON.parse(historyItem ?? 'null')
-		return history || initialHistoryContext
-	})
-
-	const {color, format} = useColorPicker()
-
-	console.log(color)
+	const {history, setHistory} = use(GlobalContext)
+	const {color: _color, format} = useColorPicker()
 
 	useEffect(() => {
-		console.log('update history')
-		setHistory(prev => ({
-			...prev,
-			colors: [...prev.colors, {color, format}],
-		}))
-	}, [color])
+		history.unshift({color: _color, format})
+
+		const newHistory = history.slice(0, 20)
+
+		localStorage.setItem('history', JSON.stringify(newHistory))
+
+		setHistory(newHistory)
+	}, [_color])
 
 	return (
-		<HistoryContext value={history}>
-			<div className={styles.history}>
-				<div className={styles.pins}>
-					{history.colors.map(({color, format}, index) => {
-						return <Pin key={index} color={color} format={format} />
-					})}
-				</div>
+		<div className={styles.history}>
+			<div className={styles.pins}>
+				{history.map(({color, format}, index) => {
+					return <Pin key={index} color={color} format={format} />
+				})}
 			</div>
-		</HistoryContext>
+		</div>
 	)
 }

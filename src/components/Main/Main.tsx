@@ -1,17 +1,108 @@
 import clsx from 'clsx'
-import {use} from 'react'
+import {ChangeEvent, use, useEffect, useState} from 'react'
 import {GlobalContext} from '../../app/contexts/Global'
 import Icon from '../Icon/Icon'
 import styles from './Main.module.scss'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
+import {RegularsExp} from '../../shared/consts/regexp'
 
 export const Main = () => {
+	const [code, setCode] = useState<string>('#ffffff')
+	const [opacity, setOpacity] = useState<number>(100)
 	const {mode} = use(GlobalContext)
-	const {color: _color, image, pickColor} = useColorPicker()
+	const {color: _color, image, format, pickColor} = useColorPicker()
 
 	const handlePickColor = async () => {
 		await pickColor()
 	}
+
+	const changeCodeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		setCode(event.target.value)
+	}
+
+	const expandHex = (value: string): string => {
+		// Remove '#'
+		const cleanValue = value.replace(/^#/, '')
+
+		switch (cleanValue.length) {
+			case 1:
+				// "1" -> "111111"
+				return cleanValue.repeat(6)
+			case 2:
+				// "12" -> "121212"
+				return cleanValue.repeat(3)
+			case 3:
+				// "123" -> "112233"
+				return cleanValue.split('').map(char => char + char).join('')
+			case 4:
+				// "1234" -> "112233"
+				return cleanValue.substring(0, 3).split('').map(char => char + char).join('')
+			case 5:
+				// "12345" -> "112233"
+				return cleanValue.substring(0, 3).split('').map(char => char + char).join('')
+			default:
+				return cleanValue
+		}
+	}
+
+	const blurCodeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		const value = event.target.value
+
+		switch (format) {
+			case 'hex':
+				// Remove '#'
+				const cleanValue = value.replace(/^#/, '')
+
+				// Full hex
+				if (RegularsExp.hex.test(value)) {
+					const formatted = value.startsWith('#') ? value : `#${value}`
+
+					setCode(formatted)
+					return
+				}
+
+				// Short hex
+				if (RegularsExp.shortHex.test(value)) {
+					const expanded = expandHex(cleanValue)
+					const formatted = `#${expanded}`
+
+					if (RegularsExp.hex.test(formatted)) {
+						setCode(formatted)
+						return
+					}
+				}
+				break
+			case 'rgb':
+				if (RegularsExp.rgb.test(value) || RegularsExp.rgba.test(value)) {
+					setCode(value)
+					return
+				}
+				break
+			default:
+				const _exhaustiveCheck: never = format
+				return
+		}
+	}
+
+	const changeOpacityHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		const number = parseInt(event.target.value)
+
+		if (isNaN(number)) return setOpacity(100)
+		if (number > 100) return setOpacity(100)
+		if (number < 0) return setOpacity(0)
+
+		setOpacity(number)
+	}
+
+	const blurOpacityHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		if (event.target.value === '') {
+			setOpacity(0)
+		}
+	}
+
+	useEffect(() => {
+		setCode(_color)
+	}, [_color])
 
 	return (
 		<div className={styles.main}>
@@ -52,10 +143,21 @@ export const Main = () => {
 							</div>
 							<div className={styles.codes}>
 								<div className={styles.codeWrapper}>
-									<input className={styles.code} type='text' />
+									<input
+										className={styles.code}
+										type='text'
+										value={code}
+										onChange={changeCodeHandler}
+										onBlur={blurCodeHandler} />
 								</div>
 								<div className={styles.percentages}>
-									<input className={styles.opacity} maxLength={3} type='text' />
+									<input
+										className={styles.opacity}
+										maxLength={3}
+										type='number'
+										value={opacity}
+										onChange={changeOpacityHandler}
+										onBlur={blurOpacityHandler} />
 									<span className={styles.static}>%</span>
 								</div>
 							</div>
