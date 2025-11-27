@@ -6,10 +6,11 @@ import styles from './Main.module.scss'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {RegularsExp} from '../../shared/consts/regexp'
 
+
 export const Main = () => {
 	const [code, setCode] = useState<string>('#ffffff')
 	const [opacity, setOpacity] = useState<number>(100)
-	const {mode} = use(GlobalContext)
+	const {mode, addHistory} = use(GlobalContext)
 	const {color: _color, image, format, pickColor} = useColorPicker()
 
 	const handlePickColor = async () => {
@@ -17,64 +18,79 @@ export const Main = () => {
 	}
 
 	const changeCodeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		event.preventDefault()
 		setCode(event.target.value)
 	}
 
 	const expandHex = (value: string): string => {
-		// Remove '#'
-		const cleanValue = value.replace(/^#/, '')
-
-		switch (cleanValue.length) {
+		switch (value.length) {
 			case 1:
 				// "1" -> "111111"
-				return cleanValue.repeat(6)
+				return value.repeat(6)
 			case 2:
 				// "12" -> "121212"
-				return cleanValue.repeat(3)
+				return value.repeat(3)
 			case 3:
 				// "123" -> "112233"
-				return cleanValue.split('').map(char => char + char).join('')
+				return value
+					.split('')
+					.map(char => char + char)
+					.join('')
 			case 4:
 				// "1234" -> "112233"
-				return cleanValue.substring(0, 3).split('').map(char => char + char).join('')
+				return value
+					.substring(0, 3)
+					.split('')
+					.map(char => char + char)
+					.join('')
 			case 5:
 				// "12345" -> "112233"
-				return cleanValue.substring(0, 3).split('').map(char => char + char).join('')
+				return value
+					.substring(0, 3)
+					.split('')
+					.map(char => char + char)
+					.join('')
 			default:
-				return cleanValue
+				return value
 		}
 	}
 
 	const blurCodeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-		const value = event.target.value
+		const value = event.target.value.trim()
 
 		switch (format) {
 			case 'hex':
-				// Remove '#'
-				const cleanValue = value.replace(/^#/, '')
+				// Remove '#' and cut: #123456
+				const cleanHex = value.replace(/^#/, '').slice(0, 6)
 
 				// Full hex
-				if (RegularsExp.hex.test(value)) {
-					const formatted = value.startsWith('#') ? value : `#${value}`
+				if (RegularsExp.hex.test(cleanHex)) {
+					const formatted = `#${cleanHex}`
 
 					setCode(formatted)
+					addHistory(formatted, 'hex')
 					return
 				}
 
 				// Short hex
-				if (RegularsExp.shortHex.test(value)) {
-					const expanded = expandHex(cleanValue)
+				if (RegularsExp.shortHex.test(cleanHex)) {
+					const expanded = expandHex(cleanHex)
 					const formatted = `#${expanded}`
 
 					if (RegularsExp.hex.test(formatted)) {
 						setCode(formatted)
+						addHistory(formatted, 'hex')
 						return
 					}
 				}
 				break
 			case 'rgb':
-				if (RegularsExp.rgb.test(value) || RegularsExp.rgba.test(value)) {
-					setCode(value)
+				// Remove ' ' and cut: rgb(255,255,255,0.99)
+				const cleanRGB = value.replaceAll(' ', '').slice(0, 21)
+
+				if (RegularsExp.rgb.test(cleanRGB)) {
+					setCode(cleanRGB)
+					addHistory(cleanRGB, 'hex')
 					return
 				}
 				break
@@ -101,6 +117,7 @@ export const Main = () => {
 	}
 
 	useEffect(() => {
+		addHistory(_color, format)
 		setCode(_color)
 	}, [_color])
 
@@ -146,9 +163,10 @@ export const Main = () => {
 									<input
 										className={styles.code}
 										type='text'
-										value={code}
+										value={code.toUpperCase()}
 										onChange={changeCodeHandler}
-										onBlur={blurCodeHandler} />
+										onBlur={blurCodeHandler}
+									/>
 								</div>
 								<div className={styles.percentages}>
 									<input
@@ -157,7 +175,8 @@ export const Main = () => {
 										type='number'
 										value={opacity}
 										onChange={changeOpacityHandler}
-										onBlur={blurOpacityHandler} />
+										onBlur={blurOpacityHandler}
+									/>
 									<span className={styles.static}>%</span>
 								</div>
 							</div>

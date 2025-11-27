@@ -7,6 +7,7 @@ import {GlobalContext} from './contexts/Global'
 
 import '../shared/styles/global.scss'
 import {IColor} from '../types/picker'
+import {History_Settings} from '../shared/consts/colors'
 
 export const App = () => {
 	const [mode, setMode] = useState<IContex['mode']>('solid')
@@ -22,6 +23,15 @@ export const App = () => {
 		setMode,
 		history,
 		setHistory,
+		addHistory(color, format) {
+			if (history.at(-1)?.color.toUpperCase() === color.toUpperCase()) return
+
+			const filteredArray = history.filter(item => item.color !== color)
+			const newHistory = [{color, format}, ...filteredArray].slice(0, History_Settings.max_colors)
+
+			localStorage.setItem('history', JSON.stringify(newHistory))
+			setHistory(newHistory)
+		},
 	}
 
 	return (

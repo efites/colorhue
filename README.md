@@ -1,7 +1,6 @@
-# Tauri + React + Typescript
+## Задачи
+1. Кажется, что color + format должен быть глобальный, а не только в компоненте Main - я не могу из истории установить глобальный цвет
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+2. Компонент Main по-прежнему нужно разгружать - solid отдыхает
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+3. Надеюсь React действительно оптимизирует клик по каждому Pin
