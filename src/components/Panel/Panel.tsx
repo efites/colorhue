@@ -1,7 +1,8 @@
 import clsx from 'clsx'
 import Icon from '../Icon/Icon'
 import styles from './Panel.module.scss'
-import {invoke} from '@tauri-apps/api/core'
+import {invoke} from '@/shared/helpers/tauri'
+
 
 export const Panel = () => {
 	const minimazeHandler = async () => {

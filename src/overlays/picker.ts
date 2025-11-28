@@ -1,8 +1,7 @@
-import {invoke} from '@tauri-apps/api/core'
+import {invoke} from '@/shared/helpers/tauri'
 import {APP_CONFIG} from '../shared/config/pipette'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
-// types are inferred from event payload
-// types are handled implicitly via event payload
+
 
 const offsetX = 15
 const offsetY = 15

@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef} from 'react'
 import {getCurrentWindow} from '@tauri-apps/api/window'
-import {invoke} from '@tauri-apps/api/core'
+import {invoke} from '@/shared/helpers/tauri'
 
 export const useAutoWindowSize = () => {
 	const contentRef = useRef<HTMLDivElement>(null)
