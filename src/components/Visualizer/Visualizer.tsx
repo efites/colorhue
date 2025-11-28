@@ -1,9 +1,7 @@
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 
-
-
-export const Visualizer = ({ image }: { image: string }) => (
+export const Visualizer = ({image}: {image: string}) => (
 	<div className={styles.selection}>
 		<div className={styles.wheel}>
 			<div className={styles.circle}></div>

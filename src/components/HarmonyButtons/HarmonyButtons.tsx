@@ -2,7 +2,6 @@ import clsx from 'clsx'
 import Icon from '../Icon/Icon'
 import styles from './HarmonyButtons.module.scss'
 
-
 export const HarmonyButtons = () => (
 	<div className={styles.triads}>
 		<div className={styles.titles}>
@@ -14,8 +13,7 @@ export const HarmonyButtons = () => (
 				<button
 					key={num}
 					className={clsx(styles.combination, i === 1 && styles.active)}
-					type='button'
-				>
+					type='button'>
 					<Icon className={styles.combinationIcon} name={`combination-${num}`} />
 				</button>
 			))}

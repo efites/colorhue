@@ -4,7 +4,6 @@ import ScreenFallback from '../../shared/images/screen.png'
 import type {CursorPosition, PipetteCapture} from '../../types/picker'
 import {invoke} from '@/shared/helpers/tauri'
 
-
 export function useColorPicker() {
 	const [color, setColor] = useState<PipetteCapture['color']>('#FFFFFF')
 	const [image, setImage] = useState<PipetteCapture['image']>(ScreenFallback)
@@ -71,6 +70,6 @@ export function useColorPicker() {
 		color,
 		image,
 		format,
-		pickColor // В компоненте вызывай эту функцию напрямую
+		pickColor, // В компоненте вызывай эту функцию напрямую
 	}
 }

@@ -6,7 +6,6 @@ import {Visualizer} from '../Visualizer/Visualizer'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
 import {IColor} from '@/types/picker'
 
-
 export const Main = () => {
 	const {state, actions} = useColorForm()
 
@@ -17,8 +16,14 @@ export const Main = () => {
 			<div className={clsx(styles.settings, state.mode === 'gradient' && styles.solid)}>
 				<div className={styles.indication}>
 					<div className={styles.gamma}>
-						<button className={styles.pipette} type='button' onClick={actions.pickColor}>
-							<Icon className={clsx(styles.pipetteIcon, styles.active)} name='pipette' />
+						<button
+							className={styles.pipette}
+							type='button'
+							onClick={actions.pickColor}>
+							<Icon
+								className={clsx(styles.pipetteIcon, styles.active)}
+								name='pipette'
+							/>
 						</button>
 						<div className={styles.sliders}>
 							<div className={clsx(styles.slider, styles.rainbow)}></div>
@@ -30,7 +35,7 @@ export const Main = () => {
 						<div className={styles.inputs}>
 							<div className={styles.model}>
 								<select className={styles.select}>
-									{(['hex', 'rgb'] as IColor["format"][]).map(format => {
+									{(['hex', 'rgb'] as IColor['format'][]).map(format => {
 										return <option value={format}>{format}</option>
 									})}
 								</select>

@@ -2,7 +2,6 @@ import {invoke} from '@/shared/helpers/tauri'
 import {APP_CONFIG} from '../shared/config/pipette'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 
-
 const offsetX = 15
 const offsetY = 15
 const safetyMargin = 20

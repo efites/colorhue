@@ -9,7 +9,6 @@ export const useColorForm = () => {
 	const [code, setCode] = useState<string>(color)
 	const [opacity, setOpacity] = useState<number>(100)
 
-
 	// 1. СИНХРОНИЗАЦИЯ: Глобальный стейт -> Локальный инпут
 	// Срабатывает при: клике на Pin, успешном выборе пипеткой, ручном вводе (после блюра)
 	useEffect(() => {
@@ -71,7 +70,7 @@ export const useColorForm = () => {
 			handleCodeChange,
 			handleCodeBlur,
 			handleOpacityChange,
-			handleOpacityBlur
-		}
+			handleOpacityBlur,
+		},
 	}
 }

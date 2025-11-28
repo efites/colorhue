@@ -7,5 +7,4 @@ import {Panel} from './Panel/Panel'
 import {Pin} from './Pin/Pin'
 import {Rainbow} from './Rainbow/Rainbow'
 
-
 export {Header, History, Layout, Main, Panel, Pin, Rainbow, Сompilation}

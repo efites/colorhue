@@ -1,23 +1,26 @@
 import {IColor} from '@/types/picker'
 import {RegularsExp} from '../consts/regexp'
 
-
 export const expandHex = (value: string): string => {
 	switch (value.length) {
-		case 1: return value.repeat(6) 	// "1" -> "111111"
-		case 2: return value.repeat(3) 	// "12" -> "121212"
-		case 3: 						// "123" -> "112233"
-		case 4: 						// "1234" -> "112233"
-		case 5: 						// "12345" -> "112233"
-			return value.substring(0, 3).split('').map(char => char + char).join('')
-		default: return value
+		case 1:
+			return value.repeat(6) // "1" -> "111111"
+		case 2:
+			return value.repeat(3) // "12" -> "121212"
+		case 3: // "123" -> "112233"
+		case 4: // "1234" -> "112233"
+		case 5: // "12345" -> "112233"
+			return value
+				.substring(0, 3)
+				.split('')
+				.map(char => char + char)
+				.join('')
+		default:
+			return value
 	}
 }
 
-export const validateAndFormatColor = (
-	input: string,
-	format: IColor["format"]
-) => {
+export const validateAndFormatColor = (input: string, format: IColor['format']) => {
 	const value = input.trim()
 
 	switch (format) {
