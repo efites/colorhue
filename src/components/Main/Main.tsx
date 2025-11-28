@@ -6,7 +6,6 @@ import styles from './Main.module.scss'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {RegularsExp} from '../../shared/consts/regexp'
 
-
 export const Main = () => {
 	const [code, setCode] = useState<string>('#ffffff')
 	const [opacity, setOpacity] = useState<number>(100)

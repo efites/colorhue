@@ -3,7 +3,6 @@ export const Colors = {
 	grey: '#393939',
 } as const
 
-
 export const History_Settings = {
-	max_colors: 20
+	max_colors: 20,
 }

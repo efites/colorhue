@@ -8,7 +8,7 @@ interface IContex {
 	setMode: (mode: Mode) => void
 	history: IColor[]
 	setHistory: (history: IColor[]) => void
-	addHistory: (color: IColor["color"], format: IColor["format"]) => void
+	addHistory: (color: IColor['color'], format: IColor['format']) => void
 }
 
 const initialGlobalContext: IContex = {

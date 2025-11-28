@@ -4,7 +4,6 @@ import styles from './History.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
 
-
 export const History = () => {
 	const {history, addHistory} = use(GlobalContext)
 	const {color: _color, format} = useColorPicker()

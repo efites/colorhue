@@ -27,7 +27,10 @@ export const App = () => {
 			if (history.at(-1)?.color.toUpperCase() === color.toUpperCase()) return
 
 			const filteredArray = history.filter(item => item.color !== color)
-			const newHistory = [{color, format}, ...filteredArray].slice(0, History_Settings.max_colors)
+			const newHistory = [{color, format}, ...filteredArray].slice(
+				0,
+				History_Settings.max_colors,
+			)
 
 			localStorage.setItem('history', JSON.stringify(newHistory))
 			setHistory(newHistory)

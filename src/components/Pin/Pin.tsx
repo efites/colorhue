@@ -3,7 +3,6 @@ import {IColor} from '../../types/picker'
 import {use} from 'react'
 import {GlobalContext} from '../../app/contexts/Global'
 
-
 export const Pin = (pin: IColor) => {
 	const {addHistory} = use(GlobalContext)
 
@@ -11,5 +10,10 @@ export const Pin = (pin: IColor) => {
 		addHistory(pin.color, pin.format)
 	}
 
-	return <div className={styles.pin} style={{backgroundColor: pin.color}} onClick={() => clickHandler(pin)}></div>
+	return (
+		<div
+			className={styles.pin}
+			style={{backgroundColor: pin.color}}
+			onClick={() => clickHandler(pin)}></div>
+	)
 }
