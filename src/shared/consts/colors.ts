@@ -4,5 +4,5 @@ export const Colors = {
 } as const
 
 export const History_Settings = {
-	max_colors: 20,
+	max_colors: 26,
 }

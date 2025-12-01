@@ -1,6 +1,8 @@
 import {IColor} from '@/types/picker'
 import {RegularsExp} from '../consts/regexp'
 
+type RGB = {r: number; g: number; b: number}
+
 export const expandHex = (value: string): string => {
 	switch (value.length) {
 		case 1:
@@ -57,4 +59,106 @@ export const validateAndFormatColor = (input: string, format: IColor['format']) 
 	}
 
 	return null
+}
+
+export const parseHex = (hex: string): RGB | null => {
+	const cleanHex = hex.replace('#', '').trim()
+
+	if (cleanHex.length === 3) {
+		// #f00 -> #ff0000
+		const r = parseInt(cleanHex[0] + cleanHex[0], 16)
+		const g = parseInt(cleanHex[1] + cleanHex[1], 16)
+		const b = parseInt(cleanHex[2] + cleanHex[2], 16)
+
+		return {r, g, b}
+	} else if (cleanHex.length === 6) {
+		const r = parseInt(cleanHex.substring(0, 2), 16)
+		const g = parseInt(cleanHex.substring(2, 4), 16)
+		const b = parseInt(cleanHex.substring(4, 6), 16)
+
+		return {r, g, b}
+	}
+
+	return null
+}
+
+export const parseRgb = (rgb: string): RGB | null => {
+	const match = rgb.match(/\d+/g) // get numbers
+
+	if (match && match.length >= 3) {
+		return {
+			r: Math.min(255, Math.max(0, parseInt(match[0]))),
+			g: Math.min(255, Math.max(0, parseInt(match[1]))),
+			b: Math.min(255, Math.max(0, parseInt(match[2]))),
+		}
+	}
+
+	return null
+}
+
+export const rgbToHex = ({r, g, b}: RGB): string => {
+	const toHex = (n: number) => {
+		const hex = n.toString(16)
+
+		return hex.length === 1 ? '0' + hex : hex
+	}
+
+	return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase()
+}
+
+export const rgbToString = ({r, g, b}: RGB): string => {
+	return `${r}, ${g}, ${b}`
+}
+
+export const convertColor = (
+	color: string,
+	from: IColor['format'],
+	to: IColor['format'],
+): string => {
+	if (from === to) return color
+
+	let rgb: RGB | null = null
+
+	switch (from) {
+		case 'hex':
+			rgb = parseHex(color)
+			break
+		case 'rgb':
+			rgb = parseRgb(color)
+			break
+	}
+
+	if (!rgb) return color
+
+	switch (to) {
+		case 'hex':
+			return rgbToHex(rgb)
+		case 'rgb':
+			return rgbToString(rgb)
+		default:
+			return color
+	}
+}
+
+export const getCssColor = (color: string, format: string, alpha: number): string => {
+	if (format === 'rgb') {
+		// color = "rgb(255, 0, 0)" -> "rgba(255, 0, 0, 1)"
+		return color.replace('rgb', 'rgba').replace(')', `, ${alpha / 100})`)
+	}
+
+	if (format === 'hex') {
+		// Самый надежный способ для веба сейчас: конвертация в rgba
+		// Но можно использовать и hex8, если поддерживается
+		// Для простоты, если у вас уже есть rgb конвертер, используйте его,
+		// или просто верните color и добавьте CSS свойство opacity в стилях элемента.
+
+		// Вариант с HEX c прозрачностью (#RRGGBBAA):
+		const alphaHex = Math.round(alpha * 2.55)
+			.toString(16)
+			.padStart(2, '0')
+
+		return `${color}${alphaHex}`
+	}
+
+	return color
 }

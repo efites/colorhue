@@ -1,6 +1,7 @@
 export interface IColor {
 	color: string
 	format: 'hex' | 'rgb'
+	alpha: number
 }
 
 export interface PipetteCapture extends IColor {

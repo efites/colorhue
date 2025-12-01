@@ -7,13 +7,13 @@ export const Pin = (pin: IColor) => {
 	const {addHistory} = use(GlobalContext)
 
 	const clickHandler = (pin: IColor) => {
-		addHistory(pin.color, pin.format)
+		addHistory(pin.color, pin.format, pin.alpha)
 	}
 
 	return (
 		<div
 			className={styles.pin}
-			style={{backgroundColor: pin.color}}
+			style={{backgroundColor: pin.color, opacity: pin.alpha / 100}}
 			onClick={() => clickHandler(pin)}></div>
 	)
 }

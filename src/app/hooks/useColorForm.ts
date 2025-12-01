@@ -1,73 +1,98 @@
 import {useState, useEffect, useContext, ChangeEvent} from 'react'
 import {GlobalContext} from '../../app/contexts/Global'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
-import {validateAndFormatColor} from '@/shared/helpers/colors'
+import {validateAndFormatColor, convertColor} from '@/shared/helpers/colors'
+import {IColor} from '@/types/picker'
 
 export const useColorForm = () => {
 	const {mode, addHistory, color, setColor} = useContext(GlobalContext)
-	const {color: pickedColor, image, format, pickColor} = useColorPicker()
-	const [code, setCode] = useState<string>(color)
-	const [opacity, setOpacity] = useState<number>(100)
+	const {color: pickedColor, image, format: pickedFormat, pickColor} = useColorPicker()
 
-	// 1. СИНХРОНИЗАЦИЯ: Глобальный стейт -> Локальный инпут
-	// Срабатывает при: клике на Pin, успешном выборе пипеткой, ручном вводе (после блюра)
+	const [code, setCode] = useState<IColor['color']>(color.color)
+	const [format, setFormat] = useState<IColor['format']>(color.format)
+	const [opacity, setOpacity] = useState<number>(color.alpha) // Инициализируем из глобального
+
+	// 1. СИНХРОНИЗАЦИЯ: Глобальный стейт -> Локальные инпуты
 	useEffect(() => {
-		setCode(color)
+		setCode(color.color)
+		setFormat(color.format)
+		setOpacity(color.alpha) // Синхронизируем прозрачность
 	}, [color])
 
 	// 2. ПИПЕТКА: Результат пипетки -> Глобальный стейт
-	// Убираем 'color' из зависимостей! Этот эффект должен работать только когда pickedColor меняется.
 	useEffect(() => {
-		// Проверка, чтобы игнорировать инициализацию хука (дефолтный белый)
-		// Если реально выбрали белый цвет, он все равно обновится, если до этого был не белый
 		if (pickedColor && pickedColor.toUpperCase() !== '#FFFFFF') {
-			setColor(pickedColor)
-			addHistory(pickedColor, format)
-			// setCode(pickedColor) <-- УДАЛЯЕМ. Это сделает первый useEffect автоматически
-		}
-	}, [pickedColor, format, setColor, addHistory])
+			// При пипетке считаем, что цвет непрозрачный (100%),
+			// либо оставляем текущую прозрачность (зависит от логики, тут ставлю 100)
+			const newAlpha = 100
 
-	// --- Handlers ---
+			setColor({color: pickedColor, format: pickedFormat, alpha: newAlpha})
+			addHistory(pickedColor, pickedFormat, newAlpha)
+		}
+	}, [pickedColor, pickedFormat, setColor, addHistory])
 
 	const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		// Здесь мы НЕ обновляем глобальный стейт, чтобы не триггерить перерисовку всего приложения на каждый чих
 		setCode(e.target.value)
 	}
 
-	const handleCodeBlur = (e: ChangeEvent<HTMLInputElement>) => {
-		// Валидация происходит при потере фокуса
-		// Используем текущий format из хука пипетки или можно брать из стейта, если ты добавишь выбор формата в UI
-		// Пока берем format из useColorPicker, но логичнее хранить выбранный формат в GlobalContext
-		const currentFormat = format || 'hex'
+	const handleFormatChange = (newFormat: IColor['format']) => {
+		// Конвертируем цвет
+		const convertedCode = convertColor(code, format, newFormat)
 
-		const formatted = validateAndFormatColor(e.target.value, currentFormat)
+		setFormat(newFormat)
+		setCode(convertedCode)
+
+		// Сохраняем в глобалку (сохраняя текущую прозрачность!)
+		setColor({color: convertedCode, format: newFormat, alpha: opacity})
+	}
+
+	const handleCodeBlur = (e: ChangeEvent<HTMLInputElement>) => {
+		const formatted = validateAndFormatColor(e.target.value, format)
 
 		if (formatted) {
 			setCode(formatted)
-			setColor(formatted) // Обновляем глобалку
-			addHistory(formatted, currentFormat)
+			// Обновляем глобалку, передавая текущую прозрачность
+			setColor({color: formatted, format: format, alpha: opacity})
+			addHistory(formatted, format, opacity)
 		} else {
-			// Если ввели мусор — возвращаем то, что сейчас в глобальном стейте
-			setCode(color)
+			setCode(color.color)
 		}
 	}
 
+	// Просто ввод цифр, не трогаем глобалку, чтобы не фризило интерфейс
 	const handleOpacityChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const val = parseInt(e.target.value)
-		if (isNaN(val) || val > 100) setOpacity(100)
+		if (isNaN(val))
+			setOpacity(0) // или пустую строку, если хотите разрешить удаление всего
+		else if (val > 100) setOpacity(100)
 		else if (val < 0) setOpacity(0)
 		else setOpacity(val)
 	}
 
+	// Валидация и сохранение прозрачности при потере фокуса
 	const handleOpacityBlur = (e: ChangeEvent<HTMLInputElement>) => {
-		if (e.target.value === '') setOpacity(0)
+		let val = parseInt(e.target.value)
+
+		if (isNaN(val) || e.target.value === '') {
+			val = 100 // Дефолт, если поле пустое
+		} else if (val > 100) val = 100
+		else if (val < 0) val = 0
+
+		setOpacity(val)
+
+		// Обновляем глобальный стейт только тут
+		// Важно: берем текущий валидный code и format из стейта компонента или напрямую из color
+		setColor({color: code, format: format, alpha: val})
+		// Опционально: добавлять ли изменение прозрачности в историю? Обычно да.
+		addHistory(code, format, val)
 	}
 
 	return {
-		state: {code, opacity, mode, image},
+		state: {code, format, opacity, mode, image},
 		actions: {
 			pickColor,
 			handleCodeChange,
+			handleFormatChange,
 			handleCodeBlur,
 			handleOpacityChange,
 			handleOpacityBlur,

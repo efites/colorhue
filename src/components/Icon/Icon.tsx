@@ -4,7 +4,7 @@ import type {Mode} from '../../app/contexts/Global'
 
 import styles from './Icon.module.scss'
 
-interface IProps {
+export interface IconProps {
 	className?: string
 	name:
 		| 'arrow-down'
@@ -25,7 +25,7 @@ interface IProps {
 
 const path = '/src/shared/images/sprite.svg'
 
-const Icon = ({name, className = ''}: IProps) => {
+const Icon = ({name, className = ''}: IconProps) => {
 	return (
 		<svg className={clsx(styles.base, styles[name], !!className && className)}>
 			<use href={`${path}#${name}`}></use>

@@ -7,16 +7,20 @@ interface IContex {
 	mode: Mode
 	setMode: (mode: Mode) => void
 	history: IColor[]
-	color: string
-	setColor: (color: string) => void
+	color: IColor
+	setColor: (color: IColor) => void
 	setHistory: (history: IColor[]) => void
-	addHistory: (color: IColor['color'], format: IColor['format']) => void
+	addHistory: (color: IColor['color'], format: IColor['format'], alpha: IColor['alpha']) => void
 }
 
 const initialGlobalContext: IContex = {
 	mode: 'solid',
 	setMode: () => {},
-	color: '#ffffff',
+	color: {
+		color: '#ffffff',
+		format: 'hex',
+		alpha: 100,
+	},
 	setColor: () => {},
 	history: [],
 	setHistory: () => {},
