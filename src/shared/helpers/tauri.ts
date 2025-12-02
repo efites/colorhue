@@ -18,6 +18,7 @@ type TauriCommands = {
 	update_capture_size: {args: {size: number}; return: void}
 	send_cursor_position: {args: {x: number; y: number; size: number}; return: void}
 	close_overlay: {args: {windowName: WindowName}; return: void}
+	stop_capture_stream: {args: undefined; return: void}
 	capture_cursor_area: {
 		args: {x: number; y: number; size: number; format: IColor['format']}
 		return: PipetteCapture

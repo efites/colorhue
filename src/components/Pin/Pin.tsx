@@ -10,10 +10,11 @@ export const Pin = (pin: IColor) => {
 		addHistory(pin.color, pin.format, pin.alpha)
 	}
 
-	return (
-		<div
-			className={styles.pin}
-			style={{backgroundColor: pin.color, opacity: pin.alpha / 100}}
-			onClick={() => clickHandler(pin)}></div>
-	)
+	return <div
+		className={styles.pin}
+		style={{backgroundColor: pin.color}}
+		onClick={() => clickHandler(pin)}
+	>
+		<div className={styles.cover} style={{backgroundColor: pin.color, opacity: 1 - pin.alpha / 100}}></div>
+	</div>
 }

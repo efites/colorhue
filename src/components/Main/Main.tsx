@@ -6,6 +6,7 @@ import {Visualizer} from '../Visualizer/Visualizer'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
 import {Select} from '../Select/Select'
 import {IColor} from '@/types/picker'
+import {convertColor} from '@/shared/helpers/colors'
 
 const formats: IColor['format'][] = ['hex', 'rgb'] as const
 
@@ -30,7 +31,9 @@ export const Main = () => {
 						</button>
 						<div className={styles.sliders}>
 							<div className={clsx(styles.slider, styles.rainbow)}></div>
-							<div className={clsx(styles.slider, styles.rgba)}></div>
+							<div className={clsx(styles.slider, styles.rgba)}>
+								<div className={clsx(styles.cover)} style={{background: `linear-gradient(90deg, rgba(${convertColor(state.code, state.format, 'rgb')}, 0) 0%, ${state.code})`}}></div>
+							</div>
 						</div>
 					</div>
 					{state.mode === 'solid' && (

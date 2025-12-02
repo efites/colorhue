@@ -54,7 +54,7 @@ async function startStream() {
 	})
 
 	streamUnlisten = await listen<any>('picker_frame', event => {
-		const {image: nextImage, color: nextColor, x, y} = event.payload as any
+		const {image: nextImage, color: nextColor} = event.payload as any
 
 		if (lastImageDataUrl === nextImage) return
 
@@ -68,10 +68,10 @@ async function startStream() {
 		}
 
 		// Position pipette right away on the first frame based on cursor screen coords
-		if (typeof x === 'number' && typeof y === 'number') {
-			// Create a synthetic MouseEvent-like object for position function
-			processPipettePosition({clientX: x, clientY: y} as MouseEvent)
-		}
+		// if (typeof x === 'number' && typeof y === 'number') {
+		// 	// Create a synthetic MouseEvent-like object for position function
+		// 	processPipettePosition({clientX: x, clientY: y} as MouseEvent)
+		// }
 	})
 }
 

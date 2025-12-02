@@ -93,18 +93,18 @@
 	background-position: 0 0;
 	background-size: auto;
 
-	&:after {
-		content: '';
-		position: absolute;
-		z-index: 1;
-		display: block;
-		left: 0;
-		top: 0;
-		width: 100%;
-		height: 100%;
-		border-radius: 100px;
-		background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 1) 100%);
-	}
+}
+
+.cover {
+	position: absolute;
+	z-index: 1;
+	display: block;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: 100px;
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 1) 100%);
 }
 
 .inputs {
