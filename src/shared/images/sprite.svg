@@ -26,7 +26,7 @@
     <symbol id="arrow-down" viewBox="0 0 7 4" fill="inherit" xmlns="http://www.w3.org/2000/svg">
         <path d="M7 0.756757L3.5 4L0 0.756757L0.816667 2.38419e-07L3.5 2.48649L6.18333 2.38419e-07L7 0.756757Z" />
     </symbol>
-    <symbol id="combination-1" viewBox="0 0 6 15" fill="inherit" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="monochrome" viewBox="0 0 6 15" fill="inherit" xmlns="http://www.w3.org/2000/svg">
         <circle cx="3" cy="3" r="3" fill="white"/>
         <path d="M2.12403 7.99228C2.05817 7.46539 2.46901 7 3 7C3.53099 7 3.94183 7.46539 3.87597 7.99228L3 15L2.12403 7.99228Z" fill="url(#paint0_linear_51_33)"/>
         <defs>
@@ -36,7 +36,7 @@
         </linearGradient>
         </defs>
     </symbol>
-    <symbol id="combination-2" viewBox="0 0 6 26" fill="inherit" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="complementary" viewBox="0 0 6 26" fill="inherit" xmlns="http://www.w3.org/2000/svg">
         <circle cx="3" cy="3" r="3" fill="white"/>
         <path d="M2.1644 7.98639C2.07834 7.47004 2.47653 7 3 7C3.52347 7 3.92166 7.47004 3.8356 7.98639L3 13L2.1644 7.98639Z" fill="url(#paint0_linear_51_32)"/>
         <circle cx="3" cy="23" r="3" transform="rotate(180 3 23)" fill="white"/>
@@ -52,7 +52,7 @@
         </linearGradient>
         </defs>
     </symbol>
-    <symbol id="combination-3" viewBox="0 0 24 17" fill="inherit" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="analog" viewBox="0 0 24 17" fill="inherit" xmlns="http://www.w3.org/2000/svg">
         <circle cx="3" cy="8" r="3" fill="white"/>
         <circle cx="21" cy="8" r="3" fill="white"/>
         <circle cx="12" cy="3" r="3" fill="white"/>
@@ -74,7 +74,7 @@
         </linearGradient>
         </defs>
     </symbol>
-    <symbol id="combination-4" viewBox="0 0 22 22" fill="inherit" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="tetrad" viewBox="0 0 22 22" fill="inherit" xmlns="http://www.w3.org/2000/svg">
         <circle cx="3.95605" cy="3.90186" r="3" fill="white"/>
         <path d="M6.87208 8.03778C6.44612 7.73352 6.3953 7.11959 6.76546 6.74944C7.13561 6.37928 7.74954 6.4301 8.0538 6.85606L11.0081 10.9921L6.87208 8.03778Z" fill="url(#paint0_linear_51_30)"/>
         <circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 15.0439 21.0981)" fill="white"/>
@@ -102,7 +102,7 @@
         </linearGradient>
         </defs>
     </symbol>
-    <symbol id="combination-5" viewBox="0 0 21 24" fill="inherit" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="triad" viewBox="0 0 21 24" fill="inherit" xmlns="http://www.w3.org/2000/svg">
         <circle cx="10" cy="3" r="3" fill="white"/>
         <path d="M9.1644 7.98639C9.07834 7.47004 9.47653 7 10 7C10.5235 7 10.9217 7.47004 10.8356 7.98639L10 13L9.1644 7.98639Z" fill="url(#paint0_linear_50_29)"/>
         <circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 14.1421 23.0981)" fill="white"/>
@@ -124,7 +124,7 @@
             </linearGradient>
         </defs>
     </symbol>
-    <symbol id="combination-6" viewBox="0 0 24 26" fill="inherit" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="analog-complementary" viewBox="0 0 24 26" fill="inherit" xmlns="http://www.w3.org/2000/svg">
         <circle cx="3" cy="8" r="3" fill="white"/>
         <circle cx="21" cy="8" r="3" fill="white"/>
         <circle cx="12" cy="3" r="3" fill="white"/>

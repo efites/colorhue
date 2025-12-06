@@ -1,22 +1,37 @@
 import clsx from 'clsx'
 import Icon from '../Icon/Icon'
 import styles from './HarmonyButtons.module.scss'
+import {useContext} from 'react'
+import {GlobalContext, Harmony} from '../../app/contexts/Global'
 
-export const HarmonyButtons = () => (
-	<div className={styles.triads}>
-		<div className={styles.titles}>
-			<h2 className={styles.title}>Monochromatic</h2>
+const harmonies: Harmony[] = [
+	'monochrome',
+	'complementary',
+	'analog',
+	'triad',
+	'analog-complementary',
+	'tetrad',
+] as const
+
+export const HarmonyButtons = () => {
+	const {harmony, setHarmony} = useContext(GlobalContext)
+
+	return (
+		<div className={styles.triads}>
+			<div className={styles.titles}>
+				<h2 className={styles.title}>{harmony.toLowerCase()}</h2>
+			</div>
+			<div className={styles.combinations}>
+				{harmonies.map(scheme => (
+					<button
+						key={scheme}
+						className={clsx(styles.combination, scheme === harmony && styles.active)}
+						type='button'
+						onClick={() => setHarmony(scheme)}>
+						<Icon className={styles.combinationIcon} name={scheme} />
+					</button>
+				))}
+			</div>
 		</div>
-		<div className={styles.combinations}>
-			{/* Можно даже мапом пройтись, если иконок много */}
-			{[1, 2, 3, 4, 5, 6].map((num, i) => (
-				<button
-					key={num}
-					className={clsx(styles.combination, i === 1 && styles.active)}
-					type='button'>
-					<Icon className={styles.combinationIcon} name={`combination-${num}`} />
-				</button>
-			))}
-		</div>
-	</div>
-)
+	)
+}

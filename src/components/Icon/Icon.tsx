@@ -1,6 +1,6 @@
 import {clsx} from 'clsx'
 
-import type {Mode} from '../../app/contexts/Global'
+import type {Harmony, Mode} from '../../app/contexts/Global'
 
 import styles from './Icon.module.scss'
 
@@ -10,17 +10,12 @@ export interface IconProps {
 		| 'arrow-down'
 		| 'clipboard'
 		| 'close'
-		| 'combination-1'
-		| 'combination-2'
-		| 'combination-3'
-		| 'combination-4'
-		| 'combination-5'
-		| 'combination-6'
 		| 'minus'
 		| 'pipette'
 		| 'plus'
 		| 'sync'
 		| Mode
+		| Harmony
 }
 
 const path = '/src/shared/images/sprite.svg'

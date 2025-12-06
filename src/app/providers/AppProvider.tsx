@@ -9,6 +9,7 @@ interface AppProviderProps {
 
 export const AppProvider = ({children}: AppProviderProps) => {
 	const [mode, setMode] = useState<IContex['mode']>('solid')
+	const [harmony, setHarmony] = useState<IContex['harmony']>('monochrome')
 	const [color, setColor] = useState<IColor>({color: '#ffffff', format: 'hex', alpha: 100})
 	const {history, setHistory, addHistory} = useHistory()
 
@@ -16,16 +17,16 @@ export const AppProvider = ({children}: AppProviderProps) => {
 		() => ({
 			mode,
 			setMode,
+			harmony,
+			setHarmony,
 			history,
 			color,
 			setColor,
 			setHistory,
 			addHistory,
 		}),
-		[mode, history, color, addHistory, setHistory],
+		[mode, history, color, harmony, addHistory, setHistory],
 	)
-
-	console.log(color)
 
 	return <GlobalContext value={contextValue}>{children}</GlobalContext>
 }

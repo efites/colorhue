@@ -15,6 +15,10 @@
 	font-size: 14px;
 	color: var(--black);
 
+	&::first-letter {
+		text-transform: uppercase;
+	}
+
 	&:before {
 		content: '';
 		position: absolute;

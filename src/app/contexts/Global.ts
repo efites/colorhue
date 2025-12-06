@@ -1,11 +1,20 @@
 import {createContext} from 'react'
 import {IColor} from '../../types/picker'
 
-type Mode = 'gradient' | 'solid'
+export type Mode = 'gradient' | 'solid'
+export type Harmony =
+	| 'monochrome'
+	| 'complementary'
+	| 'analog'
+	| 'tetrad'
+	| 'triad'
+	| 'analog-complementary'
 
 interface IContex {
 	mode: Mode
 	setMode: (mode: Mode) => void
+	harmony: Harmony
+	setHarmony: (harmony: Harmony) => void
 	history: IColor[]
 	color: IColor
 	setColor: (color: IColor) => void
@@ -16,6 +25,8 @@ interface IContex {
 const initialGlobalContext: IContex = {
 	mode: 'solid',
 	setMode: () => {},
+	harmony: 'monochrome',
+	setHarmony: () => {},
 	color: {
 		color: '#ffffff',
 		format: 'hex',
