@@ -61,6 +61,7 @@ export const Main = () => {
 										value={state.code.toUpperCase()}
 										onChange={actions.handleCodeChange}
 										onBlur={actions.handleCodeBlur}
+										onKeyDown={actions.onKeyDown}
 									/>
 								</div>
 								<div className={styles.percentages}>
@@ -71,6 +72,7 @@ export const Main = () => {
 										value={state.opacity}
 										onChange={actions.handleOpacityChange}
 										onBlur={actions.handleOpacityBlur}
+										onKeyDown={actions.onKeyDown}
 									/>
 									<span className={styles.static}>%</span>
 								</div>

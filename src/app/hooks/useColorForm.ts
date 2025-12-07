@@ -87,6 +87,12 @@ export const useColorForm = () => {
 		addHistory(code, format, val)
 	}
 
+	const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			event.currentTarget.blur()
+		}
+	}
+
 	return {
 		state: {code, format, opacity, mode, image},
 		actions: {
@@ -96,6 +102,7 @@ export const useColorForm = () => {
 			handleCodeBlur,
 			handleOpacityChange,
 			handleOpacityBlur,
+			onKeyDown,
 		},
 	}
 }

@@ -58,7 +58,7 @@ export const Visualizer = ({image}: {image: string}) => {
 			switch (color.format) {
 				case 'hex':
 					const colorHex = convertColor(
-						[pixelData[0], pixelData[1], pixelData[2]].join(','),
+						[pixelData[0], pixelData[1], pixelData[2]].join(', '),
 						'rgb',
 						'hex',
 					)
@@ -70,7 +70,7 @@ export const Visualizer = ({image}: {image: string}) => {
 					break
 				case 'rgb':
 					const colorRGB = convertColor(
-						[pixelData[0], pixelData[1], pixelData[2]].join(','),
+						[pixelData[0], pixelData[1], pixelData[2]].join(', '),
 						'rgb',
 						'rgb',
 					)
@@ -135,7 +135,11 @@ export const Visualizer = ({image}: {image: string}) => {
 							top: `${crossPos.y}%`,
 						}}></div>
 				</div>
-				<div className={clsx(styles.window, styles.brightness)}></div>
+				<div
+					className={clsx(styles.window)}
+					style={{
+						background: `linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(255, 255, 255, 0)), linear-gradient(90deg, #ffffff, ${convertColor(color.color, color.format, 'hex')})`,
+					}}></div>
 			</div>
 		</div>
 	)
