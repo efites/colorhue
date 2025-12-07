@@ -8,10 +8,12 @@ interface AppProviderProps {
 }
 
 export const AppProvider = ({children}: AppProviderProps) => {
+	const {history, setHistory, addHistory} = useHistory()
 	const [mode, setMode] = useState<IContex['mode']>('solid')
 	const [harmony, setHarmony] = useState<IContex['harmony']>('monochrome')
-	const [color, setColor] = useState<IColor>({color: '#ffffff', format: 'hex', alpha: 100})
-	const {history, setHistory, addHistory} = useHistory()
+	const [color, setColor] = useState<IColor>(
+		history.at(0) ?? {color: '#ffffff', format: 'hex', alpha: 100},
+	)
 
 	const contextValue: IContex = useMemo(
 		() => ({
