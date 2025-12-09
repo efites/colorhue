@@ -30,13 +30,17 @@ export const Main = () => {
 							/>
 						</button>
 						<div className={styles.sliders}>
-							<div className={clsx(styles.slider, styles.rainbow)}></div>
+							<div className={clsx(styles.slider, styles.rainbow)}>
+								<div className={styles.opacityPin} style={{right: '0%'}}></div>
+							</div>
 							<div className={clsx(styles.slider, styles.rgba)}>
 								<div
 									className={clsx(styles.cover)}
 									style={{
 										background: `linear-gradient(90deg, rgba(${convertColor(state.code, state.format, 'rgb')}, 0) 0%, ${state.code})`,
-									}}></div>
+									}}>
+								</div>
+								<div className={styles.opacityPin} style={{right: '0%'}}></div>
 							</div>
 						</div>
 					</div>

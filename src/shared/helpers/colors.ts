@@ -3,6 +3,10 @@ import {RegularsExp} from '../consts/regexp'
 
 type RGB = {r: number; g: number; b: number}
 
+interface IPull extends Omit<IColor, 'alpha'> {
+	shades: Omit<IColor, 'alpha'>[]
+}
+
 export const expandHex = (value: string): string => {
 	switch (value.length) {
 		case 1:
@@ -161,4 +165,99 @@ export const getCssColor = (color: string, format: string, alpha: number): strin
 	}
 
 	return color
+}
+
+export const findPullColors = (color: IColor) => {
+	const result: IPull[] = [
+		{
+			color: color.color,
+			format: 'hex',
+			shades: [
+				{
+					color: '#1a9230ff',
+					format: 'hex',
+				},
+				{
+					color: '#024d0fff',
+					format: 'hex',
+				},
+				{
+					color: '#40774aff',
+					format: 'hex',
+				},
+				{
+					color: '#57775dff',
+					format: 'hex',
+				},
+			]
+		},
+		{
+			color: '#a40e09ff',
+			format: 'hex',
+			shades: [
+				{
+					color: '#670d0aff',
+					format: 'hex',
+				},
+				{
+					color: '#c63631ff',
+					format: 'hex',
+				},
+				{
+					color: '#f45650ff',
+					format: 'hex',
+				},
+				{
+					color: '#5b0b08ff',
+					format: 'hex',
+				},
+			]
+		},
+		{
+			color: '#05276bff',
+			format: 'hex',
+			shades: [
+				{
+					color: '#061a43ff',
+					format: 'hex',
+				},
+				{
+					color: '#0b46bbff',
+					format: 'hex',
+				},
+				{
+					color: '#2f63ccff',
+					format: 'hex',
+				},
+				{
+					color: '#89aef7ff',
+					format: 'hex',
+				},
+			]
+		},
+		{
+			color: '#c0ba17ff',
+			format: 'hex',
+			shades: [
+				{
+					color: '#e5e04aff',
+					format: 'hex',
+				},
+				{
+					color: '#949010ff',
+					format: 'hex',
+				},
+				{
+					color: '#646104ff',
+					format: 'hex',
+				},
+				{
+					color: '#fffcacff',
+					format: 'hex',
+				},
+			]
+		},
+	]
+
+	return result
 }

@@ -156,7 +156,9 @@ export const Visualizer = ({image}: {image: string}) => {
 	return (
 		<div className={styles.selection}>
 			<div className={styles.wheel}>
-				<div className={styles.circle}></div>
+				<div className={styles.circle}>
+					<div className={styles.cursor} style={{left: '40%', top: '40%'}}></div>
+				</div>
 			</div>
 			<div className={styles.windows}>
 				{/* Image Window */}
