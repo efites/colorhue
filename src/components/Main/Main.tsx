@@ -38,8 +38,7 @@ export const Main = () => {
 									className={clsx(styles.cover)}
 									style={{
 										background: `linear-gradient(90deg, rgba(${convertColor(state.code, state.format, 'rgb')}, 0) 0%, ${state.code})`,
-									}}>
-								</div>
+									}}></div>
 								<div className={styles.opacityPin} style={{right: '0%'}}></div>
 							</div>
 						</div>

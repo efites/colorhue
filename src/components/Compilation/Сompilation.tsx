@@ -30,10 +30,19 @@ export const Сompilation = () => {
 			{pulls.map((pull, index) => {
 				return (
 					<div key={pull.color + index} className={styles.set}>
-						<div className={styles.cube} style={{backgroundColor: pull.color}} onClick={() => clickToCopy(pull)}></div>
+						<div
+							className={styles.cube}
+							style={{backgroundColor: pull.color}}
+							onClick={() => clickToCopy(pull)}></div>
 						<div className={styles.rects}>
 							{pull.shades.map((shade, index) => {
-								return <div key={shade.color + index} className={styles.rect} style={{backgroundColor: shade.color}} onClick={() => clickToCopy(shade)}></div>
+								return (
+									<div
+										key={shade.color + index}
+										className={styles.rect}
+										style={{backgroundColor: shade.color}}
+										onClick={() => clickToCopy(shade)}></div>
+								)
 							})}
 						</div>
 					</div>

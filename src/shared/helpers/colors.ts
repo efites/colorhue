@@ -189,7 +189,7 @@ export const findPullColors = (color: IColor) => {
 					color: '#57775dff',
 					format: 'hex',
 				},
-			]
+			],
 		},
 		{
 			color: '#a40e09ff',
@@ -211,7 +211,7 @@ export const findPullColors = (color: IColor) => {
 					color: '#5b0b08ff',
 					format: 'hex',
 				},
-			]
+			],
 		},
 		{
 			color: '#05276bff',
@@ -233,7 +233,7 @@ export const findPullColors = (color: IColor) => {
 					color: '#89aef7ff',
 					format: 'hex',
 				},
-			]
+			],
 		},
 		{
 			color: '#c0ba17ff',
@@ -255,7 +255,7 @@ export const findPullColors = (color: IColor) => {
 					color: '#fffcacff',
 					format: 'hex',
 				},
-			]
+			],
 		},
 	]
 
