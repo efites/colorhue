@@ -172,21 +172,26 @@ export const findPullColors = (color: IColor) => {
 		{
 			color: color.color,
 			format: 'hex',
+			luminance: color.luminance,
 			shades: [
 				{
 					color: '#1a9230ff',
+					luminance: '#1a9230ff',
 					format: 'hex',
 				},
 				{
 					color: '#024d0fff',
+					luminance: '#024d0fff',
 					format: 'hex',
 				},
 				{
 					color: '#40774aff',
+					luminance: '#40774aff',
 					format: 'hex',
 				},
 				{
 					color: '#57775dff',
+					luminance: '#57775dff',
 					format: 'hex',
 				},
 			],
@@ -194,21 +199,26 @@ export const findPullColors = (color: IColor) => {
 		{
 			color: '#a40e09ff',
 			format: 'hex',
+			luminance: color.luminance,
 			shades: [
 				{
 					color: '#670d0aff',
+					luminance: '#670d0aff',
 					format: 'hex',
 				},
 				{
 					color: '#c63631ff',
+					luminance: '#c63631ff',
 					format: 'hex',
 				},
 				{
 					color: '#f45650ff',
+					luminance: '#f45650ff',
 					format: 'hex',
 				},
 				{
 					color: '#5b0b08ff',
+					luminance: '#5b0b08ff',
 					format: 'hex',
 				},
 			],
@@ -216,21 +226,26 @@ export const findPullColors = (color: IColor) => {
 		{
 			color: '#05276bff',
 			format: 'hex',
+			luminance: color.luminance,
 			shades: [
 				{
 					color: '#061a43ff',
+					luminance: '#061a43ff',
 					format: 'hex',
 				},
 				{
 					color: '#0b46bbff',
+					luminance: '#0b46bbff',
 					format: 'hex',
 				},
 				{
 					color: '#2f63ccff',
+					luminance: '#2f63ccff',
 					format: 'hex',
 				},
 				{
 					color: '#89aef7ff',
+					luminance: '#89aef7ff',
 					format: 'hex',
 				},
 			],
@@ -238,21 +253,26 @@ export const findPullColors = (color: IColor) => {
 		{
 			color: '#c0ba17ff',
 			format: 'hex',
+			luminance: color.luminance,
 			shades: [
 				{
 					color: '#e5e04aff',
+					luminance: '#e5e04aff',
 					format: 'hex',
 				},
 				{
 					color: '#949010ff',
+					luminance: '#949010ff',
 					format: 'hex',
 				},
 				{
 					color: '#646104ff',
+					luminance: '#646104ff',
 					format: 'hex',
 				},
 				{
 					color: '#fffcacff',
+					luminance: '#fffcacff',
 					format: 'hex',
 				},
 			],

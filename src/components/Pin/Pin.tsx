@@ -11,8 +11,6 @@ export const Pin = (pin: IColor) => {
 		addHistory(pin.color, pin.format, pin.alpha)
 	}
 
-	console.log(pin.color)
-
 	return (
 		<div
 			className={styles.pin}

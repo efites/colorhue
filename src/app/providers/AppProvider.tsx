@@ -12,7 +12,7 @@ export const AppProvider = ({children}: AppProviderProps) => {
 	const [mode, setMode] = useState<IContex['mode']>('solid')
 	const [harmony, setHarmony] = useState<IContex['harmony']>('monochrome')
 	const [color, setColor] = useState<IColor>(
-		history.at(0) ?? {color: '#ffffff', format: 'hex', alpha: 100},
+		history.at(0) ?? {color: '#ffffff', format: 'hex', alpha: 100, luminance: 'normal'},
 	)
 
 	const contextValue: IContex = useMemo(

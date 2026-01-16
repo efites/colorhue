@@ -2,11 +2,10 @@ import {useRef, useState, MouseEvent, useContext, useEffect} from 'react'
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
-import {convertColor} from '../../shared/helpers/colors'
+import {convertColor, parseRgb} from '../../shared/helpers/colors'
 
 export const Visualizer = ({image}: {image: string}) => {
 	const {setColor, addHistory, color} = useContext(GlobalContext)
-
 	const imgRef = useRef<HTMLImageElement>(null)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const gradRef = useRef<HTMLDivElement>(null)
@@ -64,72 +63,76 @@ export const Visualizer = ({image}: {image: string}) => {
 		const ctx = canvasRef.current.getContext('2d')
 
 		if (ctx) {
-			const natX = (xPercent / 100) * imgRef.current.naturalWidth
-			const natY = (yPercent / 100) * imgRef.current.naturalHeight
-			const pixelData = ctx.getImageData(natX, natY, 1, 1).data
+            const natX = (xPercent / 100) * imgRef.current.naturalWidth
+            const natY = (yPercent / 100) * imgRef.current.naturalHeight
+            const pixelData = ctx.getImageData(natX, natY, 1, 1).data
+            const rgbString = `${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}`
 
-			// Получаем цвет с картинки
-			const rgbString = `${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}`
+            // Когда берем с картинки — и база, и основной цвет одинаковы
+            updateGlobalColor(rgbString, rgbString)
 
-			// При клике на картинку этот цвет становится НОВОЙ БАЗОЙ
-			updateGlobalColor(rgbString)
-			// (useEffect подхватит изменение и обновит baseColor, так как activeDrag === 'image')
-		}
+            // Сбрасываем прицел градиента в правый верхний угол (100% насыщенность, 100% яркость)
+            setGradCrossPos({ x: 100, y: 0 })
+        }
 	}
 
 	const handleGradUpdate = (event: MouseEvent<HTMLDivElement>) => {
 		if (!gradRef.current) return
 
 		const rect = gradRef.current.getBoundingClientRect()
-		const x = event.clientX - rect.left
-		const y = event.clientY - rect.top
-
-		let xPercent = (x / rect.width) * 100
-		let yPercent = (y / rect.height) * 100
+		let xPercent = ((event.clientX - rect.left) / rect.width) * 100
+		let yPercent = ((event.clientY - rect.top) / rect.height) * 100
 
 		xPercent = Math.max(0, Math.min(100, xPercent))
 		yPercent = Math.max(0, Math.min(100, yPercent))
 
 		setGradCrossPos({x: xPercent, y: yPercent})
 
-		// МАТЕМАТИКА ЦВЕТА
-		// Используем baseColor (который не меняется при драге), а не color.color
-		const baseRgb = convertColor(baseColor, color.format, 'rgb') // "r, g, b"
+		// Берем БАЗОВЫЙ цвет из контекста
+		const baseRgb = convertColor(color.color, color.format, 'rgb')
+		console.log(color)
 		if (!baseRgb) return
 
-		const [bR, bG, bB] = baseRgb.split(',').map(v => Number(v.trim()))
+		const {r, g, b} = parseRgb(baseRgb) ?? {r: 0, g: 0, b: 0}
 
-		// 1. Смешивание с белым по оси X (Насыщенность)
-		// 0% -> Белый, 100% -> BaseColor
-		const ratioX = xPercent / 100
-		const r1 = 255 + (bR - 255) * ratioX
-		const g1 = 255 + (bG - 255) * ratioX
-		const b1 = 255 + (bB - 255) * ratioX
+		// Математика (Saturate & Value)
+		// xPercent — это насыщенность (от белого к базе)
+		// yPercent — это яркость (от цвета к черному)
 
-		// 2. Смешивание с черным по оси Y (Яркость)
-		// 0% (верх) -> Ярко, 100% (низ) -> Черно
-		const ratioY = yPercent / 100
-		const brightness = 1 - ratioY
+		const ratioX = xPercent / 100 // 0 слева, 1 справа
+		const ratioY = 1 - (yPercent / 100) // 1 вверху, 0 внизу
 
-		const finalR = Math.round(r1 * brightness)
-		const finalG = Math.round(g1 * brightness)
-		const finalB = Math.round(b1 * brightness)
+		// 1. Смешиваем белый и базовый цвет (горизонталь)
+		const r1 = 255 + (r - 255) * ratioX
+		const g1 = 255 + (g - 255) * ratioX
+		const b1 = 255 + (b - 255) * ratioX
 
-		// Обновляем только итоговый результат
-		updateGlobalColor(`${finalR}, ${finalG}, ${finalB}`)
+		// 2. Применяем яркость (вертикаль)
+		const finalR = Math.round(r1 * ratioY)
+		const finalG = Math.round(g1 * ratioY)
+		const finalB = Math.round(b1 * ratioY)
+
+		const finalRgb = `${finalR}, ${finalG}, ${finalB}`
+
+		// Обновляем только текущий цвет, НЕ меняя базу
+		updateGlobalColor(finalRgb, color.color)
 	}
 
-	const updateGlobalColor = (rgbString: string) => {
-		switch (color.format) {
-			case 'hex':
-				const hex = convertColor(rgbString, 'rgb', 'hex')
-				if (hex) setColor({color: hex, format: 'hex', alpha: color.alpha})
-				break
-			case 'rgb':
-				setColor({color: rgbString, format: 'rgb', alpha: color.alpha})
-				break
-			default:
-				break
+	const updateGlobalColor = (newColor: string, newBase: string) => {
+		const format = color.format
+		const alpha = color.alpha
+
+		// Конвертируем оба цвета в нужный формат
+		const formattedColor = format === 'hex' ? convertColor(newColor, 'rgb', 'hex') : newColor
+		const formattedBase = format === 'hex' ? convertColor(newBase, 'rgb', 'hex') : newBase
+
+		if (formattedColor && formattedBase) {
+			setColor({
+				color: formattedBase,
+				luminance: formattedColor,
+				format,
+				alpha
+			})
 		}
 	}
 

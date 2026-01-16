@@ -32,7 +32,7 @@ export const Сompilation = () => {
 					<div key={pull.color + index} className={styles.set}>
 						<div
 							className={styles.cube}
-							style={{backgroundColor: pull.color}}
+							style={{backgroundColor: pull.luminance}}
 							onClick={() => clickToCopy(pull)}></div>
 						<div className={styles.rects}>
 							{pull.shades.map((shade, index) => {
@@ -40,7 +40,7 @@ export const Сompilation = () => {
 									<div
 										key={shade.color + index}
 										className={styles.rect}
-										style={{backgroundColor: shade.color}}
+										style={{backgroundColor: shade.luminance}}
 										onClick={() => clickToCopy(shade)}></div>
 								)
 							})}
