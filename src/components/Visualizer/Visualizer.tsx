@@ -63,17 +63,17 @@ export const Visualizer = ({image}: {image: string}) => {
 		const ctx = canvasRef.current.getContext('2d')
 
 		if (ctx) {
-            const natX = (xPercent / 100) * imgRef.current.naturalWidth
-            const natY = (yPercent / 100) * imgRef.current.naturalHeight
-            const pixelData = ctx.getImageData(natX, natY, 1, 1).data
-            const rgbString = `${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}`
+			const natX = (xPercent / 100) * imgRef.current.naturalWidth
+			const natY = (yPercent / 100) * imgRef.current.naturalHeight
+			const pixelData = ctx.getImageData(natX, natY, 1, 1).data
+			const rgbString = `${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}`
 
-            // Когда берем с картинки — и база, и основной цвет одинаковы
-            updateGlobalColor(rgbString, rgbString)
+			// Когда берем с картинки — и база, и основной цвет одинаковы
+			updateGlobalColor(rgbString, rgbString)
 
-            // Сбрасываем прицел градиента в правый верхний угол (100% насыщенность, 100% яркость)
-            setGradCrossPos({ x: 100, y: 0 })
-        }
+			// Сбрасываем прицел градиента в правый верхний угол (100% насыщенность, 100% яркость)
+			setGradCrossPos({x: 100, y: 0})
+		}
 	}
 
 	const handleGradUpdate = (event: MouseEvent<HTMLDivElement>) => {
@@ -100,7 +100,7 @@ export const Visualizer = ({image}: {image: string}) => {
 		// yPercent — это яркость (от цвета к черному)
 
 		const ratioX = xPercent / 100 // 0 слева, 1 справа
-		const ratioY = 1 - (yPercent / 100) // 1 вверху, 0 внизу
+		const ratioY = 1 - yPercent / 100 // 1 вверху, 0 внизу
 
 		// 1. Смешиваем белый и базовый цвет (горизонталь)
 		const r1 = 255 + (r - 255) * ratioX
@@ -131,7 +131,7 @@ export const Visualizer = ({image}: {image: string}) => {
 				color: formattedBase,
 				luminance: formattedColor,
 				format,
-				alpha
+				alpha,
 			})
 		}
 	}
