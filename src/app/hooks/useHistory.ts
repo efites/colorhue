@@ -4,34 +4,36 @@ import {History_Settings} from '../../shared/consts/colors'
 
 export const useHistory = () => {
 	const [history, setHistory] = useState<IColor[]>(() => {
-		try {
-			const historyItem = localStorage.getItem('history')
+		const historyItem = localStorage.getItem('history')
 
+		try {
 			return historyItem ? JSON.parse(historyItem) : []
 		} catch (e) {
 			console.error('Error parsing history:', e)
 
-			return []
+			localStorage.setItem('history', [].toString())
+
+			return localStorage.getItem('history') ?? []
 		}
 	})
 
 	const addHistory = useCallback(
-		(color: IColor['color'], format: IColor['format'], alpha: IColor['alpha']) => {
+		(color: IColor) => {
 			setHistory(prevHistory => {
-				const normalizedColor = color.toUpperCase()
+				const normalizedColor = color.displayed.toUpperCase()
 
 				if (
 					prevHistory.length > 0 &&
 					prevHistory.find(
 						element =>
-							element.color.toUpperCase() === normalizedColor &&
-							element.alpha === alpha,
+							element.displayed.toUpperCase() === normalizedColor &&
+							element.alpha === color.alpha,
 					)
 				) {
 					return prevHistory
 				}
 
-				const newHistory = [{color, format, alpha}, ...prevHistory].slice(
+				const newHistory = [color, ...prevHistory].slice(
 					0,
 					History_Settings.max_colors,
 				)

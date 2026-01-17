@@ -4,11 +4,12 @@ import {use} from 'react'
 import {GlobalContext} from '../../app/contexts/Global'
 import {convertColor} from '../../shared/helpers/colors'
 
-export const Pin = (pin: IColor) => {
+export const Pin = ({pin}: {pin: IColor}) => {
 	const {addHistory} = use(GlobalContext)
 
 	const clickHandler = (pin: IColor) => {
-		addHistory(pin.color, pin.format, pin.alpha)
+		// TODO: точно ли нужно добавление цвтета в историю? В useHistory проверка по отображаемому цвету
+		addHistory(pin)
 	}
 
 	return (
@@ -16,14 +17,14 @@ export const Pin = (pin: IColor) => {
 			className={styles.pin}
 			style={{
 				backgroundColor:
-					pin.format === 'hex' ? pin.color : convertColor(pin.color, 'rgb', 'hex'),
+					pin.format === 'hex' ? pin.displayed : convertColor(pin.displayed, 'rgb', 'hex'),
 			}}
 			onClick={() => clickHandler(pin)}>
 			<div
 				className={styles.cover}
 				style={{
 					backgroundColor:
-						pin.format === 'hex' ? pin.color : convertColor(pin.color, 'rgb', 'hex'),
+						pin.format === 'hex' ? pin.displayed : convertColor(pin.displayed, 'rgb', 'hex'),
 					opacity: 1 - pin.alpha / 100,
 				}}></div>
 		</div>

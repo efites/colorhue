@@ -1,5 +1,6 @@
 export interface IColor {
-	color: string
+	base: string
+	displayed: string
 	format: 'hex' | 'rgb'
 	alpha: number
 	luminance: {

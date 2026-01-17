@@ -19,7 +19,7 @@ interface IContex {
 	color: IColor
 	setColor: (color: IColor) => void
 	setHistory: (history: IColor[]) => void
-	addHistory: (color: IColor['color'], format: IColor['format'], alpha: IColor['alpha']) => void
+	addHistory: (color: IColor) => void
 }
 
 const initialGlobalContext: IContex = {
@@ -28,9 +28,11 @@ const initialGlobalContext: IContex = {
 	harmony: 'monochrome',
 	setHarmony: () => {},
 	color: {
-		color: '#ffffff',
+		base: '#ffffff',
+		displayed: '#ffffff',
 		format: 'hex',
 		alpha: 100,
+		luminance: { tint: 0, shade: 0 },
 	},
 	setColor: () => {},
 	history: [],

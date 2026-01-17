@@ -8,25 +8,21 @@ import {convertColor} from '@/shared/helpers/colors'
 export const History = () => {
 	const {history, setColor, color: globalColor} = useContext(GlobalContext)
 
-	const chooseColorPin = (
-		code: IColor['color'],
-		format: IColor['format'],
-		alpha: IColor['alpha'],
-	) => {
-		const convertedCode = convertColor(code, format, globalColor.format)
+	const chooseColorPin = (color: IColor) => {
+		const convertedCode = convertColor(color.displayed, color.format, globalColor.format)
 
-		setColor({color: convertedCode, format: globalColor.format, alpha})
+		setColor({...color, displayed: convertedCode, format: globalColor.format})
 	}
 
 	return (
 		<div className={styles.history}>
 			<div className={styles.pins}>
-				{history.map(({color, format, alpha}) => {
+				{history.map((color, index) => {
 					return (
 						<div
-							key={`${color}-${alpha}`}
-							onClick={() => chooseColorPin(color, format, alpha)}>
-							<Pin color={color} format={format} alpha={alpha} />
+							key={`${color.displayed}-${color.alpha}-${index}`}
+							onClick={() => chooseColorPin(color)}>
+							<Pin pin={color} />
 						</div>
 					)
 				})}
