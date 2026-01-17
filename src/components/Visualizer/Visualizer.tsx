@@ -67,7 +67,7 @@ export const Visualizer = ({image}: {image: string}) => {
 
 			// При выборе нового цвета с картинки:
 			// tint = 0, shade = 0 (чистый цвет, правый верхний угол градиента)
-			updateGlobalColor(rgbString, { tint: 0, shade: 0 })
+			updateGlobalColor(rgbString, {tint: 0, shade: 0})
 			setGradCrossPos({x: 100, y: 0})
 		}
 	}
@@ -90,14 +90,14 @@ export const Visualizer = ({image}: {image: string}) => {
 
 		// Tint (Оттенок): 1 — это полностью белый.
 		// Чем левее курсор (меньше x), тем больше белого.
-		const tint = 1 - (xPercent / 100)
+		const tint = 1 - xPercent / 100
 
 		// Shade (Полутон): 1 — это полностью черный.
 		// Чем ниже курсор (больше y), тем больше черного.
 		const shade = yPercent / 100
 
 		// Обновляем глобальное состояние, сохраняя текущую "базу"
-		updateGlobalColor(color.color, { tint, shade })
+		updateGlobalColor(color.color, {tint, shade})
 	}
 
 	const updateGlobalColor = (baseColorStr: string, luminance: IColor['luminance']) => {
@@ -106,9 +106,8 @@ export const Visualizer = ({image}: {image: string}) => {
 
 		// Конвертируем базовый цвет в нужный формат, если нужно
 		// В этой логике color.color всегда остается "чистым" цветом-основой
-		const formattedBase = format === 'hex'
-            ? convertColor(baseColorStr, 'rgb', 'hex')
-            : baseColorStr
+		const formattedBase =
+			format === 'hex' ? convertColor(baseColorStr, 'rgb', 'hex') : baseColorStr
 
 		console.log(luminance)
 
