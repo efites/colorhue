@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
 import {convertColor, parseRgb} from '../../shared/helpers/colors'
+import {IColor} from '@/types/picker'
 
 export const Visualizer = ({image}: {image: string}) => {
 	const {setColor, addHistory, color} = useContext(GlobalContext)
@@ -52,26 +53,21 @@ export const Visualizer = ({image}: {image: string}) => {
 		const x = event.clientX - rect.left
 		const y = event.clientY - rect.top
 
-		let xPercent = (x / rect.width) * 100
-		let yPercent = (y / rect.height) * 100
-
-		xPercent = Math.max(0, Math.min(100, xPercent))
-		yPercent = Math.max(0, Math.min(100, yPercent))
+		let xPercent = Math.max(0, Math.min(100, (x / rect.width) * 100))
+		let yPercent = Math.max(0, Math.min(100, (y / rect.height) * 100))
 
 		setImgCrossPos({x: xPercent, y: yPercent})
 
 		const ctx = canvasRef.current.getContext('2d')
-
 		if (ctx) {
 			const natX = (xPercent / 100) * imgRef.current.naturalWidth
 			const natY = (yPercent / 100) * imgRef.current.naturalHeight
 			const pixelData = ctx.getImageData(natX, natY, 1, 1).data
 			const rgbString = `${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}`
 
-			// Когда берем с картинки — и база, и основной цвет одинаковы
-			updateGlobalColor(rgbString, rgbString)
-
-			// Сбрасываем прицел градиента в правый верхний угол (100% насыщенность, 100% яркость)
+			// При выборе нового цвета с картинки:
+			// tint = 0, shade = 0 (чистый цвет, правый верхний угол градиента)
+			updateGlobalColor(rgbString, { tint: 0, shade: 0 })
 			setGradCrossPos({x: 100, y: 0})
 		}
 	}
@@ -80,56 +76,46 @@ export const Visualizer = ({image}: {image: string}) => {
 		if (!gradRef.current) return
 
 		const rect = gradRef.current.getBoundingClientRect()
-		let xPercent = ((event.clientX - rect.left) / rect.width) * 100
-		let yPercent = ((event.clientY - rect.top) / rect.height) * 100
-
-		xPercent = Math.max(0, Math.min(100, xPercent))
-		yPercent = Math.max(0, Math.min(100, yPercent))
+		let xPercent = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100))
+		let yPercent = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100))
 
 		setGradCrossPos({x: xPercent, y: yPercent})
 
-		// Берем БАЗОВЫЙ цвет из контекста
-		const baseRgb = convertColor(color.color, color.format, 'rgb')
-		console.log(color)
-		if (!baseRgb) return
+		/**
+		 * ЛОГИКА РАСЧЕТА:
+		 * В градиентном квадрате:
+		 * Слева (x=0) - белый, Справа (x=100) - базовый цвет.
+		 * Сверху (y=0) - цвет, Снизу (y=100) - черный.
+		 */
 
-		const {r, g, b} = parseRgb(baseRgb) ?? {r: 0, g: 0, b: 0}
+		// Tint (Оттенок): 1 — это полностью белый.
+		// Чем левее курсор (меньше x), тем больше белого.
+		const tint = 1 - (xPercent / 100)
 
-		// Математика (Saturate & Value)
-		// xPercent — это насыщенность (от белого к базе)
-		// yPercent — это яркость (от цвета к черному)
+		// Shade (Полутон): 1 — это полностью черный.
+		// Чем ниже курсор (больше y), тем больше черного.
+		const shade = yPercent / 100
 
-		const ratioX = xPercent / 100 // 0 слева, 1 справа
-		const ratioY = 1 - yPercent / 100 // 1 вверху, 0 внизу
-
-		// 1. Смешиваем белый и базовый цвет (горизонталь)
-		const r1 = 255 + (r - 255) * ratioX
-		const g1 = 255 + (g - 255) * ratioX
-		const b1 = 255 + (b - 255) * ratioX
-
-		// 2. Применяем яркость (вертикаль)
-		const finalR = Math.round(r1 * ratioY)
-		const finalG = Math.round(g1 * ratioY)
-		const finalB = Math.round(b1 * ratioY)
-
-		const finalRgb = `${finalR}, ${finalG}, ${finalB}`
-
-		// Обновляем только текущий цвет, НЕ меняя базу
-		updateGlobalColor(finalRgb, color.color)
+		// Обновляем глобальное состояние, сохраняя текущую "базу"
+		updateGlobalColor(color.color, { tint, shade })
 	}
 
-	const updateGlobalColor = (newColor: string, newBase: string) => {
+	const updateGlobalColor = (baseColorStr: string, luminance: IColor['luminance']) => {
 		const format = color.format
 		const alpha = color.alpha
 
-		// Конвертируем оба цвета в нужный формат
-		const formattedColor = format === 'hex' ? convertColor(newColor, 'rgb', 'hex') : newColor
-		const formattedBase = format === 'hex' ? convertColor(newBase, 'rgb', 'hex') : newBase
+		// Конвертируем базовый цвет в нужный формат, если нужно
+		// В этой логике color.color всегда остается "чистым" цветом-основой
+		const formattedBase = format === 'hex'
+            ? convertColor(baseColorStr, 'rgb', 'hex')
+            : baseColorStr
 
-		if (formattedColor && formattedBase) {
+		console.log(luminance)
+
+		if (formattedBase) {
 			setColor({
 				color: formattedBase,
-				luminance: formattedColor,
+				luminance: luminance, // Теперь это объект {tint, shade}
 				format,
 				alpha,
 			})

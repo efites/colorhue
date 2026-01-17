@@ -2,7 +2,10 @@ export interface IColor {
 	color: string
 	format: 'hex' | 'rgb'
 	alpha: number
-	luminance: string
+	luminance: {
+		tint: number
+		shade: number
+	}
 }
 
 export interface PipetteCapture extends IColor {
