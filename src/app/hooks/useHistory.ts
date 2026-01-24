@@ -18,32 +18,26 @@ export const useHistory = () => {
 		}
 	})
 
-	const addHistory = useCallback(
-		(color: IColor) => {
-			setHistory(prevHistory => {
-				if (
-					prevHistory.length > 0 &&
-					prevHistory.find(
-						element =>
-							element.displayed.toUpperCase() === color.displayed.toUpperCase() &&
-							element.alpha === color.alpha,
-					)
-				) {
-					return prevHistory
-				}
-
-				const newHistory = [color, ...prevHistory].slice(
-					0,
-					History_Settings.max_colors,
+	const addHistory = useCallback((color: IColor) => {
+		setHistory(prevHistory => {
+			if (
+				prevHistory.length > 0 &&
+				prevHistory.find(
+					element =>
+						element.displayed.toUpperCase() === color.displayed.toUpperCase() &&
+						element.alpha === color.alpha,
 				)
+			) {
+				return prevHistory
+			}
 
-				localStorage.setItem('history', JSON.stringify(newHistory))
+			const newHistory = [color, ...prevHistory].slice(0, History_Settings.max_colors)
 
-				return newHistory
-			})
-		},
-		[],
-	)
+			localStorage.setItem('history', JSON.stringify(newHistory))
+
+			return newHistory
+		})
+	}, [])
 
 	return {history, setHistory, addHistory}
 }

@@ -31,7 +31,6 @@ export const useAutoWindowSize = () => {
 
 			// Показываем окно, если оно было скрыто при запуске
 			await appWindow.show()
-
 		} catch (error) {
 			console.error('Failed to set window size:', error)
 		}

@@ -32,14 +32,14 @@ const initialColor: IColor = {
 
 const initialGlobalContext: IContex = {
 	mode: 'solid',
-	setMode: () => { },
+	setMode: () => {},
 	harmony: 'monochrome',
-	setHarmony: () => { },
+	setHarmony: () => {},
 	color: initialColor,
-	setColor: () => { },
+	setColor: () => {},
 	history: [],
-	setHistory: () => { },
-	addHistory: () => { },
+	setHistory: () => {},
+	addHistory: () => {},
 }
 
 const GlobalContext = createContext<IContex>(initialGlobalContext)

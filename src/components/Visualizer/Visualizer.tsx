@@ -67,7 +67,13 @@ export const Visualizer = ({image}: {image: string}) => {
 
 			// При выборе нового цвета с картинки:
 			// tint = 0, shade = 0 (чистый цвет, правый верхний угол градиента)
-			updateGlobalColor({...color, base: rgbString, format: 'rgb', displayed: rgbString, luminance: {tint: 0, shade: 0}})
+			updateGlobalColor({
+				...color,
+				base: rgbString,
+				format: 'rgb',
+				displayed: rgbString,
+				luminance: {tint: 0, shade: 0},
+			})
 			setGradCrossPos({x: 100, y: 0})
 		}
 	}

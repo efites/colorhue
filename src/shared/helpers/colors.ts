@@ -114,10 +114,7 @@ export const rgbToString = ({r, g, b}: RGB): string => {
 	return `${r}, ${g}, ${b}`
 }
 
-export const convertColor = (
-	color: IColor,
-	to: IColor['format'],
-): IColor => {
+export const convertColor = (color: IColor, to: IColor['format']): IColor => {
 	if (color.format === to) return color
 
 	let rgb: RGB | null = null

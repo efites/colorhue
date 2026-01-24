@@ -29,7 +29,7 @@ export const useColorForm = () => {
 		// TODO: нужно проверить валидность введеного значения
 		setColor(prev => ({
 			...prev,
-			displayed: e.target.value // Обновляем только отображение при печати
+			displayed: e.target.value, // Обновляем только отображение при печати
 		}))
 	}
 

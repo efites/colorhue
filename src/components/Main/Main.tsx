@@ -27,13 +27,20 @@ export const Main = () => {
 			<div className={clsx(styles.settings, mode === 'gradient' && styles.solid)}>
 				<div className={styles.indication}>
 					<div className={styles.gamma}>
-						<button className={styles.pipette} type='button' onClick={actions.pickColor}>
-							<Icon className={clsx(styles.pipetteIcon, styles.active)} name='pipette' />
+						<button
+							className={styles.pipette}
+							type='button'
+							onClick={actions.pickColor}>
+							<Icon
+								className={clsx(styles.pipetteIcon, styles.active)}
+								name='pipette'
+							/>
 						</button>
 
 						<div className={styles.sliders}>
 							<div className={clsx(styles.slider, styles.rainbow)}>
-								<div className={styles.opacityPin} style={{left: '50%'}} /> {/* Логика позиции пина */}
+								<div className={styles.opacityPin} style={{left: '50%'}} />{' '}
+								{/* Логика позиции пина */}
 							</div>
 							<div className={clsx(styles.slider, styles.rgba)}>
 								<div
@@ -55,9 +62,12 @@ export const Main = () => {
 						<div className={styles.inputs}>
 							<Select
 								placeholder='Формат'
-								selected={{label: state.color.format.toUpperCase(), value: state.color.format}}
+								selected={{
+									label: state.color.format.toUpperCase(),
+									value: state.color.format,
+								}}
 								options={formats.map(f => ({label: f.toUpperCase(), value: f}))}
-								onChange={_ => { }}
+								onChange={_ => {}}
 								icon='arrow-down'
 							/>
 							<div className={styles.codes}>
