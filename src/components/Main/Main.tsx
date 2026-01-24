@@ -6,54 +6,58 @@ import {Visualizer} from '../Visualizer/Visualizer'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
 import {Select} from '../Select/Select'
 import {IColor} from '@/types/picker'
-import {convertColor} from '@/shared/helpers/colors'
+import {useContext} from 'react'
+import {GlobalContext} from '../../app/contexts/Global'
+// import {convertColor} from '@/shared/helpers/colors'
 
 const formats: IColor['format'][] = ['hex', 'rgb'] as const
 
 export const Main = () => {
+	const {mode} = useContext(GlobalContext)
 	const {state, actions} = useColorForm()
+
+	// Вспомогательная функция для CSS градиента (прозрачность -> цвет)
+	// Важно: convertColor должен уметь возвращать строку rgb для CSS
+	// const rgbString = convertColor(state.code, 'rgb').displayed
 
 	return (
 		<div className={styles.main}>
 			<Visualizer image={state.image} />
 
-			<div className={clsx(styles.settings, state.mode === 'gradient' && styles.solid)}>
+			<div className={clsx(styles.settings, mode === 'gradient' && styles.solid)}>
 				<div className={styles.indication}>
 					<div className={styles.gamma}>
-						<button
-							className={styles.pipette}
-							type='button'
-							onClick={actions.pickColor}>
-							<Icon
-								className={clsx(styles.pipetteIcon, styles.active)}
-								name='pipette'
-							/>
+						<button className={styles.pipette} type='button' onClick={actions.pickColor}>
+							<Icon className={clsx(styles.pipetteIcon, styles.active)} name='pipette' />
 						</button>
+
 						<div className={styles.sliders}>
 							<div className={clsx(styles.slider, styles.rainbow)}>
-								<div className={styles.opacityPin} style={{right: '0%'}}></div>
+								<div className={styles.opacityPin} style={{left: '50%'}} /> {/* Логика позиции пина */}
 							</div>
 							<div className={clsx(styles.slider, styles.rgba)}>
 								<div
-									className={clsx(styles.cover)}
+									className={styles.cover}
 									style={{
-										background: `linear-gradient(90deg, rgba(${convertColor(state.code, state.format, 'rgb')}, 0) 0%, ${state.code})`,
-									}}></div>
-								<div className={styles.opacityPin} style={{right: '0%'}}></div>
+										// Делаем градиент от прозрачного к текущему цвету
+										background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, ${state.color.base})`,
+									}}
+								/>
+								<div
+									className={styles.opacityPin}
+									style={{left: `${state.color.alpha}%`}} // Пин двигается за процентами
+								/>
 							</div>
 						</div>
 					</div>
-					{state.mode === 'solid' && (
+
+					{mode === 'solid' && (
 						<div className={styles.inputs}>
 							<Select
 								placeholder='Формат'
-								// Формируем объект Option для Select из стейта
-								selected={{label: state.format, value: state.format}}
-								options={formats.map(format => ({label: format, value: format}))}
-								// Передаем значение (value) в экшн хука
-								onChange={option =>
-									actions.handleFormatChange(option.value as IColor['format'])
-								}
+								selected={{label: state.color.format.toUpperCase(), value: state.color.format}}
+								options={formats.map(f => ({label: f.toUpperCase(), value: f}))}
+								onChange={_ => { }}
 								icon='arrow-down'
 							/>
 							<div className={styles.codes}>
@@ -61,7 +65,7 @@ export const Main = () => {
 									<input
 										className={styles.code}
 										type='text'
-										value={state.code.toUpperCase()}
+										value={state.color.displayed.toUpperCase()}
 										onChange={actions.handleCodeChange}
 										onBlur={actions.handleCodeBlur}
 										onKeyDown={actions.onKeyDown}
@@ -70,9 +74,8 @@ export const Main = () => {
 								<div className={styles.percentages}>
 									<input
 										className={styles.opacity}
-										maxLength={3}
 										type='number'
-										value={state.opacity}
+										value={state.color.alpha}
 										onChange={actions.handleOpacityChange}
 										onBlur={actions.handleOpacityBlur}
 										onKeyDown={actions.onKeyDown}
@@ -83,7 +86,7 @@ export const Main = () => {
 						</div>
 					)}
 				</div>
-				{state.mode === 'solid' && <HarmonyButtons />}
+				{mode === 'solid' && <HarmonyButtons />}
 			</div>
 		</div>
 	)

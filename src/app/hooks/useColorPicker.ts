@@ -1,11 +1,12 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 import ScreenFallback from '../../shared/images/screen.png'
-import type {CursorPosition, PipetteCapture} from '../../types/picker'
+import type {CursorPosition, IColor, PipetteCapture} from '../../types/picker'
 import {invoke} from '@/shared/helpers/tauri'
+import {initialColor} from '../contexts/Global'
 
 export function useColorPicker() {
-	const [color, setColor] = useState<PipetteCapture['color']>('#FFFFFF')
+	const [color, setColor] = useState<IColor>(initialColor)
 	const [image, setImage] = useState<PipetteCapture['image']>(ScreenFallback)
 	const [format, setFormat] = useState<PipetteCapture['format']>('hex')
 
@@ -37,7 +38,7 @@ export function useColorPicker() {
 
 			// Обновляем состояние батчем (React 18+ делает это автоматически)
 			setImage(result.image || ScreenFallback)
-			setColor(result.color)
+			setColor(result)
 			setFormat(result.format)
 		} catch (err) {
 			// Логируем ошибку, но не ломаем приложение, так как это стрим событий

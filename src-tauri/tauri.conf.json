@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+		"label": "main",
         "title": "colorhue",
         "minWidth": 100,
         "minHeight": 100,

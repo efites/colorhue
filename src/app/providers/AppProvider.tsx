@@ -1,6 +1,6 @@
 import {useState, useMemo, ReactNode} from 'react'
 import {useHistory} from '@/hooks/useHistory'
-import {GlobalContext, IContex} from '../contexts/Global'
+import {GlobalContext, IContex, initialColor} from '../contexts/Global'
 import {IColor} from '@/types/picker'
 
 interface AppProviderProps {
@@ -11,9 +11,7 @@ export const AppProvider = ({children}: AppProviderProps) => {
 	const {history, setHistory, addHistory} = useHistory()
 	const [mode, setMode] = useState<IContex['mode']>('solid')
 	const [harmony, setHarmony] = useState<IContex['harmony']>('monochrome')
-	const [color, setColor] = useState<IColor>(
-		history.at(0) ?? {displayed: '#ffffff', base: '#ffffff', format: 'hex', alpha: 100, luminance: {tint: 0, shade: 0}},
-	)
+	const [color, setColor] = useState<IColor>(history.at(0) ?? initialColor)
 
 	const contextValue: IContex = useMemo(
 		() => ({
@@ -30,5 +28,6 @@ export const AppProvider = ({children}: AppProviderProps) => {
 		[mode, history, color, harmony, addHistory, setHistory],
 	)
 
+	console.log(contextValue)
 	return <GlobalContext value={contextValue}>{children}</GlobalContext>
 }

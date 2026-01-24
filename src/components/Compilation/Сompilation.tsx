@@ -9,7 +9,7 @@ export const Сompilation = () => {
 	const pulls = findPullColors(color)
 
 	const clickToCopy = async (color: Omit<IColor, 'alpha'>) => {
-		const after = color.color
+		const after = color.displayed
 
 		switch (color.format) {
 			case 'hex':
@@ -29,18 +29,18 @@ export const Сompilation = () => {
 		<div className={styles.сompilation}>
 			{pulls.map((pull, index) => {
 				return (
-					<div key={pull.color + index} className={styles.set}>
+					<div key={pull.displayed + index} className={styles.set}>
 						<div
 							className={styles.cube}
-							style={{backgroundColor: pull.luminance}}
+							style={{backgroundColor: pull.displayed}}
 							onClick={() => clickToCopy(pull)}></div>
 						<div className={styles.rects}>
 							{pull.shades.map((shade, index) => {
 								return (
 									<div
-										key={shade.color + index}
+										key={shade.displayed + index}
 										className={styles.rect}
-										style={{backgroundColor: shade.luminance}}
+										style={{backgroundColor: shade.displayed}}
 										onClick={() => clickToCopy(shade)}></div>
 								)
 							})}

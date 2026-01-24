@@ -1,90 +1,71 @@
-import {useState, useEffect, useContext, ChangeEvent} from 'react'
+import {useEffect, useContext, ChangeEvent} from 'react'
 import {GlobalContext} from '../../app/contexts/Global'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
-import {validateAndFormatColor, convertColor} from '@/shared/helpers/colors'
-import {IColor} from '@/types/picker'
+// import {convertColor} from '@/shared/helpers/colors'
+// import {IColor} from '@/types/picker'
 
 export const useColorForm = () => {
-	const {mode, addHistory, color, setColor} = useContext(GlobalContext)
-	const {color: pickedColor, image, format: pickedFormat, pickColor} = useColorPicker()
+	const {color: customizedColor, addHistory, setColor} = useContext(GlobalContext)
+	const {color: pickedColor, image, pickColor} = useColorPicker()
 
-	const [code, setCode] = useState<IColor['color']>(color.color)
-	const [format, setFormat] = useState<IColor['format']>(color.format)
-	const [opacity, setOpacity] = useState<number>(color.alpha) // Инициализируем из глобального
+	// Локальное состояние для инпутов (чтобы ввод был плавным)
+	// const [code, setCode] = useState<IColor['displayed']>(customizedColor.displayed)
 
-	// 1. СИНХРОНИЗАЦИЯ: Глобальный стейт -> Локальные инпуты
+	// 1. Синхронизация: Глобальный стейт -> Локальный
 	useEffect(() => {
-		setCode(color.color)
-		setFormat(color.format)
-		setOpacity(color.alpha) // Синхронизируем прозрачность
-	}, [color])
+		// setCode(customizedColor.displayed)
+	}, [customizedColor])
 
-	// 2. ПИПЕТКА: Результат пипетки -> Глобальный стейт
+	// 2. Пипетка: При выборе цвета обновляем всё
 	useEffect(() => {
-		if (pickedColor && pickedColor.toUpperCase() !== '#FFFFFF') {
-			// При пипетке считаем, что цвет непрозрачный (100%),
-			// либо оставляем текущую прозрачность (зависит от логики, тут ставлю 100)
-			const newAlpha = 100
-
-			setColor({color: pickedColor, format: pickedFormat, alpha: newAlpha})
-			addHistory(pickedColor, pickedFormat, newAlpha)
+		if (pickedColor) {
+			setColor(pickedColor)
+			addHistory(pickedColor)
 		}
-	}, [pickedColor, pickedFormat, setColor, addHistory])
+	}, [pickedColor, setColor, addHistory])
 
+	// Изменение текста в инпуте цвета
 	const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setCode(e.target.value)
+		// TODO: нужно проверить валидность введеного значения
+		setColor(prev => ({
+			...prev,
+			displayed: e.target.value // Обновляем только отображение при печати
+		}))
 	}
 
-	const handleFormatChange = (newFormat: IColor['format']) => {
-		// Конвертируем цвет
-		const convertedCode = convertColor(code, format, newFormat)
-
-		setFormat(newFormat)
-		setCode(convertedCode)
-
-		// Сохраняем в глобалку (сохраняя текущую прозрачность!)
-		setColor({color: convertedCode, format: newFormat, alpha: opacity})
+	// Завершение ввода цвета (Blur или Enter)
+	const handleCodeBlur = () => {
+		// Здесь должна быть ваша функция валидации, если её нет — сохраняем как есть
+		// const updatedColor = {...localCode, base: localCode.displayed}
+		// setColor(updatedColor)
+		// addHistory(updatedColor)
 	}
 
-	const handleCodeBlur = (e: ChangeEvent<HTMLInputElement>) => {
-		const formatted = validateAndFormatColor(e.target.value, format)
+	// Изменение формата (HEX/RGB/HSL)
+	// const handleFormatChange = (color: IColor, ) => {
+	// 	const converted = convertColor(localCode, newFormat)
+	// 	const newColorState = {...converted, format: newFormat, alpha: localOpacity}
 
-		if (formatted) {
-			setCode(formatted)
-			// Обновляем глобалку, передавая текущую прозрачность
-			setColor({color: formatted, format: format, alpha: opacity})
-			addHistory(formatted, format, opacity)
-		} else {
-			setCode(color.color)
-		}
-	}
+	// 	setLocalCode(newColorState)
+	// 	setColor(newColorState)
+	// 	addHistory(newColorState)
+	// }
 
-	// Просто ввод цифр, не трогаем глобалку, чтобы не фризило интерфейс
+	// Изменение прозрачности (только локально)
 	const handleOpacityChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const val = parseInt(e.target.value)
-		if (isNaN(val))
-			setOpacity(0) // или пустую строку, если хотите разрешить удаление всего
-		else if (val > 100) setOpacity(100)
-		else if (val < 0) setOpacity(0)
-		else setOpacity(val)
+		const value = parseInt(e.target.value)
+
+		if (isNaN(value)) setColor(prev => ({...prev, alpha: 100}))
+		else if (value > 100) setColor(prev => ({...prev, alpha: 100}))
+		else if (value < 0) setColor(prev => ({...prev, alpha: 0}))
+		else setColor(prev => ({...prev, alpha: value}))
 	}
 
-	// Валидация и сохранение прозрачности при потере фокуса
-	const handleOpacityBlur = (e: ChangeEvent<HTMLInputElement>) => {
-		let val = parseInt(e.target.value)
-
-		if (isNaN(val) || e.target.value === '') {
-			val = 100 // Дефолт, если поле пустое
-		} else if (val > 100) val = 100
-		else if (val < 0) val = 0
-
-		setOpacity(val)
-
-		// Обновляем глобальный стейт только тут
-		// Важно: берем текущий валидный code и format из стейта компонента или напрямую из color
-		setColor({color: code, format: format, alpha: val})
-		// Опционально: добавлять ли изменение прозрачности в историю? Обычно да.
-		addHistory(code, format, val)
+	// Сохранение прозрачности в глобальный стейт
+	const handleOpacityBlur = () => {
+		// const updatedColor = {...localCode, alpha: localOpacity}
+		// setColor(updatedColor)
+		// addHistory(updatedColor)
 	}
 
 	const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -94,11 +75,14 @@ export const useColorForm = () => {
 	}
 
 	return {
-		state: {code, format, opacity, mode, image},
+		state: {
+			color: customizedColor,
+			image,
+		},
 		actions: {
 			pickColor,
 			handleCodeChange,
-			handleFormatChange,
+			// handleFormatChange,
 			handleCodeBlur,
 			handleOpacityChange,
 			handleOpacityBlur,

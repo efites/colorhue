@@ -2,7 +2,7 @@ import {useRef, useState, MouseEvent, useContext, useEffect} from 'react'
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
-import {convertColor, parseRgb} from '../../shared/helpers/colors'
+import {convertColor} from '../../shared/helpers/colors'
 import {IColor} from '@/types/picker'
 
 export const Visualizer = ({image}: {image: string}) => {
@@ -15,7 +15,7 @@ export const Visualizer = ({image}: {image: string}) => {
 	const [gradCrossPos, setGradCrossPos] = useState({x: 50, y: 50})
 
 	// Вводим локальный стейт для "Основы" градиента
-	const [baseColor, setBaseColor] = useState(color.color)
+	const [baseColor, setBaseColor] = useState<IColor['base']>(color.base)
 
 	const [activeDrag, setActiveDrag] = useState<'image' | 'gradient' | null>(null)
 
@@ -27,9 +27,9 @@ export const Visualizer = ({image}: {image: string}) => {
 	// мы обновляем базу. Но если мы сами сейчас тянем градиент - базу не трогаем.
 	useEffect(() => {
 		if (activeDrag !== 'gradient') {
-			setBaseColor(color.color)
+			setBaseColor(color.base)
 		}
-	}, [color.color, activeDrag])
+	}, [color.base, activeDrag])
 
 	const handleImageLoad = () => {
 		const img = imgRef.current
@@ -67,7 +67,7 @@ export const Visualizer = ({image}: {image: string}) => {
 
 			// При выборе нового цвета с картинки:
 			// tint = 0, shade = 0 (чистый цвет, правый верхний угол градиента)
-			updateGlobalColor(rgbString, {tint: 0, shade: 0})
+			updateGlobalColor({...color, base: rgbString, format: 'rgb', displayed: rgbString, luminance: {tint: 0, shade: 0}})
 			setGradCrossPos({x: 100, y: 0})
 		}
 	}
@@ -97,24 +97,22 @@ export const Visualizer = ({image}: {image: string}) => {
 		const shade = yPercent / 100
 
 		// Обновляем глобальное состояние, сохраняя текущую "базу"
-		updateGlobalColor(color.color, {tint, shade})
+		updateGlobalColor({...color, luminance: {tint, shade}})
 	}
 
-	const updateGlobalColor = (baseColorStr: string, luminance: IColor['luminance']) => {
+	const updateGlobalColor = (color: IColor) => {
 		const format = color.format
 		const alpha = color.alpha
 
 		// Конвертируем базовый цвет в нужный формат, если нужно
 		// В этой логике color.color всегда остается "чистым" цветом-основой
-		const formattedBase =
-			format === 'hex' ? convertColor(baseColorStr, 'rgb', 'hex') : baseColorStr
-
-		console.log(luminance)
+		const formattedBase = convertColor(color, 'hex').base
 
 		if (formattedBase) {
 			setColor({
-				color: formattedBase,
-				luminance: luminance, // Теперь это объект {tint, shade}
+				base: formattedBase,
+				displayed: formattedBase,
+				luminance: color.luminance, // Теперь это объект {tint, shade}
 				format,
 				alpha,
 			})
@@ -133,7 +131,7 @@ export const Visualizer = ({image}: {image: string}) => {
 	}
 
 	const onMouseUp = () => {
-		if (activeDrag) addHistory(color.color, color.format, color.alpha)
+		if (activeDrag) addHistory(color)
 		setActiveDrag(null)
 	}
 
@@ -177,7 +175,7 @@ export const Visualizer = ({image}: {image: string}) => {
 					className={clsx(styles.window, styles.screenshot)}
 					// ВАЖНО: Используем baseColor для фона
 					style={{
-						background: `linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(255, 255, 255, 0)), linear-gradient(90deg, #ffffff, ${convertColor(baseColor, color.format, 'hex')})`,
+						background: `linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(255, 255, 255, 0)), linear-gradient(90deg, #ffffff, ${baseColor})})`,
 					}}
 					onMouseDown={e => onMouseDown(e, 'gradient')}
 					onMouseMove={onMouseMove}

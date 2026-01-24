@@ -115,20 +115,19 @@ export const rgbToString = ({r, g, b}: RGB): string => {
 }
 
 export const convertColor = (
-	color: string,
-	from: IColor['format'],
+	color: IColor,
 	to: IColor['format'],
-): string => {
-	if (from === to) return color
+): IColor => {
+	if (color.format === to) return color
 
 	let rgb: RGB | null = null
 
-	switch (from) {
+	switch (color.format) {
 		case 'hex':
-			rgb = parseHex(color)
+			rgb = parseHex(color.displayed)
 			break
 		case 'rgb':
-			rgb = parseRgb(color)
+			rgb = parseRgb(color.displayed)
 			break
 	}
 
@@ -136,9 +135,9 @@ export const convertColor = (
 
 	switch (to) {
 		case 'hex':
-			return rgbToHex(rgb)
+			return {...color, format: 'hex', displayed: rgbToHex(rgb)}
 		case 'rgb':
-			return rgbToString(rgb)
+			return {...color, format: 'rgb', displayed: rgbToString(rgb)}
 		default:
 			return color
 	}
@@ -170,109 +169,129 @@ export const getCssColor = (color: string, format: string, alpha: number): strin
 export const findPullColors = (color: IColor) => {
 	const result: IPull[] = [
 		{
-			color: color.color,
+			displayed: color.displayed,
+			base: color.displayed,
 			format: 'hex',
 			luminance: color.luminance,
 			shades: [
 				{
-					color: '#1a9230ff',
-					luminance: '#1a9230ff',
+					displayed: '#1a9230ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#024d0fff',
-					luminance: '#024d0fff',
+					displayed: '#024d0fff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#40774aff',
-					luminance: '#40774aff',
+					displayed: '#40774aff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#57775dff',
-					luminance: '#57775dff',
+					displayed: '#57775dff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 			],
 		},
 		{
-			color: '#a40e09ff',
+			displayed: '#a40e09ff',
+			base: '#a40e09ff',
 			format: 'hex',
 			luminance: color.luminance,
 			shades: [
 				{
-					color: '#670d0aff',
-					luminance: '#670d0aff',
+					displayed: '#670d0aff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#c63631ff',
-					luminance: '#c63631ff',
+					displayed: '#c63631ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#f45650ff',
-					luminance: '#f45650ff',
+					displayed: '#f45650ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#5b0b08ff',
-					luminance: '#5b0b08ff',
+					displayed: '#5b0b08ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 			],
 		},
 		{
-			color: '#05276bff',
+			displayed: '#05276bff',
+			base: '#05276bff',
 			format: 'hex',
 			luminance: color.luminance,
 			shades: [
 				{
-					color: '#061a43ff',
-					luminance: '#061a43ff',
+					displayed: '#061a43ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#0b46bbff',
-					luminance: '#0b46bbff',
+					displayed: '#0b46bbff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#2f63ccff',
-					luminance: '#2f63ccff',
+					displayed: '#2f63ccff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#89aef7ff',
-					luminance: '#89aef7ff',
+					displayed: '#89aef7ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 			],
 		},
 		{
-			color: '#c0ba17ff',
+			displayed: '#c0ba17ff',
+			base: '#c0ba17ff',
 			format: 'hex',
 			luminance: color.luminance,
 			shades: [
 				{
-					color: '#e5e04aff',
-					luminance: '#e5e04aff',
+					displayed: '#e5e04aff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#949010ff',
-					luminance: '#949010ff',
+					displayed: '#949010ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#646104ff',
-					luminance: '#646104ff',
+					displayed: '#646104ff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 				{
-					color: '#fffcacff',
-					luminance: '#fffcacff',
+					displayed: '#fffcacff',
+					base: color.base,
+					luminance: color.luminance,
 					format: 'hex',
 				},
 			],

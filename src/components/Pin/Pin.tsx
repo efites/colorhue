@@ -17,14 +17,14 @@ export const Pin = ({pin}: {pin: IColor}) => {
 			className={styles.pin}
 			style={{
 				backgroundColor:
-					pin.format === 'hex' ? pin.displayed : convertColor(pin.displayed, 'rgb', 'hex'),
+					pin.format === 'hex' ? pin.displayed : convertColor(pin, 'hex').displayed,
 			}}
 			onClick={() => clickHandler(pin)}>
 			<div
 				className={styles.cover}
 				style={{
 					backgroundColor:
-						pin.format === 'hex' ? pin.displayed : convertColor(pin.displayed, 'rgb', 'hex'),
+						pin.format === 'hex' ? pin.displayed : convertColor(pin, 'hex').displayed,
 					opacity: 1 - pin.alpha / 100,
 				}}></div>
 		</div>

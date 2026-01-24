@@ -9,9 +9,9 @@ export const History = () => {
 	const {history, setColor, color: globalColor} = useContext(GlobalContext)
 
 	const chooseColorPin = (color: IColor) => {
-		const convertedCode = convertColor(color.displayed, color.format, globalColor.format)
+		const result = convertColor(color, globalColor.format)
 
-		setColor({...color, displayed: convertedCode, format: globalColor.format})
+		setColor(result)
 	}
 
 	return (

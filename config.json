@@ -1,5 +1,5 @@
 {
-	"mode": "prod",
+	"mode": "dev",
 	"pipette": {
 		"min": 15,
 		"max": 100,

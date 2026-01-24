@@ -11,6 +11,7 @@ export const useHistory = () => {
 		} catch (e) {
 			console.error('Error parsing history:', e)
 
+			localStorage.removeItem('history')
 			localStorage.setItem('history', [].toString())
 
 			return localStorage.getItem('history') ?? []
@@ -20,13 +21,11 @@ export const useHistory = () => {
 	const addHistory = useCallback(
 		(color: IColor) => {
 			setHistory(prevHistory => {
-				const normalizedColor = color.displayed.toUpperCase()
-
 				if (
 					prevHistory.length > 0 &&
 					prevHistory.find(
 						element =>
-							element.displayed.toUpperCase() === normalizedColor &&
+							element.displayed.toUpperCase() === color.displayed.toUpperCase() &&
 							element.alpha === color.alpha,
 					)
 				) {
