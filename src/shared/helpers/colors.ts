@@ -3,8 +3,8 @@ import {RegularsExp} from '../consts/regexp'
 
 type RGB = {r: number; g: number; b: number}
 
-interface IPull extends Omit<IColor, 'alpha'> {
-	shades: Omit<IColor, 'alpha'>[]
+interface IPull extends IColor {
+	shades: IColor[]
 }
 
 export const expandHex = (value: string): string => {
@@ -117,24 +117,37 @@ export const rgbToString = ({r, g, b}: RGB): string => {
 export const convertColor = (color: IColor, to: IColor['format']): IColor => {
 	if (color.format === to) return color
 
-	let rgb: RGB | null = null
+	let rgbBase: RGB | null = null
+	let rgbDisplayed: RGB | null = null
 
 	switch (color.format) {
 		case 'hex':
-			rgb = parseHex(color.displayed)
+			rgbDisplayed = parseHex(color.displayed)
+			rgbBase = parseHex(color.base)
 			break
 		case 'rgb':
-			rgb = parseRgb(color.displayed)
+			rgbDisplayed = parseRgb(color.displayed)
+			rgbBase = parseRgb(color.base)
 			break
 	}
 
-	if (!rgb) return color
+	if (!rgbDisplayed || !rgbBase) return color
 
 	switch (to) {
 		case 'hex':
-			return {...color, format: 'hex', displayed: rgbToHex(rgb)}
+			return {
+				...color,
+				format: 'hex',
+				displayed: rgbToHex(rgbDisplayed),
+				base: rgbToHex(rgbBase),
+			}
 		case 'rgb':
-			return {...color, format: 'rgb', displayed: rgbToString(rgb)}
+			return {
+				...color,
+				format: 'rgb',
+				displayed: rgbToString(rgbDisplayed),
+				base: rgbToString(rgbBase),
+			}
 		default:
 			return color
 	}
@@ -164,136 +177,177 @@ export const getCssColor = (color: string, format: string, alpha: number): strin
 }
 
 export const findPullColors = (color: IColor) => {
+	const pull = convertColor(color, 'hex')
+
 	const result: IPull[] = [
 		{
-			displayed: color.displayed,
-			base: color.displayed,
-			format: 'hex',
-			luminance: color.luminance,
-			shades: [
-				{
-					displayed: '#1a9230ff',
-					base: color.base,
-					luminance: color.luminance,
+			...pull,
+			shades: Array.from({length: 4}).map(() => {
+				return {
+					displayed: randomTint(pull.displayed),
+					base: pull.base,
+					luminance: pull.luminance,
 					format: 'hex',
-				},
-				{
-					displayed: '#024d0fff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#40774aff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#57775dff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-			],
+					alpha: 0,
+				}
+			}),
 		},
 		{
 			displayed: '#a40e09ff',
 			base: '#a40e09ff',
 			format: 'hex',
 			luminance: color.luminance,
-			shades: [
-				{
-					displayed: '#670d0aff',
-					base: color.base,
-					luminance: color.luminance,
+			alpha: 0,
+			shades: Array.from({length: 4}).map(() => {
+				return {
+					displayed: randomTint(pull.displayed),
+					base: pull.base,
+					luminance: pull.luminance,
 					format: 'hex',
-				},
-				{
-					displayed: '#c63631ff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#f45650ff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#5b0b08ff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-			],
+					alpha: 0,
+				}
+			}),
 		},
 		{
 			displayed: '#05276bff',
 			base: '#05276bff',
 			format: 'hex',
 			luminance: color.luminance,
-			shades: [
-				{
-					displayed: '#061a43ff',
-					base: color.base,
-					luminance: color.luminance,
+			alpha: 0,
+			shades: Array.from({length: 4}).map(() => {
+				return {
+					displayed: randomTint(pull.displayed),
+					base: pull.base,
+					luminance: pull.luminance,
 					format: 'hex',
-				},
-				{
-					displayed: '#0b46bbff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#2f63ccff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#89aef7ff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-			],
+					alpha: 0,
+				}
+			}),
 		},
 		{
 			displayed: '#c0ba17ff',
 			base: '#c0ba17ff',
 			format: 'hex',
 			luminance: color.luminance,
-			shades: [
-				{
-					displayed: '#e5e04aff',
-					base: color.base,
-					luminance: color.luminance,
+			alpha: 0,
+			shades: Array.from({length: 4}).map(() => {
+				return {
+					displayed: randomTint(pull.displayed),
+					base: pull.base,
+					luminance: pull.luminance,
 					format: 'hex',
-				},
-				{
-					displayed: '#949010ff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#646104ff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-				{
-					displayed: '#fffcacff',
-					base: color.base,
-					luminance: color.luminance,
-					format: 'hex',
-				},
-			],
+					alpha: 0,
+				}
+			}),
 		},
 	]
 
 	return result
+}
+
+function randomTint(hexColor: string): string {
+	// Удаляем символ # если есть
+	const hex = hexColor.replace(/^#/, '')
+
+	// Проверяем валидность hex цвета
+	if (!/^[0-9A-Fa-f]{6}$/.test(hex) && !/^[0-9A-Fa-f]{3}$/.test(hex)) {
+		throw new Error('Неверный формат HEX цвета. Ожидается #123456 или #123')
+	}
+
+	// Конвертируем 3-символьный формат в 6-символьный
+	const fullHex =
+		hex.length === 3
+			? hex
+					.split('')
+					.map(c => c + c)
+					.join('')
+			: hex
+
+	// Парсим цветовые компоненты
+	const r = parseInt(fullHex.substring(0, 2), 16)
+	const g = parseInt(fullHex.substring(2, 4), 16)
+	const b = parseInt(fullHex.substring(4, 6), 16)
+
+	// Преобразуем RGB в HSL для удобной манипуляции
+	const hsl = rgbToHsl(r, g, b)
+
+	// Генерируем случайные изменения для светлоты и насыщенности
+	// Случайное значение от -0.2 до 0.2 для светлоты (делаем темнее/светлее)
+	const lightnessChange = Math.random() * 0.4 - 0.2
+
+	// Случайное значение от -0.2 до 0.2 для насыщенности
+	const saturationChange = Math.random() * 0.4 - 0.2
+
+	// Применяем изменения, ограничивая значения от 0 до 1
+	hsl.l = Math.max(0, Math.min(1, hsl.l + lightnessChange))
+	hsl.s = Math.max(0, Math.min(1, hsl.s + saturationChange))
+
+	// Конвертируем обратно в RGB
+	const newRgb = hslToRgb(hsl.h, hsl.s, hsl.l)
+
+	// Конвертируем обратно в HEX
+	return rgbToHex({r: newRgb.r, g: newRgb.g, b: newRgb.b})
+}
+
+function rgbToHsl(r: number, g: number, b: number): {h: number; s: number; l: number} {
+	r /= 255
+	g /= 255
+	b /= 255
+
+	const max = Math.max(r, g, b)
+	const min = Math.min(r, g, b)
+	let h = 0,
+		s = 0,
+		l = (max + min) / 2
+
+	if (max !== min) {
+		const d = max - min
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+		switch (max) {
+			case r:
+				h = (g - b) / d + (g < b ? 6 : 0)
+				break
+			case g:
+				h = (b - r) / d + 2
+				break
+			case b:
+				h = (r - g) / d + 4
+				break
+		}
+
+		h /= 6
+	}
+
+	return {h, s, l}
+}
+
+function hslToRgb(h: number, s: number, l: number): {r: number; g: number; b: number} {
+	let r: number, g: number, b: number
+
+	if (s === 0) {
+		r = g = b = l // achromatic
+	} else {
+		const hue2rgb = (p: number, q: number, t: number) => {
+			if (t < 0) t += 1
+			if (t > 1) t -= 1
+			if (t < 1 / 6) return p + (q - p) * 6 * t
+			if (t < 1 / 2) return q
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+			return p
+		}
+
+		const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+		const p = 2 * l - q
+
+		r = hue2rgb(p, q, h + 1 / 3)
+		g = hue2rgb(p, q, h)
+		b = hue2rgb(p, q, h - 1 / 3)
+	}
+
+	return {
+		r: Math.round(r * 255),
+		g: Math.round(g * 255),
+		b: Math.round(b * 255),
+	}
 }

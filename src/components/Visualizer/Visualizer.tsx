@@ -2,7 +2,7 @@ import {useRef, useState, MouseEvent, useContext, useEffect} from 'react'
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
-import {convertColor} from '../../shared/helpers/colors'
+import {convertColor, parseHex, rgbToHex} from '../../shared/helpers/colors'
 import {IColor} from '@/types/picker'
 
 export const Visualizer = ({image}: {image: string}) => {
@@ -13,23 +13,11 @@ export const Visualizer = ({image}: {image: string}) => {
 
 	const [imgCrossPos, setImgCrossPos] = useState({x: 50, y: 50})
 	const [gradCrossPos, setGradCrossPos] = useState({x: 50, y: 50})
-
-	// Вводим локальный стейт для "Основы" градиента
-	const [baseColor, setBaseColor] = useState<IColor['base']>(color.base)
-
 	const [activeDrag, setActiveDrag] = useState<'image' | 'gradient' | null>(null)
 
 	useEffect(() => {
 		setImgCrossPos({x: 50, y: 50})
 	}, [image])
-
-	// Синхронизация: Если цвет поменялся извне (инпут) или с картинки,
-	// мы обновляем базу. Но если мы сами сейчас тянем градиент - базу не трогаем.
-	useEffect(() => {
-		if (activeDrag !== 'gradient') {
-			setBaseColor(color.base)
-		}
-	}, [color.base, activeDrag])
 
 	const handleImageLoad = () => {
 		const img = imgRef.current
@@ -82,28 +70,50 @@ export const Visualizer = ({image}: {image: string}) => {
 		if (!gradRef.current) return
 
 		const rect = gradRef.current.getBoundingClientRect()
-		let xPercent = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100))
-		let yPercent = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100))
+		let x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100))
+		let y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100))
 
-		setGradCrossPos({x: xPercent, y: yPercent})
+		const tint = 1 - x / 100 // Оставляем как есть или можно убрать инверсию
+		const shade = y / 100
 
-		/**
-		 * ЛОГИКА РАСЧЕТА:
-		 * В градиентном квадрате:
-		 * Слева (x=0) - белый, Справа (x=100) - базовый цвет.
-		 * Сверху (y=0) - цвет, Снизу (y=100) - черный.
-		 */
+		// Функция для линейной интерполяции между двумя цветами
+		const lerp = (start: number, end: number, t: number): number => {
+			return start + (end - start) * t
+		}
 
-		// Tint (Оттенок): 1 — это полностью белый.
-		// Чем левее курсор (меньше x), тем больше белого.
-		const tint = 1 - xPercent / 100
+		// ИСПРАВЛЕНИЕ: Меняем местами белый и базовый цвет
+		const white = {r: 255, g: 255, b: 255} // ПРАВЫЙ верхний (был левый)
+		const base = parseHex(color.base) ?? {r: 255, g: 255, b: 255} // ЛЕВЫЙ верхний (был правый)
+		const black = {r: 0, g: 0, b: 0} // Оба нижних
 
-		// Shade (Полутон): 1 — это полностью черный.
-		// Чем ниже курсор (больше y), тем больше черного.
-		const shade = yPercent / 100
+		// 1. Интерполируем по верхней грани (от base к белому)
+		const topR = lerp(base.r, white.r, tint) // Меняем порядок
+		const topG = lerp(base.g, white.g, tint) // Меняем порядок
+		const topB = lerp(base.b, white.b, tint) // Меняем порядок
 
-		// Обновляем глобальное состояние, сохраняя текущую "базу"
-		updateGlobalColor({...color, luminance: {tint, shade}})
+		// 2. Интерполируем по нижней грани (от черного к черному - просто черный)
+		const bottomR = black.r
+		const bottomG = black.g
+		const bottomB = black.b
+
+		// 3. Интерполируем по вертикали (от верхнего цвета к нижнему)
+		let r = lerp(topR, bottomR, shade)
+		let g = lerp(topG, bottomG, shade)
+		let b = lerp(topB, bottomB, shade)
+
+		// Округляем и ограничиваем значения
+		r = Math.round(Math.max(0, Math.min(255, r)))
+		g = Math.round(Math.max(0, Math.min(255, g)))
+		b = Math.round(Math.max(0, Math.min(255, b)))
+
+		setColor(prev => ({
+			...prev,
+			displayed: rgbToHex({r, g, b}),
+			luminance: {
+				tint,
+				shade,
+			},
+		}))
 	}
 
 	const updateGlobalColor = (color: IColor) => {
@@ -181,7 +191,9 @@ export const Visualizer = ({image}: {image: string}) => {
 					className={clsx(styles.window, styles.screenshot)}
 					// ВАЖНО: Используем baseColor для фона
 					style={{
-						background: `linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(255, 255, 255, 0)), linear-gradient(90deg, #ffffff, ${baseColor})})`,
+						// background: 'red'
+						// background: `linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(255, 255, 255, 0)), linear-gradient(90deg, #ffffff, blue)})`,
+						background: `linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(255, 255, 255, 0)), linear-gradient(90deg, #ffffff, ${convertColor(color, 'hex').base})`,
 					}}
 					onMouseDown={e => onMouseDown(e, 'gradient')}
 					onMouseMove={onMouseMove}

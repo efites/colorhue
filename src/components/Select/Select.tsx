@@ -2,9 +2,10 @@ import {useState, useRef, useEffect} from 'react'
 import Icon, {IconProps} from '../Icon/Icon'
 import styles from './Select.module.scss'
 import clsx from 'clsx'
+import {IColor} from '../../types/picker'
 
 export interface IOption {
-	value: string | number
+	value: IColor['format']
 	label: string
 }
 

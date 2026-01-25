@@ -28,6 +28,5 @@ export const AppProvider = ({children}: AppProviderProps) => {
 		[mode, history, color, harmony, addHistory, setHistory],
 	)
 
-	console.log(contextValue)
 	return <GlobalContext value={contextValue}>{children}</GlobalContext>
 }
