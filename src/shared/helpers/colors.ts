@@ -26,7 +26,57 @@ export const expandHex = (value: string): string => {
 	}
 }
 
-export const validateAndFormatColor = (input: string, format: IColor['format']) => {
+export const validateColor = (
+	input: string,
+): {format: IColor['format']; code: IColor['displayed']} | null => {
+	const value = input.trim()
+	const hex = isHexCode(value)
+	const rgb = isRGBCode(value)
+
+	if (hex) {
+		return {format: 'hex', code: hex}
+	}
+
+	if (rgb) {
+		return {format: 'rgb', code: rgb}
+	}
+
+	return null
+}
+
+const isHexCode = (input: string): IColor['displayed'] | null => {
+	// Remove '#' and cut: #123456
+	const cleanHex = input.replace(/^#/, '').slice(0, 6)
+
+	// Full HEX
+	if (RegularsExp.hex.test(cleanHex)) {
+		return `#${cleanHex}`
+	}
+
+	// Short HEX
+	if (RegularsExp.shortHex.test(cleanHex)) {
+		const expanded = expandHex(cleanHex)
+
+		if (RegularsExp.hex.test(expanded)) {
+			return `#${cleanHex}`
+		}
+	}
+
+	return null
+}
+
+const isRGBCode = (input: string): IColor['displayed'] | null => {
+	// Remove ' ' and cut: rgb(255,255,255,0.99)
+	const cleanRGB = input.replaceAll(' ', '').slice(0, 21)
+
+	if (RegularsExp.rgb.test(cleanRGB)) {
+		return cleanRGB
+	}
+
+	return null
+}
+
+/* export const validateAndFormatColor = (input: string, format: IColor['format']): IColor | null => {
 	const value = input.trim()
 
 	switch (format) {
@@ -36,7 +86,13 @@ export const validateAndFormatColor = (input: string, format: IColor['format']) 
 
 			// Full HEX
 			if (RegularsExp.hex.test(cleanHex)) {
-				return `#${cleanHex}`
+				return {
+					base: `#${cleanHex}`,
+					displayed: `#${cleanHex}`,
+					format: 'hex',
+					alpha: 100,
+					luminance: {shade: 0, tint: 0}
+				}
 			}
 
 			// Short HEX
@@ -44,7 +100,13 @@ export const validateAndFormatColor = (input: string, format: IColor['format']) 
 				const expanded = expandHex(cleanHex)
 
 				if (RegularsExp.hex.test(expanded)) {
-					return `#${expanded}`
+					return {
+						base: `#${cleanHex}`,
+						displayed: `#${cleanHex}`,
+						format: 'hex',
+						alpha: 100,
+						luminance: {shade: 0, tint: 0}
+					}
 				}
 			}
 
@@ -54,7 +116,13 @@ export const validateAndFormatColor = (input: string, format: IColor['format']) 
 			const cleanRGB = value.replaceAll(' ', '').slice(0, 21)
 
 			if (RegularsExp.rgb.test(cleanRGB)) {
-				return cleanRGB
+				return {
+					base: `#${cleanRGB}`,
+					displayed: `#${cleanRGB}`,
+					format: 'rgb',
+					alpha: 100,
+					luminance: {shade: 0, tint: 0}
+				}
 			}
 
 			break
@@ -63,7 +131,7 @@ export const validateAndFormatColor = (input: string, format: IColor['format']) 
 	}
 
 	return null
-}
+} */
 
 export const parseHex = (hex: string): RGB | null => {
 	const cleanHex = hex.replace('#', '').trim()
@@ -331,7 +399,7 @@ function generateSmartHarmoniousColor(hexColor: string, minDifference: number = 
 	const hsl = rgbToHsl(r, g, b)
 
 	// Определяем "температуру" цвета для лучшего сочетания
-	const isWarm = (hsl.h >= 0 && hsl.h <= 60) || (hsl.h >= 300 && hsl.h <= 360)
+	// const isWarm = (hsl.h >= 0 && hsl.h <= 60) || (hsl.h >= 300 && hsl.h <= 360)
 
 	// Выбираем схему в зависимости от характеристик цвета
 	let newHue, newSaturation, newLightness

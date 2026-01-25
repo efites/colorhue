@@ -5,10 +5,10 @@ import {Visualizer} from '../Visualizer/Visualizer'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
 import {Select} from '../Select/Select'
 import {IColor} from '@/types/picker'
-import {ChangeEvent, useContext} from 'react'
+import {ChangeEvent, useContext, useEffect, useState} from 'react'
 import {GlobalContext} from '../../app/contexts/Global'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
-import {convertColor} from '../../shared/helpers/colors'
+import {convertColor, validateColor} from '../../shared/helpers/colors'
 
 const formats: IColor['format'][] = ['hex', 'rgb'] as const
 
@@ -16,19 +16,36 @@ export const Main = () => {
 	const {mode} = useContext(GlobalContext)
 	const {color, setColor} = useContext(GlobalContext)
 	const {image, pickColor} = useColorPicker()
+	const [сode, setCode] = useState<string>(color.displayed.toUpperCase())
+
+	useEffect(() => {
+		setCode(color.displayed.toUpperCase())
+	}, [color.displayed])
 
 	const handleFormatChange = (option: IColor['format']) => {
 		setColor(convertColor(color, option))
 	}
 
-	const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setColor(prev => ({
-			...prev,
-			displayed: e.target.value,
-		}))
+	const handleCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
+		setCode(event.target.value.toUpperCase())
 	}
 
-	const handleCodeBlur = () => {
+	const handleCodeBlur = (event: ChangeEvent<HTMLInputElement>) => {
+		const result = validateColor(event.target.value)
+
+		if (!result) {
+			setCode(color.displayed.toUpperCase())
+
+			return
+		}
+
+		setColor({
+			base: result.code,
+			displayed: result.code,
+			alpha: color.alpha,
+			format: result.format,
+			luminance: {shade: 0, tint: 0},
+		})
 		// Здесь должна быть ваша функция валидации, если её нет — сохраняем как есть
 		// const updatedColor = {...localCode, base: localCode.displayed}
 		// setColor(updatedColor)
@@ -108,7 +125,7 @@ export const Main = () => {
 									<input
 										className={styles.code}
 										type='text'
-										value={color.displayed.toUpperCase()}
+										value={сode}
 										onChange={handleCodeChange}
 										onBlur={handleCodeBlur}
 										onKeyDown={onKeyDown}
