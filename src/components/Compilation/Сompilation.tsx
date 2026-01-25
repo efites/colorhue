@@ -11,18 +11,8 @@ export const Сompilation = () => {
 	const clickToCopy = async (color: Omit<IColor, 'alpha'>) => {
 		const after = color.displayed
 
-		switch (color.format) {
-			case 'hex':
-				await navigator.clipboard.writeText(after)
-				alert('Скопировано: ' + after)
-				break
-			case 'rgb':
-				await navigator.clipboard.writeText(after)
-				alert('Скопировано: ' + after)
-				break
-			default:
-				break
-		}
+		await navigator.clipboard.writeText(after)
+		alert('Скопировано: ' + after)
 	}
 
 	return (

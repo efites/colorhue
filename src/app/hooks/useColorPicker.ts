@@ -1,14 +1,14 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 import ScreenFallback from '../../shared/images/screen.png'
-import type {CursorPosition, IColor, PipetteCapture} from '../../types/picker'
 import {invoke} from '@/shared/helpers/tauri'
 import {initialColor} from '../contexts/Global'
+
+import type {CursorPosition, IColor, PipetteCapture} from '../../types/picker'
 
 export function useColorPicker() {
 	const [color, setColor] = useState<IColor>(initialColor)
 	const [image, setImage] = useState<PipetteCapture['image']>(ScreenFallback)
-	const [format, setFormat] = useState<PipetteCapture['format']>('hex')
 
 	const unlistenRef = useRef<UnlistenFn | null>(null)
 
@@ -39,7 +39,6 @@ export function useColorPicker() {
 			// Обновляем состояние батчем (React 18+ делает это автоматически)
 			setImage(result.image || ScreenFallback)
 			setColor(result)
-			setFormat(result.format)
 		} catch (err) {
 			// Логируем ошибку, но не ломаем приложение, так как это стрим событий
 			console.error('Failed to capture area:', err)
@@ -70,7 +69,6 @@ export function useColorPicker() {
 	return {
 		color,
 		image,
-		format,
-		pickColor, // В компоненте вызывай эту функцию напрямую
+		pickColor,
 	}
 }

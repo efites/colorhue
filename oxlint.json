@@ -1,14 +1,9 @@
 {
 	"rules": {
-		"correctness": "warn",
-		"suspicious": "warn",
-		"perf": "warn",
-		"style": "warn"
+		"correctness": "error",
+		"suspicious": "error",
+		"perf": "error",
+		"style": "error"
 	},
-	"ignore": [
-		"node_modules/**",
-		"dist/**",
-		"src-tauri/**",
-		"target/**"
-	]
+	"ignore": ["node_modules/**", "dist/**", "src-tauri/**", "target/**"]
 }

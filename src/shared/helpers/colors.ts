@@ -179,68 +179,33 @@ export const getCssColor = (color: string, format: string, alpha: number): strin
 export const findPullColors = (color: IColor) => {
 	const pull = convertColor(color, 'hex')
 
-	const result: IPull[] = [
-		{
-			...pull,
-			shades: Array.from({length: 4}).map(() => {
-				return {
-					displayed: randomTint(pull.displayed),
-					base: pull.base,
-					luminance: pull.luminance,
-					format: 'hex',
-					alpha: 0,
-				}
-			}),
-		},
-		{
-			displayed: '#a40e09ff',
-			base: '#a40e09ff',
+	const compilations: IColor[] = Array.from({length: 3}).map(() => {
+		return {
+			displayed: generateSmartHarmoniousColor(pull.displayed, 5),
+			base: generateSmartHarmoniousColor(pull.displayed, 5),
+			alpha: 100,
 			format: 'hex',
-			luminance: color.luminance,
-			alpha: 0,
-			shades: Array.from({length: 4}).map(() => {
-				return {
-					displayed: randomTint(pull.displayed),
-					base: pull.base,
-					luminance: pull.luminance,
-					format: 'hex',
-					alpha: 0,
-				}
-			}),
-		},
-		{
-			displayed: '#05276bff',
-			base: '#05276bff',
-			format: 'hex',
-			luminance: color.luminance,
-			alpha: 0,
-			shades: Array.from({length: 4}).map(() => {
-				return {
-					displayed: randomTint(pull.displayed),
-					base: pull.base,
-					luminance: pull.luminance,
-					format: 'hex',
-					alpha: 0,
-				}
-			}),
-		},
-		{
-			displayed: '#c0ba17ff',
-			base: '#c0ba17ff',
-			format: 'hex',
-			luminance: color.luminance,
-			alpha: 0,
-			shades: Array.from({length: 4}).map(() => {
-				return {
-					displayed: randomTint(pull.displayed),
-					base: pull.base,
-					luminance: pull.luminance,
-					format: 'hex',
-					alpha: 0,
-				}
-			}),
-		},
-	]
+			luminance: {
+				shade: 0,
+				tint: 0,
+			},
+		}
+	})
+
+	compilations.unshift(pull)
+
+	const result: IPull[] = compilations.map(compilation => ({
+		...compilation,
+		shades: Array.from({length: 4}).map(() => {
+			return {
+				base: compilation.base,
+				displayed: randomTint(compilation.displayed),
+				format: 'hex',
+				alpha: 0,
+				luminance: compilation.luminance,
+			}
+		}),
+	}))
 
 	return result
 }
@@ -350,4 +315,83 @@ function hslToRgb(h: number, s: number, l: number): {r: number; g: number; b: nu
 		g: Math.round(g * 255),
 		b: Math.round(b * 255),
 	}
+}
+
+function generateSmartHarmoniousColor(hexColor: string, minDifference: number = 30): string {
+	const hex = hexColor.replace(/^#/, '')
+
+	if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
+		throw new Error('Неверный формат HEX цвета')
+	}
+
+	const r = parseInt(hex.substring(0, 2), 16)
+	const g = parseInt(hex.substring(2, 4), 16)
+	const b = parseInt(hex.substring(4, 6), 16)
+
+	const hsl = rgbToHsl(r, g, b)
+
+	// Определяем "температуру" цвета для лучшего сочетания
+	const isWarm = (hsl.h >= 0 && hsl.h <= 60) || (hsl.h >= 300 && hsl.h <= 360)
+
+	// Выбираем схему в зависимости от характеристик цвета
+	let newHue, newSaturation, newLightness
+
+	if (hsl.s < 0.2) {
+		// Ненасыщенный/серый цвет
+		// Для ненасыщенных цветов меняем тон более радикально
+		newHue = (hsl.h + 120 + Math.random() * 120) % 360
+		newSaturation = 0.4 + Math.random() * 0.4 // 40-80%
+		newLightness =
+			hsl.l > 0.5
+				? 0.3 + Math.random() * 0.3 // Если светлый, делаем темнее
+				: 0.6 + Math.random() * 0.3 // Если темный, делаем светлее
+	} else if (hsl.l < 0.2) {
+		// Очень темный цвет
+		newHue = (hsl.h + 30 + Math.random() * 60) % 360
+		newSaturation = hsl.s * (0.7 + Math.random() * 0.4)
+		newLightness = 0.5 + Math.random() * 0.3 // Делаем светлее
+	} else if (hsl.l > 0.8) {
+		// Очень светлый цвет
+		newHue = (hsl.h + 30 + Math.random() * 60) % 360
+		newSaturation = hsl.s * (0.8 + Math.random() * 0.4)
+		newLightness = 0.4 + Math.random() * 0.3 // Делаем темнее
+	} else {
+		// Нормальный цвет
+		// Выбираем гармоничный оттенок
+		const scheme = Math.floor(Math.random() * 3)
+
+		switch (scheme) {
+			case 0: // Аналоговая схема
+				newHue = (hsl.h + 20 + Math.random() * 40) % 360
+				break
+			case 1: // Триадная
+				newHue = (hsl.h + 120 + Math.random() * 20 - 10) % 360
+				break
+			case 2: // Комплементарная
+				newHue = (hsl.h + 180 + Math.random() * 30 - 15) % 360
+				break
+		}
+
+		// Настраиваем насыщенность и светлоту
+		newSaturation = Math.max(0.4, Math.min(0.9, hsl.s * (0.8 + Math.random() * 0.4)))
+
+		// Делаем контраст по светлоте
+		if (hsl.l > 0.5) {
+			newLightness = 0.2 + Math.random() * 0.3 // Темнее
+		} else {
+			newLightness = 0.6 + Math.random() * 0.3 // Светлее
+		}
+	}
+
+	if (!newHue) newHue = 0
+
+	// Гарантируем минимальную разницу с исходным цветом
+	const hueDiff = Math.min(Math.abs(newHue - hsl.h), 360 - Math.abs(newHue - hsl.h))
+
+	if (hueDiff < minDifference) {
+		newHue = (newHue + minDifference) % 360
+	}
+
+	const newRgb = hslToRgb(newHue, newSaturation, newLightness)
+	return rgbToHex({...newRgb})
 }
