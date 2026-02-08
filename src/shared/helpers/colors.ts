@@ -14,12 +14,12 @@ interface IPull extends IColor {
 export const expandHex = (value: string): string => {
 	switch (value.length) {
 		case 1:
-			return value.repeat(6) 	// "1" -> "111111"
+			return value.repeat(6) // "1" -> "111111"
 		case 2:
-			return value.repeat(3) 	// "12" -> "121212"
-		case 3: 					// "123" -> "112233"
-		case 4: 					// "1234" -> "112233"
-		case 5: 					// "12345" -> "112233"
+			return value.repeat(3) // "12" -> "121212"
+		case 3: // "123" -> "112233"
+		case 4: // "1234" -> "112233"
+		case 5: // "12345" -> "112233"
 			return value
 				.substring(0, 3)
 				.split('')
@@ -31,7 +31,8 @@ export const expandHex = (value: string): string => {
 }
 
 interface IValidateColor {
-	format: IColor['format']; code: IColor['displayed']
+	format: IColor['format']
+	code: IColor['displayed']
 }
 
 export const validateColor = (input: string): IValidateColor | null => {
@@ -168,29 +169,6 @@ export const convertColor = (color: IColor, to: IColor['format']): IColor => {
 		default:
 			throw new Error('saddas')
 	}
-}
-
-export const getCssColor = (color: string, format: string, alpha: number): string => {
-	if (format === 'rgb') {
-		// color = "rgb(255, 0, 0)" -> "rgba(255, 0, 0, 1)"
-		return color.replace('rgb', 'rgba').replace(')', `, ${alpha / 100})`)
-	}
-
-	if (format === 'hex') {
-		// Самый надежный способ для веба сейчас: конвертация в rgba
-		// Но можно использовать и hex8, если поддерживается
-		// Для простоты, если у вас уже есть rgb конвертер, используйте его,
-		// или просто верните color и добавьте CSS свойство opacity в стилях элемента.
-
-		// Вариант с HEX c прозрачностью (#RRGGBBAA):
-		const alphaHex = Math.round(alpha * 2.55)
-			.toString(16)
-			.padStart(2, '0')
-
-		return `${color}${alphaHex}`
-	}
-
-	return color
 }
 
 export const findPullColors = (color: IColor) => {

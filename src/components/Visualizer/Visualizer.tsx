@@ -2,7 +2,7 @@ import {useRef, useState, MouseEvent, useContext, useEffect} from 'react'
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
-import {convertColor, parseHex, parseRgb, rgbToHex, rgbToString} from '../../shared/helpers/colors'
+import {convertColor, parseRgb, rgbToHex, rgbToString} from '../../shared/helpers/colors'
 import {IColor} from '@/types/picker'
 
 export const Visualizer = ({image}: {image: string}) => {
@@ -55,16 +55,18 @@ export const Visualizer = ({image}: {image: string}) => {
 
 			// При выборе нового цвета с картинки:
 			// tint = 0, shade = 0 (чистый цвет, правый верхний угол градиента)
-			const updated = convertColor({
-				alpha: 100,
-				base: rgbString,
-				format: 'rgb',
-				displayed: rgbString,
-				luminance: {tint: 0, shade: 0},
-			}, color.format)
+			const updated = convertColor(
+				{
+					alpha: 100,
+					base: rgbString,
+					format: 'rgb',
+					displayed: rgbString,
+					luminance: {tint: 0, shade: 0},
+				},
+				color.format,
+			)
 
 			updateGlobalColor(updated)
-			setGradCrossPos({x: 100, y: 0})
 		}
 	}
 
@@ -116,6 +118,7 @@ export const Visualizer = ({image}: {image: string}) => {
 				shade,
 			},
 		}))
+		setGradCrossPos({x, y})
 	}
 
 	const updateGlobalColor = (color: IColor) => {
