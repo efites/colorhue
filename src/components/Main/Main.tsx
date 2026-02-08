@@ -20,7 +20,7 @@ export const Main = () => {
 
 	useEffect(() => {
 		setCode(color.displayed.toUpperCase())
-	}, [color.displayed])
+	}, [color])
 
 	const handleFormatChange = (option: IColor['format']) => {
 		setColor(convertColor(color, option))

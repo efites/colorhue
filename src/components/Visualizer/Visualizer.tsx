@@ -2,7 +2,7 @@ import {useRef, useState, MouseEvent, useContext, useEffect} from 'react'
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
-import {convertColor, parseHex, rgbToHex} from '../../shared/helpers/colors'
+import {convertColor, parseHex, parseRgb, rgbToHex, rgbToString} from '../../shared/helpers/colors'
 import {IColor} from '@/types/picker'
 
 export const Visualizer = ({image}: {image: string}) => {
@@ -51,17 +51,19 @@ export const Visualizer = ({image}: {image: string}) => {
 			const natX = (xPercent / 100) * imgRef.current.naturalWidth
 			const natY = (yPercent / 100) * imgRef.current.naturalHeight
 			const pixelData = ctx.getImageData(natX, natY, 1, 1).data
-			const rgbString = `${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}`
+			const rgbString = rgbToString({r: pixelData[0], g: pixelData[1], b: pixelData[2]})
 
 			// При выборе нового цвета с картинки:
 			// tint = 0, shade = 0 (чистый цвет, правый верхний угол градиента)
-			updateGlobalColor({
-				...color,
+			const updated = convertColor({
+				alpha: 100,
 				base: rgbString,
 				format: 'rgb',
 				displayed: rgbString,
 				luminance: {tint: 0, shade: 0},
-			})
+			}, color.format)
+
+			updateGlobalColor(updated)
 			setGradCrossPos({x: 100, y: 0})
 		}
 	}
@@ -83,7 +85,7 @@ export const Visualizer = ({image}: {image: string}) => {
 
 		// ИСПРАВЛЕНИЕ: Меняем местами белый и базовый цвет
 		const white = {r: 255, g: 255, b: 255} // ПРАВЫЙ верхний (был левый)
-		const base = parseHex(color.base) ?? {r: 255, g: 255, b: 255} // ЛЕВЫЙ верхний (был правый)
+		const base = parseRgb(convertColor(color, 'rgb').base) ?? {r: 255, g: 255, b: 255} // ЛЕВЫЙ верхний (был правый)
 		const black = {r: 0, g: 0, b: 0} // Оба нижних
 
 		// 1. Интерполируем по верхней грани (от base к белому)
@@ -122,17 +124,17 @@ export const Visualizer = ({image}: {image: string}) => {
 
 		// Конвертируем базовый цвет в нужный формат, если нужно
 		// В этой логике color.color всегда остается "чистым" цветом-основой
-		const formattedBase = convertColor(color, 'hex').base
+		// const formattedBase = convertColor(color, 'hex').base
 
-		if (formattedBase) {
-			setColor({
-				base: formattedBase,
-				displayed: formattedBase,
-				luminance: color.luminance, // Теперь это объект {tint, shade}
-				format,
-				alpha,
-			})
-		}
+		setColor({
+			base: color.base,
+			displayed: color.displayed,
+			luminance: color.luminance, // Теперь это объект {tint, shade}
+			format,
+			alpha,
+		})
+		// if (formattedBase) {
+		// }
 	}
 
 	const onMouseDown = (event: MouseEvent<HTMLDivElement>, target: 'image' | 'gradient') => {
