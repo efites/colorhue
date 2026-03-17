@@ -160,10 +160,16 @@ export const Console = () => {
 									addHistory(newColor)
 								})
 							}>
-							<div
-								className={styles.opacityPin}
-								style={{left: `${hue}%`, transform: `translate(${-hue}%, -50%)`}}
-							/>
+							<div className={styles.line}>
+								<div
+									className={styles.opacityPin}
+									style={{
+										left: `calc(${hue}% + 0px)`,
+										transform: `translate(-50%, -50%)`,
+										// transform: `translate(${-hue}%, -50%)`
+									}}
+								/>
+							</div>
 						</div>
 						<div
 							className={clsx(styles.slider, styles.rgba)}
@@ -184,8 +190,9 @@ export const Console = () => {
 							<div
 								className={styles.opacityPin}
 								style={{
-									left: `${opacity}%`,
-									transform: `translate(${-opacity}%, -50%)`,
+									left: `calc(${opacity}% + 0px)`,
+									transform: `translate(-50%, -50%)`,
+									// transform: `translate(${-opacity}%, -50%)`,
 								}}
 							/>
 						</div>

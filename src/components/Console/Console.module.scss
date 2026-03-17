@@ -67,8 +67,15 @@
 	background-color: var(--grey);
 }
 
-.rainbow {
+.line {
 	position: relative;
+	width: 100%;
+	// width: calc(100% - 10px);
+	height: 100%;
+	// left: -10px;
+}
+
+.rainbow {
 	background: linear-gradient(
 		90deg,
 		#ff0000,
