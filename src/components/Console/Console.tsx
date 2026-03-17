@@ -12,10 +12,11 @@ import {useColorPicker} from '../../app/hooks/useColorPicker'
 const formats: IColor['format'][] = ['hex', 'rgb'] as const
 
 export const Console = () => {
-	const {mode} = useContext(GlobalContext)
+	const {mode, addHistory} = useContext(GlobalContext)
 	const {color, setColor} = useContext(GlobalContext)
 	const {pickColor} = useColorPicker()
 	const [сode, setCode] = useState<string>(color.displayed.toUpperCase())
+	const [opacity, setOpacity] = useState<string>(color.alpha.toString())
 
 	useEffect(() => {
 		setCode(color.displayed.toUpperCase())
@@ -33,44 +34,46 @@ export const Console = () => {
 		const result = validateColor(event.target.value)
 
 		if (!result) {
+			console.error('Color is not correct')
 			setCode(color.displayed.toUpperCase())
 
 			return
 		}
 
-		setColor({
+		const newColor: IColor = {
 			base: result.code,
 			displayed: result.code,
 			alpha: color.alpha,
 			format: result.format,
 			luminance: {shade: 0, tint: 0},
-		})
-		// Здесь должна быть ваша функция валидации, если её нет — сохраняем как есть
-		// const updatedColor = {...localCode, base: localCode.displayed}
-		// setColor(updatedColor)
-		// addHistory(updatedColor)
+		}
+
+		setColor(newColor)
+		addHistory(newColor)
+	}
+
+	const handleOpacityChange = (event: ChangeEvent<HTMLInputElement>) => {
+		const value = event.target.value
+		setOpacity(value.replaceAll('-', '').slice(0, 3))
+	}
+
+	const handleOpacityBlur = (event: ChangeEvent<HTMLInputElement>) => {
+		let alpha = parseInt(event.target.value)
+
+		if (isNaN(alpha) || alpha > 100) alpha = 100
+		else if (alpha < 0) alpha = 0
+
+		const result = {...color, alpha}
+
+		setColor(result)
+		addHistory(result)
+		setOpacity(alpha.toString())
 	}
 
 	const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {
 			event.currentTarget.blur()
 		}
-	}
-
-	const handleOpacityChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const value = parseInt(e.target.value)
-
-		if (isNaN(value)) setColor(prev => ({...prev, alpha: 100}))
-		else if (value > 100) setColor(prev => ({...prev, alpha: 100}))
-		else if (value < 0) setColor(prev => ({...prev, alpha: 0}))
-		else setColor(prev => ({...prev, alpha: value}))
-	}
-
-	// Сохранение прозрачности в глобальный стейт
-	const handleOpacityBlur = () => {
-		// const updatedColor = {...localCode, alpha: localOpacity}
-		// setColor(updatedColor)
-		// addHistory(updatedColor)
 	}
 
 	return (
@@ -128,7 +131,7 @@ export const Console = () => {
 								<input
 									className={styles.opacity}
 									type='number'
-									value={color.alpha}
+									value={opacity}
 									onChange={handleOpacityChange}
 									onBlur={handleOpacityBlur}
 									onKeyDown={onKeyDown}
