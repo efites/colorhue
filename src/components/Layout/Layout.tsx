@@ -2,9 +2,11 @@ import {use} from 'react'
 
 import {GlobalContext} from '../../app/contexts/Global'
 import {useAutoWindowSize} from '../../app/hooks/useWindowResize'
-import {Header, History, Main, Panel, Rainbow, Сompilation} from '../index'
+import {Header, History, Panel, Rainbow, Сompilation} from '../index'
 
 import styles from './Layout.module.scss'
+import {Visualizer} from '../Visualizer/Visualizer'
+import {Console} from '../Console/Console'
 
 export const Layout = () => {
 	const {mode} = use(GlobalContext)
@@ -14,7 +16,10 @@ export const Layout = () => {
 		<div ref={contentRef} className={styles.solid}>
 			<Panel />
 			<Header />
-			<Main />
+			<div className={styles.main}>
+				<Visualizer />
+				<Console />
+			</div>
 			{mode === 'solid' && <Сompilation />}
 			{mode === 'gradient' && <Rainbow />}
 			<History />

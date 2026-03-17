@@ -9,10 +9,10 @@ export const Сompilation = () => {
 	const pulls = findPullColors(color)
 
 	const clickToCopy = async (color: Omit<IColor, 'alpha'>) => {
-		const after = color.displayed
+		color.displayed
 
-		await navigator.clipboard.writeText(after)
-		alert('Скопировано: ' + after)
+		// await navigator.clipboard.writeText(after)
+		// alert('Скопировано: ' + after)
 	}
 
 	return (

@@ -218,9 +218,9 @@ function randomTint(hexColor: string): string {
 	const fullHex =
 		hex.length === 3
 			? hex
-				.split('')
-				.map(c => c + c)
-				.join('')
+					.split('')
+					.map(c => c + c)
+					.join('')
 			: hex
 
 	// Парсим цветовые компоненты

@@ -4,8 +4,10 @@ import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
 import {convertColor, parseRgb, rgbToHex, rgbToString} from '../../shared/helpers/colors'
 import {IColor} from '@/types/picker'
+import {useColorPicker} from '../../app/hooks/useColorPicker'
 
-export const Visualizer = ({image}: {image: string}) => {
+export const Visualizer = () => {
+	const {image} = useColorPicker()
 	const {setColor, addHistory, color} = useContext(GlobalContext)
 	const imgRef = useRef<HTMLImageElement>(null)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
