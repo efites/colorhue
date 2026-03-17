@@ -55,15 +55,13 @@ export const Visualizer = () => {
 			const pixelData = ctx.getImageData(natX, natY, 1, 1).data
 			const rgbString = rgbToString({r: pixelData[0], g: pixelData[1], b: pixelData[2]})
 
-			// При выборе нового цвета с картинки:
-			// tint = 0, shade = 0 (чистый цвет, правый верхний угол градиента)
 			const updated = convertColor(
 				{
 					alpha: 100,
 					base: rgbString,
 					format: 'rgb',
 					displayed: rgbString,
-					luminance: {tint: 0, shade: 0},
+					luminance: {tint: xPercent, shade: yPercent},
 				},
 				color.format,
 			)

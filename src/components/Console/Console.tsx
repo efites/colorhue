@@ -1,4 +1,13 @@
-import {ChangeEvent, useContext, useEffect, useState} from 'react'
+import {
+	ChangeEvent,
+	Dispatch,
+	RefObject,
+	SetStateAction,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react'
 import styles from './Console.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
 import {convertColor, validateColor} from '../../shared/helpers/colors'
@@ -15,11 +24,18 @@ export const Console = () => {
 	const {mode, addHistory} = useContext(GlobalContext)
 	const {color, setColor} = useContext(GlobalContext)
 	const {pickColor} = useColorPicker()
+
+	const [hue, setHue] = useState<number>(50)
+	// const [alpha, setAlpha] = useState<IColor['alpha']>(color.alpha)
+	const rainbowRef = useRef<HTMLDivElement>(null)
+	const alphaRef = useRef<HTMLDivElement>(null)
+
 	const [сode, setCode] = useState<string>(color.displayed.toUpperCase())
-	const [opacity, setOpacity] = useState<string>(color.alpha.toString())
+	const [opacity, setOpacity] = useState<IColor['alpha']>(color.alpha)
 
 	useEffect(() => {
 		setCode(color.displayed.toUpperCase())
+		setOpacity(color.alpha)
 	}, [color])
 
 	const handleFormatChange = (option: IColor['format']) => {
@@ -54,7 +70,7 @@ export const Console = () => {
 
 	const handleOpacityChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value
-		setOpacity(value.replaceAll('-', '').slice(0, 3))
+		setOpacity(parseInt(value.replaceAll('-', '').slice(0, 3)))
 	}
 
 	const handleOpacityBlur = (event: ChangeEvent<HTMLInputElement>) => {
@@ -67,13 +83,55 @@ export const Console = () => {
 
 		setColor(result)
 		addHistory(result)
-		setOpacity(alpha.toString())
+		setOpacity(alpha)
 	}
 
 	const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {
 			event.currentTarget.blur()
 		}
+	}
+
+	const handleDrag = (
+		event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+		ref: RefObject<HTMLDivElement | null>,
+		callback: Dispatch<SetStateAction<number>>,
+	) => {
+		let latestValue = 0
+
+		const updateValue = (event: MouseEvent) => {
+			if (!ref.current) return
+
+			const rect = ref.current.getBoundingClientRect()
+			const clientX = event.clientX
+
+			let relativeX = clientX - rect.left
+			let percentage = (relativeX / rect.width) * 100
+			const finalValue = Math.max(0, Math.min(100, Math.round(percentage)))
+
+			latestValue = finalValue
+			callback(finalValue)
+		}
+
+		updateValue(event as unknown as MouseEvent)
+
+		const onMouseMove = (event: MouseEvent) => updateValue(event)
+
+		const onMouseUp = () => {
+			const newColor: IColor = {
+				...color,
+				alpha: latestValue,
+			}
+
+			window.removeEventListener('mousemove', onMouseMove)
+			window.removeEventListener('mouseup', onMouseUp)
+
+			setColor(newColor)
+			addHistory(newColor)
+		}
+
+		window.addEventListener('mousemove', onMouseMove)
+		window.addEventListener('mouseup', onMouseUp)
 	}
 
 	return (
@@ -85,22 +143,37 @@ export const Console = () => {
 					</button>
 
 					<div className={styles.sliders}>
-						<div className={clsx(styles.slider, styles.rainbow)}>
-							<div className={styles.opacityPin} style={{left: '50%'}} />{' '}
-							{/* Логика позиции пина */}
+						<div
+							className={clsx(styles.slider, styles.rainbow)}
+							ref={rainbowRef}
+							onMouseDown={event => handleDrag(event, rainbowRef, setHue)}>
+							<div
+								className={styles.opacityPin}
+								style={{left: `${hue}%`, transform: `translate(${-hue}%, -50%)`}}
+							/>
 						</div>
-						<div className={clsx(styles.slider, styles.rgba)}>
+						<div
+							className={clsx(styles.slider, styles.rgba)}
+							ref={alphaRef}
+							onMouseDown={e => handleDrag(e, alphaRef, setOpacity)}>
 							<div
 								className={styles.cover}
 								style={{
-									background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, ${convertColor(color, 'hex').displayed})`,
+									background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, #ff0000 100%)`, // Замените #ff0000 на ваш цвет
 								}}
 							/>
 							<div
 								className={styles.opacityPin}
-								style={{left: `${color.alpha}%`}} // Пин двигается за процентами
+								style={{
+									left: `${opacity}%`,
+									transform: `translate(${-opacity}%, -50%)`,
+								}}
 							/>
 						</div>
+
+						<p>
+							Hue: {hue} | Alpha: {opacity}
+						</p>
 					</div>
 				</div>
 
