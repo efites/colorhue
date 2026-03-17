@@ -10,7 +10,12 @@ import {
 } from 'react'
 import styles from './Console.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
-import {convertColor, validateColor} from '../../shared/helpers/colors'
+import {
+	convertColor,
+	getColorByHueOffset,
+	getHueOffset,
+	validateColor,
+} from '../../shared/helpers/colors'
 import {IColor} from '../../types/picker'
 import clsx from 'clsx'
 import Icon from '../Icon/Icon'
@@ -25,18 +30,24 @@ export const Console = () => {
 	const {color, setColor} = useContext(GlobalContext)
 	const {pickColor} = useColorPicker()
 
-	const [hue, setHue] = useState<number>(50)
-	// const [alpha, setAlpha] = useState<IColor['alpha']>(color.alpha)
 	const rainbowRef = useRef<HTMLDivElement>(null)
 	const alphaRef = useRef<HTMLDivElement>(null)
 
-	const [сode, setCode] = useState<string>(color.displayed.toUpperCase())
+	const [hue, setHue] = useState<number>(getHueOffset(color) ?? 50)
 	const [opacity, setOpacity] = useState<IColor['alpha']>(color.alpha)
+	const [сode, setCode] = useState<string>(color.displayed.toUpperCase())
 
 	useEffect(() => {
 		setCode(color.displayed.toUpperCase())
 		setOpacity(color.alpha)
-	}, [color])
+	}, [color.displayed, color.alpha])
+
+	useEffect(() => {
+		const newHue = getHueOffset(color)
+		if (newHue !== undefined && newHue !== null) {
+			setHue(newHue)
+		}
+	}, [color.base])
 
 	const handleFormatChange = (option: IColor['format']) => {
 		setColor(convertColor(color, option))
@@ -79,6 +90,8 @@ export const Console = () => {
 		if (isNaN(alpha) || alpha > 100) alpha = 100
 		else if (alpha < 0) alpha = 0
 
+		if (alpha === opacity) return
+
 		const result = {...color, alpha}
 
 		setColor(result)
@@ -96,15 +109,14 @@ export const Console = () => {
 		event: React.MouseEvent<HTMLDivElement, MouseEvent>,
 		ref: RefObject<HTMLDivElement | null>,
 		callback: Dispatch<SetStateAction<number>>,
+		onEnd: (value: number) => void,
 	) => {
 		let latestValue = 0
 
-		const updateValue = (event: MouseEvent) => {
+		const updateValue = (e: MouseEvent | React.MouseEvent) => {
 			if (!ref.current) return
-
 			const rect = ref.current.getBoundingClientRect()
-			const clientX = event.clientX
-
+			const clientX = e.clientX
 			let relativeX = clientX - rect.left
 			let percentage = (relativeX / rect.width) * 100
 			const finalValue = Math.max(0, Math.min(100, Math.round(percentage)))
@@ -113,21 +125,15 @@ export const Console = () => {
 			callback(finalValue)
 		}
 
-		updateValue(event as unknown as MouseEvent)
+		updateValue(event)
 
-		const onMouseMove = (event: MouseEvent) => updateValue(event)
+		const onMouseMove = (e: MouseEvent) => updateValue(e)
 
 		const onMouseUp = () => {
-			const newColor: IColor = {
-				...color,
-				alpha: latestValue,
-			}
+			onEnd(latestValue)
 
 			window.removeEventListener('mousemove', onMouseMove)
 			window.removeEventListener('mouseup', onMouseUp)
-
-			setColor(newColor)
-			addHistory(newColor)
 		}
 
 		window.addEventListener('mousemove', onMouseMove)
@@ -146,7 +152,14 @@ export const Console = () => {
 						<div
 							className={clsx(styles.slider, styles.rainbow)}
 							ref={rainbowRef}
-							onMouseDown={event => handleDrag(event, rainbowRef, setHue)}>
+							onMouseDown={event =>
+								handleDrag(event, rainbowRef, setHue, value => {
+									const hex = getColorByHueOffset(value)
+									const newColor = {...color, base: hex, displayed: hex}
+									setColor(newColor)
+									addHistory(newColor)
+								})
+							}>
 							<div
 								className={styles.opacityPin}
 								style={{left: `${hue}%`, transform: `translate(${-hue}%, -50%)`}}
@@ -155,11 +168,17 @@ export const Console = () => {
 						<div
 							className={clsx(styles.slider, styles.rgba)}
 							ref={alphaRef}
-							onMouseDown={e => handleDrag(e, alphaRef, setOpacity)}>
+							onMouseDown={event =>
+								handleDrag(event, alphaRef, setOpacity, value => {
+									const newColor = {...color, alpha: value}
+									setColor(newColor)
+									addHistory(newColor)
+								})
+							}>
 							<div
 								className={styles.cover}
 								style={{
-									background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, #ff0000 100%)`, // Замените #ff0000 на ваш цвет
+									background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, ${convertColor(color, 'hex').displayed} 100%)`, // Замените #ff0000 на ваш цвет
 								}}
 							/>
 							<div

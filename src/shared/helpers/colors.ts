@@ -315,3 +315,80 @@ function hslToRgb(h: number, s: number, l: number): {r: number; g: number; b: nu
 function generateSmartHarmoniousColor(hexColor: string): string {
 	return hexColor
 }
+
+export function getHueOffset(color: IColor): number | null {
+	const rgb = parseHex(color.displayed)
+
+	if (!rgb) return null
+
+	let h = 0
+	const max = Math.max(rgb.r, rgb.g, rgb.b)
+	const min = Math.min(rgb.r, rgb.g, rgb.b)
+
+	if (max === min) {
+		h = 0
+	} else {
+		const different = max - min
+
+		switch (max) {
+			case rgb.r:
+				h = (rgb.g - rgb.b) / different + (rgb.g < rgb.b ? 6 : 0)
+				break
+			case rgb.g:
+				h = (rgb.b - rgb.r) / different + 2
+				break
+			case rgb.b:
+				h = (rgb.r - rgb.g) / different + 4
+				break
+		}
+
+		h /= 6
+	}
+
+	return Math.round(h * 100)
+}
+
+export const getColorByHueOffset = (offset: number): string => {
+	// HSL
+	const h = (offset / 100) * 360
+	const s = 1
+	const l = 0.5
+
+	const c = (1 - Math.abs(2 * l - 1)) * s
+	const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+	const m = l - c / 2
+
+	let rVal = 0,
+		gVal = 0,
+		bVal = 0
+
+	if (0 <= h && h < 60) {
+		rVal = c
+		gVal = x
+		bVal = 0
+	} else if (60 <= h && h < 120) {
+		rVal = x
+		gVal = c
+		bVal = 0
+	} else if (120 <= h && h < 180) {
+		rVal = 0
+		gVal = c
+		bVal = x
+	} else if (180 <= h && h < 240) {
+		rVal = 0
+		gVal = x
+		bVal = c
+	} else if (240 <= h && h < 300) {
+		rVal = x
+		gVal = 0
+		bVal = c
+	} else if (300 <= h && h <= 360) {
+		rVal = c
+		gVal = 0
+		bVal = x
+	}
+
+	const format = (val: number) => Math.round((val + m) * 255)
+
+	return rgbToHex({r: format(rVal), g: format(gVal), b: format(bVal)})
+}
