@@ -22,13 +22,12 @@ import Icon from '../Icon/Icon'
 import {Select} from '../Select/Select'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
-
-const formats: IColor['format'][] = ['hex', 'rgb'] as const
+import {FORMATS} from '../../shared/consts/colors'
 
 export const Console = () => {
 	const {mode, addHistory} = useContext(GlobalContext)
 	const {color, setColor} = useContext(GlobalContext)
-	const {pickColor} = useColorPicker()
+	const {pickColor, color: pickedColor} = useColorPicker()
 
 	const rainbowRef = useRef<HTMLDivElement>(null)
 	const alphaRef = useRef<HTMLDivElement>(null)
@@ -36,6 +35,10 @@ export const Console = () => {
 	const [hue, setHue] = useState<number>(getHueOffset(color) ?? 50)
 	const [opacity, setOpacity] = useState<IColor['alpha']>(color.alpha)
 	const [сode, setCode] = useState<string>(color.displayed.toUpperCase())
+
+	useEffect(() => {
+		setColor(pickedColor)
+	}, [pickedColor])
 
 	useEffect(() => {
 		setCode(color.displayed.toUpperCase())
@@ -48,6 +51,12 @@ export const Console = () => {
 			setHue(newHue)
 		}
 	}, [color.base])
+
+	const pickColorHandler = async () => {
+		const result = await pickColor()
+
+		console.log(result)
+	}
 
 	const handleFormatChange = (option: IColor['format']) => {
 		setColor(convertColor(color, option))
@@ -144,7 +153,7 @@ export const Console = () => {
 		<div className={clsx(styles.settings, mode === 'gradient' && styles.solid)}>
 			<div className={styles.indication}>
 				<div className={styles.gamma}>
-					<button className={styles.pipette} type='button' onClick={pickColor}>
+					<button className={styles.pipette} type='button' onClick={pickColorHandler}>
 						<Icon className={clsx(styles.pipetteIcon, styles.active)} name='pipette' />
 					</button>
 
@@ -216,7 +225,7 @@ export const Console = () => {
 								label: color.format.toUpperCase(),
 								value: color.format,
 							}}
-							options={formats.map(f => ({label: f.toUpperCase(), value: f}))}
+							options={FORMATS.map(f => ({label: f.toUpperCase(), value: f}))}
 							onChange={option => handleFormatChange(option.value)}
 							icon='arrow-down'
 						/>

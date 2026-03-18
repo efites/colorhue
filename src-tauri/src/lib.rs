@@ -13,14 +13,21 @@ use device_query::{DeviceQuery, DeviceState};
 use std::fs;
 use serde::Deserialize;
 
+
+#[derive(Serialize)]
+struct Luminance {
+	tint: u32,
+	shade: u32,
+}
+
 #[derive(Serialize)]
 struct CaptureData {
-    color: String,
-    image: String, // data:image/png;base64,<...>
-    width: u32,
-    height: u32,
-    formatted: Option<String>,
-    format: Option<String>,
+    base: String,
+	displayed: String,
+	format: String,
+	alpha: u32,
+	luminance: Luminance,
+	image: String, // data:image/png;base64,<...>
 }
 
 struct CaptureStreamState {
@@ -261,12 +268,15 @@ fn capture_at(x: i32, y: i32, size: Option<u32>, format: Option<String>) -> Resu
     };
 
     Ok(CaptureData {
-        color: color_hex,
+        base: color_hex.clone(),
+        displayed: color_hex,
+        luminance: Luminance {
+			tint: 0,
+			shade: 0,
+		},
+		alpha: 100,
+		format: String::from("hex"),
         image: data_url,
-        width: w,
-        height: h,
-        formatted,
-        format: Some(fmt),
     })
 }
 
@@ -333,14 +343,11 @@ fn start_capture_stream(
                             &window_name_owned,
                             "picker_frame",
                             Some(json!({
-                                "image": data.image,
-                                "color": data.color,
-                                "width": data.width,
-                                "height": data.height,
-                                "formatted": data.formatted,
+                                "base": data.base,
+                                "displayed": data.displayed,
                                 "format": data.format,
-                                "x": x,
-                                "y": y,
+                                "alpha": data.alpha,
+                                "image": data.image,
                             })),
                         );
                     }
