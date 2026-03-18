@@ -2,8 +2,9 @@ import {useRef, useState, MouseEvent, useContext, useEffect, useCallback} from '
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
-import {convertColor, parseRgb, rgbToHex, rgbToString} from '../../shared/helpers/colors'
+import {convertColor, parseRgb, rgbToString} from '../../shared/helpers/colors'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
+import {IColor} from '../../types/picker'
 
 export const Visualizer = () => {
 	const {image} = useColorPicker()
@@ -90,11 +91,8 @@ export const Visualizer = () => {
 			const lerp = (start: number, end: number, t: number) => start + (end - start) * t
 
 			const white = {r: 255, g: 255, b: 255}
-			const base = parseRgb(convertColor(colorRef.current, 'rgb').base) ?? {
-				r: 255,
-				g: 255,
-				b: 255,
-			}
+			const baseColorRgbString = convertColor(colorRef.current, 'rgb').base
+			const base = parseRgb(baseColorRgbString) ?? {r: 255, g: 255, b: 255}
 			const black = {r: 0, g: 0, b: 0}
 
 			const topR = lerp(base.r, white.r, tint)
@@ -105,17 +103,18 @@ export const Visualizer = () => {
 			const g = Math.round(lerp(topG, black.g, shade))
 			const b = Math.round(lerp(topB, black.b, shade))
 
+			const currentRgbString = rgbToString({r, g, b})
+
 			setColor(prev => {
-				return convertColor(
-					{
-						...prev,
-						format: 'hex',
-						base: rgbToHex({r, g, b}),
-						displayed: rgbToHex({r, g, b}),
-						luminance: {tint, shade},
-					},
-					prev.format,
-				)
+				const updatedInRgb: IColor = {
+					...prev,
+					format: 'rgb',
+					base: baseColorRgbString,
+					displayed: currentRgbString,
+					luminance: {tint, shade},
+				}
+
+				return convertColor(updatedInRgb, prev.format)
 			})
 
 			setGradCrossPos({x, y})
