@@ -317,31 +317,31 @@ function generateSmartHarmoniousColor(hexColor: string): string {
 }
 
 export function getHueOffset(color: IColor): number | null {
-	const rgb = parseHex(color.displayed)
+	const rgbBase = color.format === 'rgb' ? parseRgb(color.base) : parseHex(color.base)
 
-	if (!rgb) return null
+	if (!rgbBase) return null
+
+	const {r, g, b} = rgbBase
+	const max = Math.max(r, g, b)
+	const min = Math.min(r, g, b)
+	const delta = max - min
 
 	let h = 0
-	const max = Math.max(rgb.r, rgb.g, rgb.b)
-	const min = Math.min(rgb.r, rgb.g, rgb.b)
 
-	if (max === min) {
+	if (delta === 0) {
 		h = 0
 	} else {
-		const different = max - min
-
 		switch (max) {
-			case rgb.r:
-				h = (rgb.g - rgb.b) / different + (rgb.g < rgb.b ? 6 : 0)
+			case r:
+				h = (g - b) / delta + (g < b ? 6 : 0)
 				break
-			case rgb.g:
-				h = (rgb.b - rgb.r) / different + 2
+			case g:
+				h = (b - r) / delta + 2
 				break
-			case rgb.b:
-				h = (rgb.r - rgb.g) / different + 4
+			case b:
+				h = (r - g) / delta + 4
 				break
 		}
-
 		h /= 6
 	}
 
