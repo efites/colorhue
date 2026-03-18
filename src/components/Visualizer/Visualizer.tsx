@@ -105,11 +105,19 @@ export const Visualizer = () => {
 			const g = Math.round(lerp(topG, black.g, shade))
 			const b = Math.round(lerp(topB, black.b, shade))
 
-			setColor(prev => ({
-				...prev,
-				displayed: rgbToHex({r, g, b}),
-				luminance: {tint, shade},
-			}))
+			setColor(prev => {
+				return convertColor(
+					{
+						...prev,
+						format: 'hex',
+						base: rgbToHex({r, g, b}),
+						displayed: rgbToHex({r, g, b}),
+						luminance: {tint, shade},
+					},
+					prev.format,
+				)
+			})
+
 			setGradCrossPos({x, y})
 		},
 		[setColor],
