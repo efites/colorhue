@@ -155,6 +155,9 @@ export const Console = () => {
 							onMouseDown={event =>
 								handleDrag(event, rainbowRef, setHue, value => {
 									const hex = getColorByHueOffset(value)
+
+									if (hex === convertColor(color, 'hex').base) return
+
 									const newColor = {...color, base: hex, displayed: hex}
 									setColor(newColor)
 									addHistory(newColor)
@@ -176,6 +179,8 @@ export const Console = () => {
 							ref={alphaRef}
 							onMouseDown={event =>
 								handleDrag(event, alphaRef, setOpacity, value => {
+									if (value === color.alpha) return
+
 									const newColor = {...color, alpha: value}
 									setColor(newColor)
 									addHistory(newColor)

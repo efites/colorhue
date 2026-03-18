@@ -11,6 +11,13 @@ export const History = () => {
 	const chooseColorPin = (color: IColor) => {
 		const result = convertColor(color, globalColor.format)
 
+		if (
+			result.displayed === globalColor.displayed &&
+			result.alpha === globalColor.alpha &&
+			result.base === globalColor.base
+		)
+			return
+
 		setColor(result)
 	}
 
