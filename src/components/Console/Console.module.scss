@@ -152,6 +152,11 @@
 	font-size: 14px;
 	color: var(--black);
 	background-color: var(--grey);
+
+	&::selection {
+		background-color: var(--blue);
+		color: var(--white);
+	}
 }
 
 .percentages {
