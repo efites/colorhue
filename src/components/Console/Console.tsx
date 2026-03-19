@@ -38,6 +38,7 @@ export const Console = () => {
 
 	useEffect(() => {
 		setColor(pickedColor)
+		addHistory(pickedColor)
 	}, [pickedColor])
 
 	useEffect(() => {
