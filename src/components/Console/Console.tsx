@@ -21,13 +21,13 @@ import clsx from 'clsx'
 import Icon from '../Icon/Icon'
 import {Select} from '../Select/Select'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
-import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {FORMATS} from '../../shared/consts/colors'
+import {PipetteContext} from '@/app/contexts/Pipette'
 
 export const Console = () => {
 	const {mode, addHistory} = useContext(GlobalContext)
 	const {color, setColor} = useContext(GlobalContext)
-	const {pickColor, color: pickedColor} = useColorPicker()
+	const {pickColor, color: pickedColor} = useContext(PipetteContext)
 
 	const rainbowRef = useRef<HTMLDivElement>(null)
 	const alphaRef = useRef<HTMLDivElement>(null)
@@ -53,9 +53,7 @@ export const Console = () => {
 	}, [color.base])
 
 	const pickColorHandler = async () => {
-		const result = await pickColor()
-
-		console.log(result)
+		await pickColor()
 	}
 
 	const handleFormatChange = (option: IColor['format']) => {

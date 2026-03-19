@@ -3,12 +3,12 @@ import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {GlobalContext} from '../../app/contexts/Global'
 import {convertColor, parseRgb, rgbToString} from '../../shared/helpers/colors'
-import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {IColor} from '../../types/picker'
+import {PipetteContext} from '@/app/contexts/Pipette'
 
 export const Visualizer = () => {
-	const {image} = useColorPicker()
 	const {setColor, addHistory, color} = useContext(GlobalContext)
+	const {image} = useContext(PipetteContext)
 
 	const [imgCrossPos, setImgCrossPos] = useState({x: 50, y: 50})
 	const [gradCrossPos, setGradCrossPos] = useState({x: 50, y: 50})
@@ -34,7 +34,7 @@ export const Visualizer = () => {
 		}
 	}
 
-	const handleImgUpdate = useCallback((clientX: number, clientY: number) => {
+	const handleImgUpdate = (clientX: number, clientY: number) => {
 		if (!imgRef.current || !canvasRef.current) return
 
 		const rect = imgRef.current.getBoundingClientRect()
@@ -68,9 +68,11 @@ export const Visualizer = () => {
 				colorRef.current.format,
 			)
 
+			if (updated.displayed === color.displayed) return
+
 			setColor(updated)
 		}
-	}, [])
+	}
 
 	const handleGradUpdate = useCallback(
 		(clientX: number, clientY: number) => {
@@ -114,7 +116,11 @@ export const Visualizer = () => {
 					luminance: {tint, shade},
 				}
 
-				return convertColor(updatedInRgb, prev.format)
+				const update = convertColor(updatedInRgb, prev.format)
+
+				if (update.displayed === color.displayed) return prev
+
+				return update
 			})
 
 			setGradCrossPos({x, y})

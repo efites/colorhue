@@ -7,6 +7,7 @@ import {Header, History, Panel, Rainbow, Сompilation} from '../index'
 import styles from './Layout.module.scss'
 import {Visualizer} from '../Visualizer/Visualizer'
 import {Console} from '../Console/Console'
+import {PipetteProvider} from '@/app/providers/PipetteProvider'
 
 export const Layout = () => {
 	const {mode} = use(GlobalContext)
@@ -16,10 +17,12 @@ export const Layout = () => {
 		<div ref={contentRef} className={styles.solid}>
 			<Panel />
 			<Header />
-			<div className={styles.main}>
-				<Visualizer />
-				<Console />
-			</div>
+			<PipetteProvider>
+				<div className={styles.main}>
+					<Visualizer />
+					<Console />
+				</div>
+			</PipetteProvider>
 			{mode === 'solid' && <Сompilation />}
 			{mode === 'gradient' && <Rainbow />}
 			<History />
