@@ -4,7 +4,7 @@ import {initialColor} from './Global'
 import ScreenFallback from '../../shared/images/screen.png'
 
 const initialPipetteContext: ReturnType<typeof useColorPicker> = {
-	color: initialColor,
+	pickedColor: initialColor,
 	image: ScreenFallback,
 	pickColor: async () => {},
 }

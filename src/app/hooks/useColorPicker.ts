@@ -7,7 +7,7 @@ import {initialColor} from '../contexts/Global'
 import type {CursorPosition, IColor, PipetteCapture} from '../../types/picker'
 
 export function useColorPicker() {
-	const [color, setColor] = useState<IColor>(initialColor)
+	const [pickedColor, setPickedColor] = useState<IColor>(initialColor)
 	const [image, setImage] = useState<PipetteCapture['image']>(ScreenFallback)
 
 	const unlistenRef = useRef<UnlistenFn | null>(null)
@@ -38,7 +38,7 @@ export function useColorPicker() {
 
 			// Обновляем состояние батчем (React 18+ делает это автоматически)
 			setImage(result.image || ScreenFallback)
-			setColor(result)
+			setPickedColor(result)
 		} catch (err) {
 			// Логируем ошибку, но не ломаем приложение, так как это стрим событий
 			console.error('Failed to capture area:', err)
@@ -67,7 +67,7 @@ export function useColorPicker() {
 	}, [cleanupListener, handleCursorCapture])
 
 	return {
-		color,
+		pickedColor,
 		image,
 		pickColor,
 	}

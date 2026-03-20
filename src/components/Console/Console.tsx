@@ -27,7 +27,7 @@ import {PipetteContext} from '@/app/contexts/Pipette'
 export const Console = () => {
 	const {mode, addHistory} = useContext(GlobalContext)
 	const {color, setColor} = useContext(GlobalContext)
-	const {pickColor, color: pickedColor} = useContext(PipetteContext)
+	const {pickColor, pickedColor} = useContext(PipetteContext)
 
 	const rainbowRef = useRef<HTMLDivElement>(null)
 	const alphaRef = useRef<HTMLDivElement>(null)
