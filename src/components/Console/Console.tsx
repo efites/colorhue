@@ -1,12 +1,4 @@
-import {
-	ChangeEvent,
-	Dispatch,
-	RefObject,
-	SetStateAction,
-	useEffect,
-	useRef,
-	useState,
-} from 'react'
+import {ChangeEvent, Dispatch, RefObject, SetStateAction, useEffect, useRef, useState} from 'react'
 import styles from './Console.module.scss'
 import {
 	convertColor,

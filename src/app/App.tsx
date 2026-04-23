@@ -7,7 +7,5 @@ export const App = () => {
 		localStorage.clear()
 	}, [])
 
-	return (
-		<Layout />
-	)
+	return <Layout />
 }
