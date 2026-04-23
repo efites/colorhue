@@ -1,6 +1,6 @@
 import {useCallback, useRef, useState} from 'react'
-import {IColor} from '@/types/picker'
 import {toImageSampledColor, getRelativePercentPosition} from './visualizer.business'
+import {IColor} from '@/model/color'
 
 interface Position {
 	x: number
@@ -41,8 +41,13 @@ export const useVisualizerImageState = ({
 
 			if (!image || !canvas) return
 
-			const position = getRelativePercentPosition(image.getBoundingClientRect(), clientX, clientY)
-			if (position.x === lastPosition.current.x && position.y === lastPosition.current.y) return
+			const position = getRelativePercentPosition(
+				image.getBoundingClientRect(),
+				clientX,
+				clientY,
+			)
+			if (position.x === lastPosition.current.x && position.y === lastPosition.current.y)
+				return
 
 			lastPosition.current = position
 			setCrossPosition(position)

@@ -2,7 +2,7 @@ import {useState, useRef, useEffect} from 'react'
 import Icon, {IconProps} from '../Icon/Icon'
 import styles from './Select.module.scss'
 import clsx from 'clsx'
-import {IColor} from '../../types/picker'
+import {IColor} from '@/model/color'
 
 interface IOption {
 	value: IColor['format']

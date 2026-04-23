@@ -2,8 +2,18 @@ import {action, atom} from '@reatom/core'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 import {invoke} from '@/shared/helpers/tauri'
 import ScreenFallback from '@/shared/images/screen.png'
-import {initialColor} from './color'
-import type {CursorPosition, IColor} from '@/types/picker'
+import {IColor, initialColor} from '@/model/color'
+
+export interface PipetteCapture extends IColor {
+	image: string
+}
+
+export interface CursorPosition {
+	x: number
+	y: number
+	size?: number
+	format?: string
+}
 
 export const pipettePickedColorAtom = atom<IColor>(initialColor, 'pipettePickedColorAtom')
 export const pipetteImageAtom = atom<string>(ScreenFallback, 'pipetteImageAtom')

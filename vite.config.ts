@@ -41,7 +41,7 @@ export default defineConfig(async ({mode}) => {
 				'@/components': path.resolve(__dirname, './src', './components'),
 				'@/shared': path.resolve(__dirname, './src', './shared'),
 				'@/app': path.resolve(__dirname, './src', './app'),
-				'@/types': path.resolve(__dirname, './src', './types'),
+				'@/model': path.resolve(__dirname, './src', './app', './model'),
 				'@/hooks': path.resolve(__dirname, './src', './app', './hooks'),
 				'@': path.resolve(__dirname, './src')
 			}

@@ -1,4 +1,4 @@
-import {IColor} from '../../types/picker'
+import {IColor} from '@/model/color'
 
 export const Colors = {
 	bg: '#d0d0d0',

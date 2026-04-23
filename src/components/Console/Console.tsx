@@ -6,7 +6,6 @@ import {
 	getHueOffset,
 	validateColor,
 } from '../../shared/helpers/colors'
-import {IColor} from '../../types/picker'
 import clsx from 'clsx'
 import Icon from '../Icon/Icon'
 import {Select} from '../Select/Select'
@@ -15,7 +14,7 @@ import {FORMATS} from '../../shared/consts/colors'
 import {useAction, useAtom} from '@reatom/react'
 import {modeAtom} from '@/app/model/mode'
 import {addHistory} from '@/app/model/history'
-import {colorAtom} from '@/app/model/color'
+import {colorAtom, IColor} from '@/app/model/color'
 import {pickColor, pipettePickedColorAtom} from '@/app/model/pipette'
 
 export const Console = () => {

@@ -1,7 +1,7 @@
 import {useCallback, useRef, useState} from 'react'
 import {convertColor} from '@/shared/helpers/colors'
-import {IColor} from '@/types/picker'
 import {getRelativePercentPosition, toLuminanceColor} from './visualizer.business'
+import {IColor} from '@/model/color'
 
 interface Position {
 	x: number
@@ -26,8 +26,13 @@ export const useVisualizerGradientState = ({
 			const grad = gradRef.current
 			if (!grad) return
 
-			const position = getRelativePercentPosition(grad.getBoundingClientRect(), clientX, clientY)
-			if (position.x === lastPosition.current.x && position.y === lastPosition.current.y) return
+			const position = getRelativePercentPosition(
+				grad.getBoundingClientRect(),
+				clientX,
+				clientY,
+			)
+			if (position.x === lastPosition.current.x && position.y === lastPosition.current.y)
+				return
 
 			lastPosition.current = position
 			setCrossPosition(position)

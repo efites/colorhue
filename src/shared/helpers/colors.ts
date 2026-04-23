@@ -1,4 +1,4 @@
-import {IColor} from '@/types/picker'
+import {IColor} from '@/model/color'
 import {RegularsExp} from '../consts/regexp'
 
 type RGB = {

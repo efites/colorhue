@@ -1,4 +1,5 @@
-import {IColor, PipetteCapture} from '@/types/picker'
+import {IColor} from '@/model/color'
+import {PipetteCapture} from '@/model/pipette'
 import {invoke as tauriInvoke} from '@tauri-apps/api/core'
 import {Window} from '@tauri-apps/api/window'
 
@@ -8,7 +9,7 @@ type TauriCommands = {
 	minimize_window: {args: undefined; return: void}
 	exit_app: {args: undefined; return: void}
 	set_window_size: {args: {window: Window; width: number; height: number}; return: void}
-	show_window: {args: {window: Window}; return: void}
+	// show_window: {args: {window: Window}; return: void}
 	create_overlay: {args: {windowName: WindowName}; return: void}
 	update_capture_limits: {args: {minSize: number; maxSize: number}; return: void}
 	start_capture_stream: {

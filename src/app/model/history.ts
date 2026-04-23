@@ -1,6 +1,6 @@
 import {action, atom} from '@reatom/core'
 import {History_Settings} from '@/shared/consts/colors'
-import {IColor} from '@/types/picker'
+import {IColor} from '@/model/color'
 
 export const readHistoryFromStorage = (): IColor[] => {
 	const historyRaw = localStorage.getItem('history')

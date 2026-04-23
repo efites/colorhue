@@ -1,6 +1,6 @@
 import {clsx} from 'clsx'
 
-import type {Harmony, Mode} from '@/app/model/global.types'
+import type {Harmony, Mode} from '@/app/model/global'
 
 import styles from './Icon.module.scss'
 

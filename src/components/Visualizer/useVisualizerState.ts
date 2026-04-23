@@ -25,8 +25,19 @@ export const useVisualizerState = () => {
 		onColorChange: setColor,
 		getCurrentColor: () => colorRef.current,
 	})
-	const {imgRef, canvasRef, crossPosition: imgCrossPos, handleImageLoad, updateByPointer, reset} = imageState
-	const {gradRef, crossPosition: gradCrossPos, updateByPointer: updateGradientByPointer} = gradientState
+	const {
+		imgRef,
+		canvasRef,
+		crossPosition: imgCrossPos,
+		handleImageLoad,
+		updateByPointer,
+		reset,
+	} = imageState
+	const {
+		gradRef,
+		crossPosition: gradCrossPos,
+		updateByPointer: updateGradientByPointer,
+	} = gradientState
 
 	const onMouseDown = useCallback(
 		(event: MouseEvent<HTMLDivElement>, target: DragTarget) => {
@@ -53,7 +64,8 @@ export const useVisualizerState = () => {
 		const handleGlobalMouseMove = (event: globalThis.MouseEvent) => {
 			if (!activeDragRef.current) return
 			if (activeDragRef.current === 'image') updateByPointer(event.clientX, event.clientY)
-			if (activeDragRef.current === 'gradient') updateGradientByPointer(event.clientX, event.clientY)
+			if (activeDragRef.current === 'gradient')
+				updateGradientByPointer(event.clientX, event.clientY)
 		}
 
 		const handleGlobalMouseUp = () => {

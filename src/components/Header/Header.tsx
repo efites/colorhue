@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import {useAtom} from '@reatom/react'
 
-import type {Mode} from '@/app/model/global.types'
+import type {Mode} from '@/app/model/global'
 
 import {modeAtom} from '@/app/model/mode'
 import Icon from '../Icon/Icon'

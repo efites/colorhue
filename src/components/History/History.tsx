@@ -1,10 +1,9 @@
 import {useAtom} from '@reatom/react'
 import {Pin} from '..'
 import styles from './History.module.scss'
-import {IColor} from '@/types/picker'
 import {convertColor} from '@/shared/helpers/colors'
-import {historyAtom} from '@/app/model/history'
-import {colorAtom} from '@/app/model/color'
+import {historyAtom} from '@/model/history'
+import {colorAtom, IColor} from '@/app/model/color'
 
 export const History = () => {
 	const [history] = useAtom(historyAtom)

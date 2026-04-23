@@ -1,5 +1,5 @@
 import {convertColor, parseRgb, rgbToString} from '@/shared/helpers/colors'
-import {IColor} from '@/types/picker'
+import {IColor} from '@/model/color'
 
 interface Position {
 	x: number

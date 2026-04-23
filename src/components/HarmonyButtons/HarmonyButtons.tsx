@@ -3,7 +3,7 @@ import Icon from '../Icon/Icon'
 import styles from './HarmonyButtons.module.scss'
 import {useAtom} from '@reatom/react'
 import {harmonyAtom} from '@/app/model/harmony'
-import {Harmony} from '@/app/model/global.types'
+import {Harmony} from '@/app/model/global'
 
 const harmonies: Harmony[] = [
 	'monochrome',

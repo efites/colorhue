@@ -1,6 +1,16 @@
 import {atom} from '@reatom/core'
-import {IColor} from '@/types/picker'
 import {readHistoryFromStorage} from './history'
+
+export interface IColor {
+	base: string
+	displayed: string
+	format: 'hex' | 'rgb'
+	alpha: number
+	luminance: {
+		tint: number
+		shade: number
+	}
+}
 
 export const initialColor: IColor = {
 	base: '#ffffff',

@@ -1,8 +1,7 @@
 import {useAtom} from '@reatom/react'
 import styles from './Сompilation.module.scss'
 import {findPullColors} from '@/shared/helpers/colors'
-import {IColor} from '@/types/picker'
-import {colorAtom} from '@/app/model/color'
+import {colorAtom, IColor} from '@/model/color'
 
 export const Сompilation = () => {
 	const [color] = useAtom(colorAtom)

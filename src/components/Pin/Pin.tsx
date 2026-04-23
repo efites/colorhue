@@ -1,9 +1,8 @@
 import styles from './Pin.module.scss'
-import {IColor} from '../../types/picker'
 import {convertColor} from '../../shared/helpers/colors'
 import {useAction, useAtom} from '@reatom/react'
 import {addHistory} from '@/app/model/history'
-import {colorAtom} from '@/app/model/color'
+import {colorAtom, IColor} from '@/app/model/color'
 
 export const Pin = ({pin}: {pin: IColor}) => {
 	const [color] = useAtom(colorAtom)
