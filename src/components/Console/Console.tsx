@@ -16,14 +16,14 @@ import {useAction, useAtom} from '@reatom/react'
 import {modeAtom} from '@/app/model/mode'
 import {addHistory} from '@/app/model/history'
 import {colorAtom} from '@/app/model/color'
-import {useContext} from 'react'
-import {PipetteContext} from '@/app/contexts/Pipette'
+import {pickColor, pipettePickedColorAtom} from '@/app/model/pipette'
 
 export const Console = () => {
 	const [mode] = useAtom(modeAtom)
 	const [color, setColor] = useAtom(colorAtom)
+	const [pickedColor] = useAtom(pipettePickedColorAtom)
 	const addHistoryAction = useAction(addHistory)
-	const {pickColor, pickedColor} = useContext(PipetteContext)
+	const pickColorAction = useAction(pickColor)
 
 	const rainbowRef = useRef<HTMLDivElement>(null)
 	const alphaRef = useRef<HTMLDivElement>(null)
@@ -50,7 +50,7 @@ export const Console = () => {
 	}, [color.base])
 
 	const pickColorHandler = async () => {
-		await pickColor()
+		await pickColorAction()
 	}
 
 	const handleFormatChange = (option: IColor['format']) => {

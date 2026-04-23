@@ -4,7 +4,7 @@ import styles from './Select.module.scss'
 import clsx from 'clsx'
 import {IColor} from '../../types/picker'
 
-export interface IOption {
+interface IOption {
 	value: IColor['format']
 	label: string
 }
