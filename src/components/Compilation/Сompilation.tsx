@@ -1,11 +1,11 @@
-import {useContext} from 'react'
+import {useAtom} from '@reatom/react'
 import styles from './Сompilation.module.scss'
-import {GlobalContext} from '@/app/contexts/Global'
 import {findPullColors} from '@/shared/helpers/colors'
 import {IColor} from '@/types/picker'
+import {colorAtom} from '@/app/model/color'
 
 export const Сompilation = () => {
-	const {color} = useContext(GlobalContext)
+	const [color] = useAtom(colorAtom)
 	const pulls = findPullColors(color)
 
 	const clickToCopy = async (color: Omit<IColor, 'alpha'>) => {

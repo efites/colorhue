@@ -1,14 +1,17 @@
-import {useRef, useState, MouseEvent, useContext, useEffect, useCallback} from 'react'
+import {useRef, useState, MouseEvent, useEffect, useCallback} from 'react'
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
-import {GlobalContext} from '../../app/contexts/Global'
 import {convertColor, parseRgb, rgbToString} from '../../shared/helpers/colors'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {IColor} from '../../types/picker'
+import {useAction, useAtom} from '@reatom/react'
+import {colorAtom} from '@/app/model/color'
+import {addHistory} from '@/app/model/history'
 
 export const Visualizer = () => {
 	const {image} = useColorPicker()
-	const {setColor, addHistory, color} = useContext(GlobalContext)
+	const [color, setColor] = useAtom(colorAtom)
+	const addHistoryAction = useAction(addHistory)
 
 	const [imgCrossPos, setImgCrossPos] = useState({x: 50, y: 50})
 	const [gradCrossPos, setGradCrossPos] = useState({x: 50, y: 50})
@@ -105,17 +108,16 @@ export const Visualizer = () => {
 
 			const currentRgbString = rgbToString({r, g, b})
 
-			setColor(prev => {
-				const updatedInRgb: IColor = {
-					...prev,
-					format: 'rgb',
-					base: baseColorRgbString,
-					displayed: currentRgbString,
-					luminance: {tint, shade},
-				}
+			const currentColor = colorRef.current
+			const updatedInRgb: IColor = {
+				...currentColor,
+				format: 'rgb',
+				base: baseColorRgbString,
+				displayed: currentRgbString,
+				luminance: {tint, shade},
+			}
 
-				return convertColor(updatedInRgb, prev.format)
-			})
+			setColor(convertColor(updatedInRgb, currentColor.format))
 
 			setGradCrossPos({x, y})
 		},
@@ -150,7 +152,7 @@ export const Visualizer = () => {
 
 		const handleGlobalMouseUp = () => {
 			if (activeDragRef.current) {
-				addHistory(colorRef.current)
+				addHistoryAction(colorRef.current)
 				setActiveDrag(null)
 			}
 		}
@@ -164,7 +166,7 @@ export const Visualizer = () => {
 			window.removeEventListener('mousemove', handleGlobalMouseMove)
 			window.removeEventListener('mouseup', handleGlobalMouseUp)
 		}
-	}, [activeDrag, handleImgUpdate, handleGradUpdate, addHistory])
+	}, [activeDrag, handleImgUpdate, handleGradUpdate, addHistoryAction])
 
 	return (
 		<div className={styles.selection}>

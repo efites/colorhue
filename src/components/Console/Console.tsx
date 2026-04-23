@@ -3,13 +3,11 @@ import {
 	Dispatch,
 	RefObject,
 	SetStateAction,
-	useContext,
 	useEffect,
 	useRef,
 	useState,
 } from 'react'
 import styles from './Console.module.scss'
-import {GlobalContext} from '../../app/contexts/Global'
 import {
 	convertColor,
 	getColorByHueOffset,
@@ -23,10 +21,15 @@ import {Select} from '../Select/Select'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
 import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {FORMATS} from '../../shared/consts/colors'
+import {useAction, useAtom} from '@reatom/react'
+import {modeAtom} from '@/app/model/mode'
+import {addHistory} from '@/app/model/history'
+import {colorAtom} from '@/app/model/color'
 
 export const Console = () => {
-	const {mode, addHistory} = useContext(GlobalContext)
-	const {color, setColor} = useContext(GlobalContext)
+	const [mode] = useAtom(modeAtom)
+	const [color, setColor] = useAtom(colorAtom)
+	const addHistoryAction = useAction(addHistory)
 	const {pickColor, color: pickedColor} = useColorPicker()
 
 	const rainbowRef = useRef<HTMLDivElement>(null)
@@ -85,7 +88,7 @@ export const Console = () => {
 		}
 
 		setColor(newColor)
-		addHistory(newColor)
+		addHistoryAction(newColor)
 	}
 
 	const handleOpacityChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +107,7 @@ export const Console = () => {
 		const result = {...color, alpha}
 
 		setColor(result)
-		addHistory(result)
+		addHistoryAction(result)
 		setOpacity(alpha)
 	}
 
@@ -169,7 +172,7 @@ export const Console = () => {
 
 									const newColor = {...color, base: hex, displayed: hex}
 									setColor(newColor)
-									addHistory(newColor)
+									addHistoryAction(newColor)
 								})
 							}>
 							<div className={styles.line}>
@@ -192,7 +195,7 @@ export const Console = () => {
 
 									const newColor = {...color, alpha: value}
 									setColor(newColor)
-									addHistory(newColor)
+									addHistoryAction(newColor)
 								})
 							}>
 							<div

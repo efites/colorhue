@@ -1,9 +1,9 @@
 import clsx from 'clsx'
-import {use} from 'react'
+import {useAtom} from '@reatom/react'
 
-import type {Mode} from '../../app/contexts/Global'
+import type {Mode} from '@/app/model/global.types'
 
-import {GlobalContext} from '../../app/contexts/Global'
+import {modeAtom} from '@/app/model/mode'
 import Icon from '../Icon/Icon'
 
 import styles from './Header.module.scss'
@@ -12,7 +12,7 @@ import {useAutoWindowSize} from '../../app/hooks/useWindowResize'
 const buttons: Mode[] = ['solid', 'gradient'] as const
 
 export const Header = () => {
-	const {mode, setMode} = use(GlobalContext)
+	const [mode, setMode] = useAtom(modeAtom)
 	const {setWindowSize} = useAutoWindowSize()
 
 	const changeModeHandler = (mode: Mode) => {

@@ -1,8 +1,9 @@
 import clsx from 'clsx'
 import Icon from '../Icon/Icon'
 import styles from './HarmonyButtons.module.scss'
-import {useContext} from 'react'
-import {GlobalContext, Harmony} from '../../app/contexts/Global'
+import {useAtom} from '@reatom/react'
+import {harmonyAtom} from '@/app/model/harmony'
+import {Harmony} from '@/app/model/global.types'
 
 const harmonies: Harmony[] = [
 	'monochrome',
@@ -14,7 +15,7 @@ const harmonies: Harmony[] = [
 ] as const
 
 export const HarmonyButtons = () => {
-	const {harmony, setHarmony} = useContext(GlobalContext)
+	const [harmony, setHarmony] = useAtom(harmonyAtom)
 
 	return (
 		<div className={styles.triads}>

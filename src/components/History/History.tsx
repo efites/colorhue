@@ -1,12 +1,14 @@
-import {useContext} from 'react'
+import {useAtom} from '@reatom/react'
 import {Pin} from '..'
 import styles from './History.module.scss'
-import {GlobalContext} from '../../app/contexts/Global'
 import {IColor} from '@/types/picker'
 import {convertColor} from '@/shared/helpers/colors'
+import {historyAtom} from '@/app/model/history'
+import {colorAtom} from '@/app/model/color'
 
 export const History = () => {
-	const {history, setColor, color: globalColor} = useContext(GlobalContext)
+	const [history] = useAtom(historyAtom)
+	const [globalColor, setColor] = useAtom(colorAtom)
 
 	const chooseColorPin = (color: IColor) => {
 		const result = convertColor(color, globalColor.format)

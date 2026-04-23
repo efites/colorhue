@@ -2,7 +2,7 @@ import {useCallback, useEffect, useRef, useState} from 'react'
 import {listen, UnlistenFn} from '@tauri-apps/api/event'
 import ScreenFallback from '../../shared/images/screen.png'
 import {invoke} from '@/shared/helpers/tauri'
-import {initialColor} from '../contexts/Global'
+import {initialColor} from '@/app/model/color'
 
 import type {CursorPosition, IColor, PipetteCapture} from '../../types/picker'
 

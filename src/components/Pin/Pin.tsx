@@ -1,15 +1,17 @@
 import styles from './Pin.module.scss'
 import {IColor} from '../../types/picker'
-import {use} from 'react'
-import {GlobalContext} from '../../app/contexts/Global'
 import {convertColor} from '../../shared/helpers/colors'
+import {useAction, useAtom} from '@reatom/react'
+import {addHistory} from '@/app/model/history'
+import {colorAtom} from '@/app/model/color'
 
 export const Pin = ({pin}: {pin: IColor}) => {
-	const {addHistory, color} = use(GlobalContext)
+	const [color] = useAtom(colorAtom)
+	const addHistoryAction = useAction(addHistory)
 
 	const clickHandler = (pin: IColor) => {
 		// TODO: точно ли нужно добавление цвтета в историю? В useHistory проверка по отображаемому цвету
-		addHistory(pin)
+		addHistoryAction(pin)
 	}
 
 	return (

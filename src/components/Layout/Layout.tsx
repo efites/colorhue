@@ -1,15 +1,14 @@
-import {use} from 'react'
-
-import {GlobalContext} from '../../app/contexts/Global'
+import {useAtom} from '@reatom/react'
 import {useAutoWindowSize} from '../../app/hooks/useWindowResize'
 import {Header, History, Panel, Rainbow, Сompilation} from '../index'
+import {modeAtom} from '@/app/model/mode'
 
 import styles from './Layout.module.scss'
 import {Visualizer} from '../Visualizer/Visualizer'
 import {Console} from '../Console/Console'
 
 export const Layout = () => {
-	const {mode} = use(GlobalContext)
+	const [mode] = useAtom(modeAtom)
 	const {contentRef} = useAutoWindowSize()
 
 	return (

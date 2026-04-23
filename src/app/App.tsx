@@ -1,5 +1,4 @@
 import {Layout} from '@/components/index'
-import {AppProvider} from './providers/AppProvider'
 import '../shared/styles/global.scss'
 import {useEffect} from 'react'
 
@@ -9,8 +8,6 @@ export const App = () => {
 	}, [])
 
 	return (
-		<AppProvider>
-			<Layout />
-		</AppProvider>
+		<Layout />
 	)
 }
