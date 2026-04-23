@@ -2,7 +2,6 @@ import {useRef, useState, MouseEvent, useEffect, useCallback} from 'react'
 import clsx from 'clsx'
 import styles from './Visualizer.module.scss'
 import {convertColor, parseRgb, rgbToString} from '../../shared/helpers/colors'
-import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {IColor} from '../../types/picker'
 import {useAction, useAtom} from '@reatom/react'
 import {colorAtom} from '@/app/model/color'
@@ -37,7 +36,7 @@ export const Visualizer = () => {
 		}
 	}
 
-	const handleImgUpdate = useCallback((clientX: number, clientY: number) => {
+	const handleImgUpdate = (clientX: number, clientY: number) => {
 		if (!imgRef.current || !canvasRef.current) return
 
 		const rect = imgRef.current.getBoundingClientRect()
@@ -71,9 +70,11 @@ export const Visualizer = () => {
 				colorRef.current.format,
 			)
 
+			if (updated.displayed === color.displayed) return
+
 			setColor(updated)
 		}
-	}, [])
+	}
 
 	const handleGradUpdate = useCallback(
 		(clientX: number, clientY: number) => {

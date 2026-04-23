@@ -11,12 +11,12 @@ import clsx from 'clsx'
 import Icon from '../Icon/Icon'
 import {Select} from '../Select/Select'
 import {HarmonyButtons} from '../HarmonyButtons/HarmonyButtons'
-import {useColorPicker} from '../../app/hooks/useColorPicker'
 import {FORMATS} from '../../shared/consts/colors'
 import {useAction, useAtom} from '@reatom/react'
 import {modeAtom} from '@/app/model/mode'
 import {addHistory} from '@/app/model/history'
 import {colorAtom} from '@/app/model/color'
+import {useColorPicker} from '../../app/hooks/useColorPicker'
 
 export const Console = () => {
 	const [mode] = useAtom(modeAtom)
@@ -33,6 +33,7 @@ export const Console = () => {
 
 	useEffect(() => {
 		setColor(pickedColor)
+		addHistory(pickedColor)
 	}, [pickedColor])
 
 	useEffect(() => {
@@ -48,9 +49,7 @@ export const Console = () => {
 	}, [color.base])
 
 	const pickColorHandler = async () => {
-		const result = await pickColor()
-
-		console.log(result)
+		await pickColor()
 	}
 
 	const handleFormatChange = (option: IColor['format']) => {
