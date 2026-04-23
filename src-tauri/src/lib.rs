@@ -6,12 +6,16 @@ use image::codecs::png::PngEncoder;
 use image::{ExtendedColorType, ImageEncoder};
 use screenshots::Screen;
 use serde::Serialize;
+use tauri_specta::collect_commands;
 use std::path::Path;
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use tauri::async_runtime as tauri_rt;
 use device_query::{DeviceQuery, DeviceState};
 use std::fs;
 use serde::Deserialize;
+use tauri_specta::ts;
+use tauri_specta::collect_types;
+use tauri_specta::SpectaExt;
 
 
 #[derive(Serialize)]
@@ -133,6 +137,7 @@ fn set_window_size(window: Window, width: f64, height: f64) -> Result<(), String
 
 
 #[tauri::command]
+#[specta::specta]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
@@ -427,8 +432,30 @@ fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, m
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let specta_builder = tauri_specta::Builder::<tauri::Wry>::new()
+        .commands(collect_commands![
+            greet,
+            // set_window_size,
+            // exit_app,
+            // minimize_window,
+            // show_window,
+            // capture_cursor_area,
+            // create_overlay,
+            // close_overlay,
+            // send_cursor_position,
+            // start_capture_stream,
+            // stop_capture_stream,
+            // update_capture_size,
+            // update_color_format,
+            // update_capture_limits,
+        ])
+        .types(collect_types![
+            // Пока можно оставить пустым, позже добавите свои типы
+        ]);
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(specta_builder.into())   // 👈 подключаем specta
         .manage(Arc::new(CaptureStreamState::new()))
         .invoke_handler(tauri::generate_handler![
             greet,
@@ -446,14 +473,26 @@ pub fn run() {
             update_color_format,
             update_capture_limits,
         ])
-		.setup(|app| {
-			match setup_config() {
+        .setup(|app| {
+            // 🔥 Генерация TypeScript-биндингов с документацией
+            #[cfg(debug_assertions)] // только в режиме разработки
+            {
+                let specta = app.specta();
+                ts::export(
+                    specta,
+                    &specta.collect_commands(),
+                    "../src/bindings.ts", // путь к выходному файлу
+                ).expect("Failed to export specta bindings");
+            }
+
+            // Ваш старый код (настройка DevTools)
+            match setup_config() {
                 Ok(()) => {
                     if let Ok(config) = get_config() {
                         if config.mode == "dev" {
                             if let Some(window) = app.get_webview_window("main") {
-								window.open_devtools();
-								println!("DevTools opened in development mode");
+                                window.open_devtools();
+                                println!("DevTools opened in development mode");
                             }
                         }
                     }
@@ -465,7 +504,7 @@ pub fn run() {
             }
 
             Ok(())
-		})
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
