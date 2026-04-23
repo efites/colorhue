@@ -16,13 +16,14 @@ import {useAction, useAtom} from '@reatom/react'
 import {modeAtom} from '@/app/model/mode'
 import {addHistory} from '@/app/model/history'
 import {colorAtom} from '@/app/model/color'
-import {useColorPicker} from '../../app/hooks/useColorPicker'
+import {useContext} from 'react'
+import {PipetteContext} from '@/app/contexts/Pipette'
 
 export const Console = () => {
 	const [mode] = useAtom(modeAtom)
 	const [color, setColor] = useAtom(colorAtom)
 	const addHistoryAction = useAction(addHistory)
-	const {pickColor, color: pickedColor} = useColorPicker()
+	const {pickColor, pickedColor} = useContext(PipetteContext)
 
 	const rainbowRef = useRef<HTMLDivElement>(null)
 	const alphaRef = useRef<HTMLDivElement>(null)
@@ -33,8 +34,8 @@ export const Console = () => {
 
 	useEffect(() => {
 		setColor(pickedColor)
-		addHistory(pickedColor)
-	}, [pickedColor])
+		addHistoryAction(pickedColor)
+	}, [pickedColor, setColor, addHistoryAction])
 
 	useEffect(() => {
 		setCode(color.displayed.toUpperCase())
