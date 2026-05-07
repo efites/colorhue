@@ -4,5 +4,10 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 
 /** Commands */
 export const commands = {
+	/**
+	 *  HELLO
+	 *  WORLD
+	 *  !!!!
+	 */
 	greet: (name: string) => __TAURI_INVOKE<string>("greet", { name }),
 };

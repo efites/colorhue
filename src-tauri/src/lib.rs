@@ -136,6 +136,9 @@ fn set_window_size(window: Window, width: f64, height: f64) -> Result<(), String
 }
 
 
+/// HELLO
+/// WORLD
+/// !!!!
 #[tauri::command]
 #[specta::specta] // Моя команда
 fn greet(name: &str) -> String {
