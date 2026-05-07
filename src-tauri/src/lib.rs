@@ -5,18 +5,18 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::codecs::png::PngEncoder;
 use image::{ExtendedColorType, ImageEncoder};
 use screenshots::Screen;
-use serde::Serialize;
-use tauri_specta::collect_commands;
+// use serde::Serialize;
 use std::path::Path;
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use tauri::async_runtime as tauri_rt;
 use device_query::{DeviceQuery, DeviceState};
 use std::fs;
-use serde::Deserialize;
-use tauri_specta::ts;
-use tauri_specta::collect_types;
-use tauri_specta::SpectaExt;
-
+// use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use specta::Type;
+use specta_typescript::{Typescript};
+use tauri_specta::*;
+use thiserror::Error;
 
 #[derive(Serialize)]
 struct Luminance {
@@ -137,9 +137,9 @@ fn set_window_size(window: Window, width: f64, height: f64) -> Result<(), String
 
 
 #[tauri::command]
-#[specta::specta]
+#[specta::specta] // Моя команда
 fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+    format!("Hello, {}! You've been here from Rust!", name)
 }
 
 #[tauri::command]
@@ -432,30 +432,18 @@ fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, m
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let specta_builder = tauri_specta::Builder::<tauri::Wry>::new()
-        .commands(collect_commands![
+    let specta_builder = Builder::<tauri::Wry>::new()
+        // This enables `Date`, `Uint8Array`, and `URL` for supported types.
+        // .semantic_types(semantic::Configuration::default())
+        // This can be used if you don't want per-phase (Serialize/Deserialize) types.
+        // .disable_serde_phases()
+        .commands(tauri_specta::collect_commands![
             greet,
-            // set_window_size,
-            // exit_app,
-            // minimize_window,
-            // show_window,
-            // capture_cursor_area,
-            // create_overlay,
-            // close_overlay,
-            // send_cursor_position,
-            // start_capture_stream,
-            // stop_capture_stream,
-            // update_capture_size,
-            // update_color_format,
-            // update_capture_limits,
-        ])
-        .types(collect_types![
-            // Пока можно оставить пустым, позже добавите свои типы
         ]);
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .plugin(specta_builder.into())   // 👈 подключаем specta
+        // .plugin(specta_builder.into())   // 👈 подключаем specta
         .manage(Arc::new(CaptureStreamState::new()))
         .invoke_handler(tauri::generate_handler![
             greet,
@@ -473,16 +461,12 @@ pub fn run() {
             update_color_format,
             update_capture_limits,
         ])
-        .setup(|app| {
+        .setup(move |app| {
             // 🔥 Генерация TypeScript-биндингов с документацией
-            #[cfg(debug_assertions)] // только в режиме разработки
+            #[cfg(debug_assertions)]
             {
-                let specta = app.specta();
-                ts::export(
-                    specta,
-                    &specta.collect_commands(),
-                    "../src/bindings.ts", // путь к выходному файлу
-                ).expect("Failed to export specta bindings");
+                specta_builder.export(Typescript::default(), "../src/bindings.ts")
+                    .expect("Failed to export specta bindings");
             }
 
             // Ваш старый код (настройка DevTools)

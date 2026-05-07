@@ -28,6 +28,18 @@ base64 = "0.22.1"
 device_query = "2"
 once_cell = "1.21.3"
 
+
+
 # Specta ВТОРОЙ версии (совместим с Tauri 2.10)
-specta = { version = "2.0.0-rc.24", features = ["derive"] }
-tauri-specta = { version = "2.0.0-rc.24", features = ["derive"] }
+#specta = { version = "2.0.0-rc.24", features = ["derive", "typescript"] }
+#specta = { workspace = true, features = ["bytes", "chrono", "url"] }
+#tauri-specta = { path = "../../../", features = ["derive", "typescript", "javascript"] }
+#specta-typescript = { workspace = true }
+#specta = { version = "2", features = ["derive"] }
+tauri-specta = { version = "2.0.0-rc.24", features = ["derive", "typescript"] }
+specta = { version = "=2.0.0-rc.24", features = ["derive"] }
+specta-typescript = { version = "0.0.11" }
+specta-serde = { version = "0.0.11" }
+specta-util = { version = "0.0.11" }
+thiserror = "2.0.18"
+
