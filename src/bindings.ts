@@ -5,9 +5,119 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 /** Commands */
 export const commands = {
 	/**
-	 *  HELLO
-	 *  WORLD
-	 *  !!!!
+	 *  Возвращает приветствие для переданного имени.
+	 *  @param name Имя пользователя.
+	 *  @returns {string} Строка приветствия.
 	 */
 	greet: (name: string) => __TAURI_INVOKE<string>("greet", { name }),
+	/**
+	 *  Устанавливает размеры главного окна.
+	 *  @param width  Ширина в логических пикселях.
+	 *  @param height Высота в логических пикселях.
+	 *  @returns {void}
+	 */
+	setWindowSize: (width: number, height: number) => typedError<null, string>(__TAURI_INVOKE("set_window_size", { width, height })),
+	/**
+	 *  Завершает процесс приложения.
+	 *  @returns {void} Функция не возвращает управление.
+	 */
+	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
+	/**
+	 *  Сворачивает главное окно.
+	 *  @returns {void}
+	 */
+	minimizeWindow: () => __TAURI_INVOKE<void>("minimize_window"),
+	/**
+	 *  Показывает главное окно приложения.
+	 *  @returns {void}
+	 */
+	showWindow: () => typedError<null, string>(__TAURI_INVOKE("show_window")),
+	/**
+	 *  Захватывает область экрана вокруг курсора и возвращает данные цвета.
+	 *  @param x      Координата X центра области.
+	 *  @param y      Координата Y центра области.
+	 *  @param size   Размер области (опционально, по умолчанию 50).
+	 *  @param format Формат цвета: "hex" или "rgb" (опционально).
+	 *  @returns {CaptureData} Данные захвата или ошибка.
+	 */
+	captureCursorArea: (x: number, y: number, size: number | null, format: string | null) => typedError<CaptureData, string>(__TAURI_INVOKE("capture_cursor_area", { x, y, size, format })),
+	/**
+	 *  Создаёт и показывает окно пипетки.
+	 *  @param window_name Уникальное имя создаваемого окна.
+	 *  @returns {void}
+	 */
+	createOverlay: (windowName: string) => typedError<null, string>(__TAURI_INVOKE("create_overlay", { windowName })),
+	/**
+	 *  Закрывает оверлейное окно по его имени.
+	 *  @param window_name Имя окна для закрытия.
+	 *  @returns {void}
+	 */
+	closeOverlay: (windowName: string) => typedError<null, string>(__TAURI_INVOKE("close_overlay", { windowName })),
+	/**
+	 *  Отправляет координаты курсора и размер области захвата в главное окно.
+	 *  @param x    Координата X курсора.
+	 *  @param y    Координата Y курсора.
+	 *  @param size Размер области захвата (опционально).
+	 *  @returns {void}
+	 */
+	sendCursorPosition: (x: number, y: number, size: number | null) => typedError<null, string>(__TAURI_INVOKE("send_cursor_position", { x, y, size })),
+	/**
+	 *  Запускает фоновый поток непрерывного захвата цвета под курсором.
+	 *  @param window_name Имя окна, куда отправлять события с кадрами.
+	 *  @param fps         Частота кадров (5–60, по умолчанию 12).
+	 *  @param size        Размер области захвата (опционально, ограничивается min/max).
+	 *  @param format      Формат цвета "hex" или "rgb" (опционально).
+	 *  @returns {void} Поток запущен или уже был активен.
+	 */
+	startCaptureStream: (windowName: string, fps: number | null, size: number | null, format: string | null) => typedError<null, string>(__TAURI_INVOKE("start_capture_stream", { windowName, fps, size, format })),
+	/**
+	 *  Останавливает активный поток захвата цвета.
+	 *  @returns {void}
+	 */
+	stopCaptureStream: () => typedError<null, string>(__TAURI_INVOKE("stop_capture_stream")),
+	/**
+	 *  Изменяет размер области захвата во время работы потока.
+	 *  @param size Новый размер (будет ограничен min..max).
+	 *  @returns {void}
+	 */
+	updateCaptureSize: (size: number) => typedError<null, string>(__TAURI_INVOKE("update_capture_size", { size })),
+	/**
+	 *  Изменяет формат представления цвета во время работы потока.
+	 *  @param format Новый формат ("hex" или "rgb"). Если не указан, сбрасывается на "hex".
+	 *  @returns {void}
+	 */
+	updateColorFormat: (format: string | null) => typedError<null, string>(__TAURI_INVOKE("update_color_format", { format })),
+	/**
+	 *  Задаёт допустимые пределы размера области захвата.
+	 *  @param min_size Минимально разрешённый размер.
+	 *  @param max_size Максимально разрешённый размер.
+	 *  @returns {void} Ошибка, если min_size > max_size или одно из значений равно 0.
+	 */
+	updateCaptureLimits: (minSize: number, maxSize: number) => typedError<null, string>(__TAURI_INVOKE("update_capture_limits", { minSize, maxSize })),
 };
+
+/* Types */
+export type CaptureData = {
+	base: string,
+	displayed: string,
+	format: string,
+	alpha: number,
+	luminance: Luminance,
+	image: string,
+};
+
+export type Luminance = {
+	tint: number,
+	shade: number,
+};
+
+/* Tauri Specta runtime */
+async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {
+    try {
+        return { status: "ok", data: await result };
+    } catch (e) {
+        if (e instanceof Error) throw e;
+        return { status: "error", error: e as any };
+    }
+}
+

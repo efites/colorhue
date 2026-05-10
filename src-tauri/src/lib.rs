@@ -5,39 +5,36 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::codecs::png::PngEncoder;
 use image::{ExtendedColorType, ImageEncoder};
 use screenshots::Screen;
-// use serde::Serialize;
 use std::path::Path;
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use tauri::async_runtime as tauri_rt;
 use device_query::{DeviceQuery, DeviceState};
 use std::fs;
-// use serde::Deserialize;
 use serde::{Deserialize, Serialize};
-use specta::Type;
 use specta_typescript::{Typescript};
 use tauri_specta::*;
-use thiserror::Error;
 
-#[derive(Serialize)]
+#[derive(Serialize, specta::Type)]
 struct Luminance {
-	tint: u32,
-	shade: u32,
+    tint: u32,
+    shade: u32,
 }
 
-#[derive(Serialize)]
+// #[derive(Serialize)]
+#[derive(Serialize, specta::Type)]
 struct CaptureData {
     base: String,
-	displayed: String,
-	format: String,
-	alpha: u32,
-	luminance: Luminance,
-	image: String, // data:image/png;base64,<...>
+    displayed: String,
+    format: String,
+    alpha: u32,
+    luminance: Luminance,
+    image: String, // data:image/png;base64,<...>
 }
 
 struct CaptureStreamState {
     is_running: AtomicBool,
     handle: Mutex<Option<tauri_rt::JoinHandle<()>>>,
-    last_image: Mutex<Option<String>>, // data URL to avoid duplicate emits
+    last_image: Mutex<Option<String>>,
     capture_size: Mutex<u32>,
     fps: Mutex<u32>,
     color_format: Mutex<String>,
@@ -61,7 +58,6 @@ impl CaptureStreamState {
         }
     }
 }
-
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -87,12 +83,10 @@ pub struct Overlay {
 
 pub fn init_config(config: AppConfig) -> Result<(), String> {
     let cell = APP_CONFIG.get_or_init(|| Mutex::new(None));
-
     let mut config_guard = cell.lock().map_err(|e| e.to_string())?;
     if config_guard.is_some() {
         return Err("Config already initialized".to_string());
     }
-
     *config_guard = Some(config);
     Ok(())
 }
@@ -101,7 +95,6 @@ pub fn get_config() -> Result<AppConfig, String> {
     let cell = APP_CONFIG
         .get()
         .ok_or("Config not initialized".to_string())?;
-
     let config_guard = cell.lock().map_err(|e| e.to_string())?;
     config_guard
         .as_ref()
@@ -110,109 +103,131 @@ pub fn get_config() -> Result<AppConfig, String> {
 }
 
 pub fn setup_config() -> Result<(), String> {
-    // В разработке config.json в корне проекта, в production - рядом с исполняемым файлом
     let config_path = if cfg!(debug_assertions) {
         "../config.json"
     } else {
         "./config.json"
     };
-
     let config_content = fs::read_to_string(Path::new(config_path))
         .map_err(|e| format!("Failed to read config file: {}", e))?;
-
     let config: AppConfig = serde_json::from_str(&config_content)
         .map_err(|e| format!("Failed to parse config JSON: {}", e))?;
-
     init_config(config)
 }
 
+/// Устанавливает размеры главного окна.
+/// @param width  Ширина в логических пикселях.
+/// @param height Высота в логических пикселях.
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 fn set_window_size(window: Window, width: f64, height: f64) -> Result<(), String> {
     window
         .set_size(tauri::Size::Logical(tauri::LogicalSize { width, height }))
         .map_err(|e| e.to_string())?;
-
     Ok(())
 }
 
-
-/// HELLO
-/// WORLD
-/// !!!!
+/// Возвращает приветствие для переданного имени.
+/// @param name Имя пользователя.
+/// @returns {string} Строка приветствия.
 #[tauri::command]
-#[specta::specta] // Моя команда
-fn greet(name: &str) -> String {
+#[specta::specta]
+fn greet(
+    name: &str,
+) -> String {
     format!("Hello, {}! You've been here from Rust!", name)
 }
 
+/// Показывает главное окно приложения.
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 fn show_window(window: Window) -> Result<(), String> {
     window.show().map_err(|e| e.to_string())?;
     Ok(())
 }
 
+/// Завершает процесс приложения.
+/// @returns {void} Функция не возвращает управление.
 #[tauri::command]
+#[specta::specta]
 fn exit_app() {
     std::process::exit(0);
 }
 
+/// Сворачивает главное окно.
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 fn minimize_window(app_handle: AppHandle) {
     let window = app_handle.get_webview_window("main").unwrap();
     window.minimize().unwrap();
 }
 
+/// Создаёт и показывает окно пипетки.
+/// @param window_name Уникальное имя создаваемого окна.
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 async fn create_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Result<(), String> {
-	let config = get_config()?;
-
+    let config = get_config()?;
     let build_mode = config.mode;
     let mut builder = WebviewWindowBuilder::new(
         &app_handle,
         window_name,
-        WebviewUrl::App("./src/overlays/picker.html".into())
+        WebviewUrl::App("./src/overlays/picker.html".into()),
     )
     .transparent(true)
     .decorations(false)
     .always_on_top(true)
     .focused(true)
-    .visible(false); // Создаём невидимым, показываем после загрузки
+    .visible(false);
 
     if build_mode == "dev" {
-		let sizes = config.overlay.unwrap_or(Overlay {width: 150, height: 250});
-		let width: f64 = sizes.width as f64;
-		let height: f64 = sizes.height as f64;
-
-		builder = builder.inner_size(width, height);
+        let sizes = config.overlay.unwrap_or(Overlay {
+            width: 150,
+            height: 250,
+        });
+        builder = builder.inner_size(sizes.width as f64, sizes.height as f64);
     } else {
         builder = builder.fullscreen(true);
     }
 
     let overlay = builder.build().map_err(|e| e.to_string())?;
     overlay.set_ignore_cursor_events(false).map_err(|e| e.to_string())?;
-
-    // Показываем окно сразу, но с прозрачным фоном
     overlay.show().map_err(|e| e.to_string())?;
-
     Ok(())
 }
 
+/// Отправляет координаты курсора и размер области захвата в главное окно.
+/// @param x    Координата X курсора.
+/// @param y    Координата Y курсора.
+/// @param size Размер области захвата (опционально).
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 async fn send_cursor_position(
     app_handle: tauri::AppHandle,
     x: i32,
     y: i32,
     size: Option<u32>,
 ) -> Result<(), String> {
-    // Отправляем данные в основное окно через событие
-    app_handle.emit_to("main", "send_cursor_position", Some(json!({"x": x, "y": y, "size": size })))
+    app_handle
+        .emit_to(
+            "main",
+            "send_cursor_position",
+            Some(json!({"x": x, "y": y, "size": size})),
+        )
         .map_err(|e| e.to_string())?;
-
     Ok(())
 }
 
-// Команда для закрытия overlay
+/// Закрывает оверлейное окно по его имени.
+/// @param window_name Имя окна для закрытия.
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 async fn close_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Result<(), String> {
     if let Some(window) = app_handle.get_webview_window(window_name) {
         window.close().map_err(|e| e.to_string())?;
@@ -220,19 +235,26 @@ async fn close_overlay(app_handle: tauri::AppHandle, window_name: &str) -> Resul
     Ok(())
 }
 
+/// Захватывает область экрана вокруг курсора и возвращает данные цвета.
+/// @param x      Координата X центра области.
+/// @param y      Координата Y центра области.
+/// @param size   Размер области (опционально, по умолчанию 50).
+/// @param format Формат цвета: "hex" или "rgb" (опционально).
+/// @returns {CaptureData} Данные захвата или ошибка.
 #[tauri::command]
-fn capture_cursor_area(x: i32, y: i32, size: Option<u32>, format: Option<String>) -> Result<CaptureData, String> {
-    capture_at(x, y, size, format)
-}
-
-fn capture_at(x: i32, y: i32, size: Option<u32>, format: Option<String>) -> Result<CaptureData, String> {
+#[specta::specta]
+fn capture_cursor_area(
+    x: i32,
+    y: i32,
+    size: Option<u32>,
+    format: Option<String>,
+) -> Result<CaptureData, String> {
     let radius: u32 = size.unwrap_or(50);
     if radius == 0 {
         return Err("size must be > 0".to_string());
     }
 
     let screen = Screen::from_point(x, y).map_err(|e| e.to_string())?;
-
     let half = (radius / 2) as i32;
     let left = x - half;
     let top = y - half;
@@ -247,7 +269,6 @@ fn capture_at(x: i32, y: i32, size: Option<u32>, format: Option<String>) -> Resu
     let h = image.height();
     let rgba = image.into_raw();
 
-    // Center pixel color
     let cx = (w / 2).min(w.saturating_sub(1));
     let cy = (h / 2).min(h.saturating_sub(1));
     let idx = ((cy * w + cx) * 4) as usize;
@@ -268,27 +289,29 @@ fn capture_at(x: i32, y: i32, size: Option<u32>, format: Option<String>) -> Resu
     let base64_png = STANDARD.encode(&png_bytes);
     let data_url = format!("data:image/png;base64,{}", base64_png);
 
-    // Simple mock formatting: support "hex" (default) and "rgb"
     let fmt = format.unwrap_or_else(|| "hex".to_string());
-    let formatted = match fmt.as_str() {
-        "rgb" => Some(format!("rgb({}, {}, {})", r, g, b)),
-        _ => Some(color_hex.clone()),
-    };
 
     Ok(CaptureData {
         base: color_hex.clone(),
         displayed: color_hex,
         luminance: Luminance {
-			tint: 0,
-			shade: 0,
-		},
-		alpha: 100,
-		format: String::from("hex"),
+            tint: 0,
+            shade: 0,
+        },
+        alpha: 100,
+        format: String::from("hex"),
         image: data_url,
     })
 }
 
+/// Запускает фоновый поток непрерывного захвата цвета под курсором.
+/// @param window_name Имя окна, куда отправлять события с кадрами.
+/// @param fps         Частота кадров (5–60, по умолчанию 12).
+/// @param size        Размер области захвата (опционально, ограничивается min/max).
+/// @param format      Формат цвета "hex" или "rgb" (опционально).
+/// @returns {void} Поток запущен или уже был активен.
 #[tauri::command]
+#[specta::specta]
 fn start_capture_stream(
     app_handle: AppHandle,
     state: State<Arc<CaptureStreamState>>,
@@ -298,10 +321,9 @@ fn start_capture_stream(
     format: Option<String>,
 ) -> Result<(), String> {
     if state.is_running.swap(true, Ordering::SeqCst) {
-        return Ok(()); // already running
+        return Ok(());
     }
 
-    // Clamp and store initial parameters
     const MIN_FPS: u32 = 5;
     const MAX_FPS: u32 = 60;
 
@@ -343,7 +365,7 @@ fn start_capture_stream(
                 let size_cur = *state_clone.capture_size.lock().unwrap();
                 let fmt_cur = state_clone.color_format.lock().unwrap().clone();
                 let frame_start = std::time::Instant::now();
-                if let Ok(data) = capture_at(x as i32, y as i32, Some(size_cur), Some(fmt_cur)) {
+                if let Ok(data) = capture_cursor_area(x as i32, y as i32, Some(size_cur), Some(fmt_cur)) {
                     let mut last = state_clone.last_image.lock().unwrap();
                     if last.as_ref().map(|s| s.as_str()) != Some(data.image.as_str()) {
                         *last = Some(data.image.clone());
@@ -361,26 +383,25 @@ fn start_capture_stream(
                     }
                 }
 
-                // Adaptive FPS adjustment based on processing time
                 let process_ms = frame_start.elapsed().as_millis() as u64;
                 frames_since_adjust += 1;
                 if frames_since_adjust >= 5 {
                     frames_since_adjust = 0;
                     let mut fps_lock = state_clone.fps.lock().unwrap();
                     let mut fps_val = *fps_lock;
-                    // If processing exceeds current interval notably, decrease FPS
                     if process_ms > interval_ms {
-                        // drop by 2 fps steps
-                        if fps_val > MIN_FPS { fps_val = fps_val.saturating_sub(2); }
+                        if fps_val > MIN_FPS {
+                            fps_val = fps_val.saturating_sub(2);
+                        }
                     } else if process_ms * 2 + 2 < interval_ms {
-                        // If we have a lot of headroom, increase FPS by 1
-                        if fps_val < MAX_FPS { fps_val = fps_val.saturating_add(1); }
+                        if fps_val < MAX_FPS {
+                            fps_val = fps_val.saturating_add(1);
+                        }
                     }
                     *fps_lock = fps_val;
                     interval_ms = (1000 / fps_val.max(1)) as u64;
                 }
             }
-
             std::thread::sleep(std::time::Duration::from_millis(4));
         }
     });
@@ -389,14 +410,20 @@ fn start_capture_stream(
     Ok(())
 }
 
+/// Останавливает активный поток захвата цвета.
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 fn stop_capture_stream(state: State<Arc<CaptureStreamState>>) -> Result<(), String> {
     state.is_running.store(false, Ordering::SeqCst);
-    // We don't join the handle to avoid blocking; it will finish on its own.
     Ok(())
 }
 
+/// Изменяет размер области захвата во время работы потока.
+/// @param size Новый размер (будет ограничен min..max).
+/// @returns {void}
 #[tauri::command]
+#[specta::specta]
 fn update_capture_size(state: State<Arc<CaptureStreamState>>, size: u32) -> Result<(), String> {
     let min_sz = *state.min_size.lock().map_err(|e| e.to_string())?;
     let max_sz = *state.max_size.lock().map_err(|e| e.to_string())?;
@@ -405,16 +432,34 @@ fn update_capture_size(state: State<Arc<CaptureStreamState>>, size: u32) -> Resu
     Ok(())
 }
 
+/// Изменяет формат представления цвета во время работы потока.
+/// @param format Новый формат ("hex" или "rgb"). Если не указан, сбрасывается на "hex".
+/// @returns {void}
 #[tauri::command]
-fn update_color_format(state: State<Arc<CaptureStreamState>>, format: Option<String>) -> Result<(), String> {
+#[specta::specta]
+fn update_color_format(
+    state: State<Arc<CaptureStreamState>>,
+    format: Option<String>,
+) -> Result<(), String> {
     let mut lock = state.color_format.lock().map_err(|e| e.to_string())?;
     *lock = format.unwrap_or_else(|| "hex".to_string());
     Ok(())
 }
 
+/// Задаёт допустимые пределы размера области захвата.
+/// @param min_size Минимально разрешённый размер.
+/// @param max_size Максимально разрешённый размер.
+/// @returns {void} Ошибка, если min_size > max_size или одно из значений равно 0.
 #[tauri::command]
-fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, max_size: u32) -> Result<(), String> {
-    if min_size == 0 || max_size == 0 || min_size > max_size { return Err("invalid limits".to_string()); }
+#[specta::specta]
+fn update_capture_limits(
+    state: State<Arc<CaptureStreamState>>,
+    min_size: u32,
+    max_size: u32,
+) -> Result<(), String> {
+    if min_size == 0 || max_size == 0 || min_size > max_size {
+        return Err("invalid limits".to_string());
+    }
     {
         let mut min_lock = state.min_size.lock().map_err(|e| e.to_string())?;
         *min_lock = min_size;
@@ -423,7 +468,6 @@ fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, m
         let mut max_lock = state.max_size.lock().map_err(|e| e.to_string())?;
         *max_lock = max_size;
     }
-    // Also clamp current capture size into new range
     {
         let min_sz = *state.min_size.lock().map_err(|e| e.to_string())?;
         let max_sz = *state.max_size.lock().map_err(|e| e.to_string())?;
@@ -436,17 +480,25 @@ fn update_capture_limits(state: State<Arc<CaptureStreamState>>, min_size: u32, m
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let specta_builder = Builder::<tauri::Wry>::new()
-        // This enables `Date`, `Uint8Array`, and `URL` for supported types.
-        // .semantic_types(semantic::Configuration::default())
-        // This can be used if you don't want per-phase (Serialize/Deserialize) types.
-        // .disable_serde_phases()
         .commands(tauri_specta::collect_commands![
             greet,
+            set_window_size,
+            exit_app,
+            minimize_window,
+            show_window,
+            capture_cursor_area,
+            create_overlay,
+            close_overlay,
+            send_cursor_position,
+            start_capture_stream,
+            stop_capture_stream,
+            update_capture_size,
+            update_color_format,
+            update_capture_limits,
         ]);
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        // .plugin(specta_builder.into())   // 👈 подключаем specta
         .manage(Arc::new(CaptureStreamState::new()))
         .invoke_handler(tauri::generate_handler![
             greet,
@@ -465,14 +517,12 @@ pub fn run() {
             update_capture_limits,
         ])
         .setup(move |app| {
-            // 🔥 Генерация TypeScript-биндингов с документацией
             #[cfg(debug_assertions)]
             {
                 specta_builder.export(Typescript::default(), "../src/bindings.ts")
                     .expect("Failed to export specta bindings");
             }
 
-            // Ваш старый код (настройка DevTools)
             match setup_config() {
                 Ok(()) => {
                     if let Ok(config) = get_config() {
