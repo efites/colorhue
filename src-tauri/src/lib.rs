@@ -1,3 +1,4 @@
+use specta::Type;
 use tauri::{AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder, Window};
 use serde_json::json;
 use once_cell::sync::OnceCell;
@@ -20,8 +21,7 @@ struct Luminance {
     shade: u32,
 }
 
-// #[derive(Serialize)]
-#[derive(Serialize, specta::Type)]
+#[derive(Serialize, specta::Type, Event)]
 struct CaptureData {
     base: String,
     displayed: String,
@@ -29,6 +29,15 @@ struct CaptureData {
     alpha: u32,
     luminance: Luminance,
     image: String, // data:image/png;base64,<...>
+}
+
+#[derive(Serialize, specta::Type, Event)]
+struct IColor {
+    base: String,
+    displayed: String,
+    format: String,
+    alpha: u32,
+    luminance: Luminance,
 }
 
 struct CaptureStreamState {
@@ -81,6 +90,46 @@ pub struct Overlay {
     pub height: i32,
 }
 
+#[derive(Type)]
+#[allow(dead_code)]
+pub struct Custom(String);
+#[derive(Type)]
+pub struct NewType {
+	asd: String,
+}
+
+/// Мусорная функция для использования типа IColor.
+#[tauri::command]
+#[specta::specta]
+fn trash()-> Result<IColor, String> {
+	Ok(IColor {
+		base: String::from("#FF0000"),
+		displayed: String::from("red"),
+		format: String::from("hex"),
+		alpha: 100,
+		luminance: Luminance {
+			tint: 0,
+			shade: 0,
+		},
+	})
+}
+
+#[derive(Serialize, specta::Type)]
+pub enum Harmony {
+    #[serde(rename = "monochrome")]
+    Monochrome,
+    #[serde(rename = "complementary")]
+    Complementary,
+    #[serde(rename = "analog")]
+    Analog,
+    #[serde(rename = "tetrad")]
+    Tetrad,
+    #[serde(rename = "triad")]
+    Triad,
+    #[serde(rename = "analog-complementary")]
+    AnalogComplementary,
+}
+
 pub fn init_config(config: AppConfig) -> Result<(), String> {
     let cell = APP_CONFIG.get_or_init(|| Mutex::new(None));
     let mut config_guard = cell.lock().map_err(|e| e.to_string())?;
@@ -112,7 +161,8 @@ pub fn setup_config() -> Result<(), String> {
         .map_err(|e| format!("Failed to read config file: {}", e))?;
     let config: AppConfig = serde_json::from_str(&config_content)
         .map_err(|e| format!("Failed to parse config JSON: {}", e))?;
-    init_config(config)
+    init_config(config);
+	Ok(())
 }
 
 /// Устанавливает размеры главного окна.
@@ -495,27 +545,32 @@ pub fn run() {
             update_capture_size,
             update_color_format,
             update_capture_limits,
-        ]);
+			trash,
+        ])
+		.typ::<Custom>()
+		.typ::<Harmony>()
+		.typ::<NewType>();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(Arc::new(CaptureStreamState::new()))
-        .invoke_handler(tauri::generate_handler![
-            greet,
-            set_window_size,
-            exit_app,
-            minimize_window,
-            show_window,
-            capture_cursor_area,
-            create_overlay,
-            close_overlay,
-            send_cursor_position,
-            start_capture_stream,
-            stop_capture_stream,
-            update_capture_size,
-            update_color_format,
-            update_capture_limits,
-        ])
+        // .invoke_handler(tauri::generate_handler![
+        //     greet,
+        //     set_window_size,
+        //     exit_app,
+        //     minimize_window,
+        //     show_window,
+        //     capture_cursor_area,
+        //     create_overlay,
+        //     close_overlay,
+        //     send_cursor_position,
+        //     start_capture_stream,
+        //     stop_capture_stream,
+        //     update_capture_size,
+        //     update_color_format,
+        //     update_capture_limits,
+		// 	trash,
+        // ])
         .setup(move |app| {
             #[cfg(debug_assertions)]
             {

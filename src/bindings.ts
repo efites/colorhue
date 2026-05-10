@@ -94,6 +94,8 @@ export const commands = {
 	 *  @returns {void} Ошибка, если min_size > max_size или одно из значений равно 0.
 	 */
 	updateCaptureLimits: (minSize: number, maxSize: number) => typedError<null, string>(__TAURI_INVOKE("update_capture_limits", { minSize, maxSize })),
+	// Мусорная функция для использования типа IColor.
+	trash: () => typedError<IColor, string>(__TAURI_INVOKE("trash")),
 };
 
 /* Types */
@@ -106,9 +108,25 @@ export type CaptureData = {
 	image: string,
 };
 
+export type Custom = string;
+
+export type Harmony = "monochrome" | "complementary" | "analog" | "tetrad" | "triad" | "analog-complementary";
+
+export type IColor = {
+	base: string,
+	displayed: string,
+	format: string,
+	alpha: number,
+	luminance: Luminance,
+};
+
 export type Luminance = {
 	tint: number,
 	shade: number,
+};
+
+export type NewType = {
+	asd: string,
 };
 
 /* Tauri Specta runtime */
